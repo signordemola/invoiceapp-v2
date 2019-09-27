@@ -182,7 +182,7 @@ from email.mime.multipart import MIMEMultipart
 
 
 def send_email(filename, receiver_email, msg_subject, 
-			   email_body, email_filename):
+			   email_body, email_filename=""):
 	
 	email_params = get_config('email')
 
