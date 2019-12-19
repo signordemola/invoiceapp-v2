@@ -1,9 +1,29 @@
 
 import os
 import argparse
+import logging
+from werkzeug.debug import DebuggedApplication
+
 
 from applib.main import app, db
 from applib.lib.helper import get_config, set_db_uri
+
+
+def create_app(): 
+    
+    cfg = get_config('server')
+    app.config.update(
+        **cfg
+    )
+ 
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
+    if app.debug:
+        app.wsgi_app = DebuggedApplication(app.wsgi_app, evalex=True)
+
+    return app
 
 
 # +-------------------------+-------------------------+
@@ -24,8 +44,9 @@ def main():
         return
 
     # main app starts here
-    app.config.update(get_config('server'))
-    app.run()
+    
+    create_app().run()
+
 
 
 def get_commands():
@@ -38,6 +59,9 @@ def get_commands():
     parser.add_argument('-d', "--drop_tl", action='store_true',
                         help='pass this argument to drop all existing tables',
                         default=False)
+
+    
+
 
     return parser.parse_args()
 
