@@ -262,7 +262,7 @@ def generate_pdf(_template, args, kwargs, email_body_template):
 			fl.write(_template)
 
 		bin_path = "./tmp/wkhtmltox/bin/wkhtmltopdf"
-		sc.call[bin_path, file_path, pdf_output]
+		sc.call([bin_path, file_path, pdf_output])
 
 	else:
 		pdfkit.from_string(_template, pdf_output)
