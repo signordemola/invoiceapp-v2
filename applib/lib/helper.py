@@ -26,6 +26,9 @@ import os
 import subprocess
 import pdfkit
 import base64
+from sqlalchemy_pagination import paginate
+
+
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -283,5 +286,29 @@ def comma_separation(amt):
 	_len = len(str(amt))
 	fmt = '{:' + str(_len) + ',.2f}' 
 	return fmt.format(float(amt))
+
+
+
+
+def set_pagination(obj, cur_page, page_size=10):
+	
+	pg = abs(cur_page)
+	pager = paginate(obj, pg, page_size)
+ 
+	start_no = pg - 1 
+	if start_no < 1:
+		start_no = pg
+
+	counter = 0
+	page_lists = []
+
+	for x in range(start_no, pager.pages + 1 ):
+		page_lists.append(x)
+		counter += 1 
+		if counter > 7:
+			break
+
+
+	return  pager, page_lists
 
 

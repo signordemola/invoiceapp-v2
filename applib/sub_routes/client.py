@@ -12,7 +12,7 @@ from flask import (Blueprint, request, url_for,
 from applib.model import db_session
 from applib import model as m 
 from applib.forms import CreateClientForm
-from applib.lib.helper import get_config, date_format
+from applib.lib.helper import get_config, date_format, set_pagination
 
 # from applib.main import login_manager
 
@@ -78,14 +78,20 @@ def edit_client(client_id):
 @login_required
 def client_list():
 
+    cur_page = request.args.get('page', 1, int)
+
     with m.sql_cursor() as db:
         qry = db.query(m.Client.id, m.Client.name,                         
                        m.Client.address, m.Client.email,
                        m.Client.phone, m.Client.date_created
-                       ).order_by(m.Client.id.desc()
-                                  ).limit(50).all()
+                       ).order_by(m.Client.id.desc())
+            
+
+        qry , page_row = set_pagination(qry, cur_page)          
 
 
-    return render_template("client.html", data=qry, date_format=date_format)
+    return render_template("client.html", pager=qry, 
+                            page_row=page_row, cur_page=cur_page,
+                            date_format=date_format)
 
 
