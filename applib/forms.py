@@ -66,20 +66,6 @@ class CustomerForm(Form):
     postal_code = IntegerField('postal_code')
 
 
-# class ItemsForm(Form):
-#     desc = StringField('desc', [input_required()])
-#     qty = IntegerField('qty', [input_required()])
-#     rate = IntegerField('rate', [input_required()])
-#     amount = StringField('amount', [input_required(), length()])
-
-#     def validate_amount(form, field):
-        
-#         try:
-#             float(field.data)
-#         except Exception as e:
-#             raise ValidationError('Invalid amount value specified.')
-
-
 class ItemForm(Form):
     client_name = StringField('Client Name :', 
                                 render_kw={"class_": "form-control", 
@@ -218,7 +204,14 @@ class ExpenseForm(Form):
     status = SelectField("Status", [input_required()], coerce=int, 
                          choices=[(1, "Pending"), (2, "Approved"), (3, "Denied")], 
                          render_kw={"class_": "form-control"})
-    
+    payment_type = SelectField("Payment Type", [input_required()], coerce=int, 
+                                choices=[(0, "Select Type"), (1, "Office Expenses"), 
+                                         (2, 'Salary Payment'), (3, "Bonus Payout"), 
+                                         (4, "Miscellenous"),(5, "Vat Remittance")
+                                        ],
+                                render_kw={"class_": "form-control"}
+                               )
+
     aproved_by = StringField("Approved By", render_kw={"class_": "form-control"})
     
      
