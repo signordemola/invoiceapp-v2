@@ -113,12 +113,54 @@
 		{% endfor %}
 
 	{% endmacro %}
+	
+	{% macro pagination(obj, url) %}
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-8" style="padding: 0px;">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination pagination-sm" style="margin-bottom: 0px;">
+                            <li class="page-item">
+                                <a class="page-link" href="{{url_for(url, page=obj.previous_page)}}" tabindex="-1" aria-disabled="true">Previous</a>
+                            </li>
+                            {% for page in page_row %}
+                            {% if cur_page == page %}
+                            <li class="page-item active">
+                                <a class="page-link" href="{{url_for(url, page=page)}}">{{page}} </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{url_for(url, page=page)}}">{{page}} </a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                             <li class="page-item">
+                                <a class="page-link" href="#"> ... </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="{{url_for(url, page=obj.next_page)}}"> Next</a>
+                            </li>
+                        </ul>
+                        
+                    </nav>
+                </div>
+                <div class="col-4" style="padding: 0px; text-align: right;">
+                    Total Records : {{ obj.total }}
+                </div>
+            </div>
+        </div>
+        
+    {% endmacro %}
+
+
+
 
 	{% block side_menu %} 
 	
 	<div id="mySidenav" class="sidenav">
 
-		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()"       onmouseover="this.style.backgroundColor='transparent';">
+		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()"  
+		    onmouseover="this.style.backgroundColor='transparent';">
 			&times;
 		</a>
 
@@ -182,14 +224,14 @@
 	{% endblock %}
 
 	<div class="container">
-	<div class="row">
-		{% block main %}{% endblock %}
-	</div>
+		<div class="row">
+			{% block main %}{% endblock %}
+		</div>
 	</div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/ --><!-- bootstrap.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 		function openNav() {
 		  document.getElementById("mySidenav").style.width = "250px";
@@ -206,7 +248,6 @@
 	
 	{% block script_files %}
 	{% endblock %}
-
 
 
 </body>

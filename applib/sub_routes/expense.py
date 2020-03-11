@@ -20,18 +20,26 @@ def index():
     qry = None
     form = ExpenseForm(request.form)
     status = { x[0]: x[1] for x in form.status.choices}
+    cur_page = request.args.get('page', 1, int)
 
     with m.sql_cursor() as db:
         qry = db.query(m.Expense.id, m.Expense.title,
                 m.Expense.desc, m.Expense.date_created, m.Expense.requested_by,
                 m.Expense.status, m.Expense.aproved_by
-                ).order_by(m.Expense.id.desc()).limit(10).all()
-   
+                ).order_by(m.Expense.id.desc())
+
+        qry, page_row = h.set_pagination(qry, cur_page, 10)        
+
+    
     if request.args.get("msg"):
         flash(request.args.get("msg"))
 
-    return render_template("expense.html", data=qry, status_label=status, 
+
+    return render_template("expense.html", pager=qry, page_row=page_row, 
+                            cur_page=cur_page,
+                            status_label=status, 
                             date_format=h.date_format)
+
 
 
 @mod.route("/add", methods=["GET", "POST"])

@@ -26,7 +26,7 @@
 				</thead>
 				<tbody>
 					{% set payment_status = {1: 'P', 2: 'P'} %}
-					{% for val in value %}
+					{% for val in pager.items %}
 						<tr>
 
 							<td> {{ val.date_value.strftime(
@@ -73,6 +73,9 @@
 					{% endfor %}
 				</tbody>
 			</table>
+
+			{{ pagination(pager, 'invoice.index') }}
+
 		</div>
 
 	</div> 

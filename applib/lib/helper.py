@@ -3,7 +3,21 @@ from configobj import ConfigObj
 
 from passlib.hash import pbkdf2_sha256
 
-from flask import session, url_for 
+from flask import url_for 
+
+import email, smtplib, ssl
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+from jinja2 import Template
+from jinja2 import Environment, PackageLoader, FileSystemLoader
+import random 
+import subprocess as sc 
+
+
 import datetime
 import urllib 
 import base64
@@ -12,6 +26,9 @@ import os
 import subprocess
 import pdfkit
 import base64
+from sqlalchemy_pagination import paginate
+
+
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -112,20 +129,6 @@ def validate_hash(passwd, hash):
 	return pbkdf2_sha256.verify(passwd.encode('utf-8'), hash.encode('utf-8'))
 
 # +-------------------------+-------------------------+
-# set and delete session 
-# +-------------------------+-------------------------+
-
-# def set_session(site, name, val):
-#     session['%s_%d'%(name, site)] = val
-
-
-# def del_session(site, name):
-#     del session['%s_%d'%(name, site)]
-
-# def get_session(site, name):
-#     return session['%s_%d'%(name, site)]
-
-# +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
 
@@ -174,15 +177,9 @@ def decode_param(value):
 	return out
 
 
-import email, smtplib, ssl
-from email import encoders
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
 
 def send_email(filename, receiver_email, msg_subject, 
-			   email_body, email_filename):
+			   email_body, email_filename=""):
 	
 	email_params = get_config('email')
 
@@ -246,10 +243,6 @@ def calc_discount(query_disc_type, query_disc_value, query_sub_total):
 
 
 
-from jinja2 import Template
-from jinja2 import Environment, PackageLoader, FileSystemLoader
-import random 
-
 
 
 def generate_pdf(_template, args, kwargs, email_body_template):
@@ -259,9 +252,24 @@ def generate_pdf(_template, args, kwargs, email_body_template):
 	template = env.get_template(_template)
 	_template = template.render(posts=args, **kwargs)
 	
+	file_prefix = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
 	pdf_output = '{}_{}.pdf'.format(kwargs['type'], 
-									datetime.datetime.now().strftime("%b.%m.%Y.%S"))
-	pdfkit.from_string(_template, pdf_output, {'orientation': 'Portrait'})
+								file_prefix)
+
+	mode = get_config("mode")
+
+	if mode == '1':
+		file_path = 'tmp/content{}.html'.format(file_prefix)
+		with open(file_path, 'w') as fl:
+			fl.write(_template)
+
+		bin_path = "./tmp/wkhtmltox/bin/wkhtmltopdf"
+		sc.call([bin_path, file_path, pdf_output])
+
+	else:
+		pdfkit.from_string(_template, pdf_output)
+	
 
 	message_subject = kwargs['type']+" Generated for "+ kwargs['name'].upper()
 
@@ -278,5 +286,29 @@ def comma_separation(amt):
 	_len = len(str(amt))
 	fmt = '{:' + str(_len) + ',.2f}' 
 	return fmt.format(float(amt))
+
+
+
+
+def set_pagination(obj, cur_page, page_size=10):
+	
+	pg = abs(cur_page)
+	pager = paginate(obj, pg, page_size)
+ 
+	start_no = pg - 1 
+	if start_no < 1:
+		start_no = pg
+
+	counter = 0
+	page_lists = []
+
+	for x in range(start_no, pager.pages + 1 ):
+		page_lists.append(x)
+		counter += 1 
+		if counter > 7:
+			break
+
+
+	return  pager, page_lists
 
 

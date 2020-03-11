@@ -157,6 +157,11 @@ class Expense(db.Model):
     status = Column(Integer, nullable=False, default=0)
     aproved_by = Column(String(100), nullable=False)
     amount = Column(String(100), nullable=False)
+    
+    # 2, salary payment, 3 bonus payment
+    # 4 miscellinous payments  and 5 vat remittance payments 
+    
+    payment_type =Column(Integer)  # 1 for Office expenses 
 
 
 class Payment(db.Model):
@@ -173,7 +178,7 @@ class Payment(db.Model):
     balance = Column(String(30))
     invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.inv_id'), nullable=False)
     status = Column(Integer, nullable=False, default=0)
-
+    
 
 class EmailReceipt(db.Model):
 

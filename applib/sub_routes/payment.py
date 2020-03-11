@@ -6,7 +6,9 @@ import applib.model as m
 from applib.forms import PaymentForm, CreateInvoiceForm
 from applib.lib import helper as h 
 from applib.lib.helper import (get_config, send_email, calc_discount,
-								set_email_read_feedback, generate_pdf, comma_separation)
+								set_email_read_feedback, generate_pdf, 
+								comma_separation, set_pagination)
+
 from flask_login import login_required
 
 import os
@@ -27,6 +29,7 @@ mod = Blueprint('payment', __name__, url_prefix='/admin/payment')
 def index():
 	form = PaymentForm(request.form)
 	status = { x[0]: x[1] for x in form.status.choices}
+	cur_page = request.args.get('page', 1, int)
 
 
 	with m.sql_cursor() as db:
@@ -45,7 +48,9 @@ def index():
 							 ).join(m.Client,
 									m.Client.id == m.Invoice.client_id
 									).filter(m.Payment.invoice_id == m.Invoice.inv_id
-									).order_by(m.Invoice.inv_id.desc()).limit(10).all()
+									).order_by(m.Invoice.inv_id.desc())
+		
+		qry, page_row = set_pagination(qry, cur_page)									
 
 
 	msg = request.args.get("msg")
@@ -54,7 +59,9 @@ def index():
 
 
 	return render_template('payment.html', data=qry, status_label=status,
-							date_format=h.date_format)
+							date_format=h.date_format, pager=qry, 
+							page_row=page_row, cur_page=cur_page
+						)
 
 
 @mod.route("/add/<int:invoice_id>/<invoice_name>", methods=["POST", "GET"])

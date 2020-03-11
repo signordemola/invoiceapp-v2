@@ -19,7 +19,8 @@ from applib.model import db_session
 from applib import model as m 
 from applib.forms import CreateInvoiceForm
 from applib.lib.helper import (get_config, send_email, calc_discount, 
-                        set_email_read_feedback, generate_pdf, comma_separation)
+                        set_email_read_feedback, generate_pdf, comma_separation,
+                        set_pagination)
 
 
 from flask_login import login_required
@@ -38,6 +39,7 @@ mod = Blueprint('invoice', __name__, url_prefix='/admin/invoice')
 def index():
 
     posts=[]
+    cur_page = request.args.get('page', 1, int)
 
     with m.sql_cursor() as db:
         #select query from invoice
@@ -62,14 +64,20 @@ def index():
                                              m.Invoice.client_id == m.Client.id
                                             ).order_by(
                                                         m.Invoice.inv_id.desc()
-                                                       ).all()
+                                                       )
+        
+        qry, page_row = set_pagination(qry, cur_page, 10)
+
 
                                   
     msg = request.args.get('msg')
     if msg:
         flash(msg)
 
-    return render_template('index.html', value=qry)
+    return render_template('index.html',
+                            pager=qry, page_row=page_row, 
+                            cur_page=cur_page)
+
 
 
 @mod.route('/checkout/<int:invoice_id>', methods=['POST', 'GET'])

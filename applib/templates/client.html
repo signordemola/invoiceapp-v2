@@ -22,7 +22,7 @@
 		</tr>
 		</thead>
 		<tbody>
-		{% for item in data %}
+		{% for item in pager.items %}
 			<tr>
 				<td> {{ date_format(item.date_created) }} </td>
 				<td> <b><a href="{{url_for('client.edit_client', client_id=item.id)}}" title="Edit Client"> 
@@ -39,7 +39,12 @@
 		</tbody>
 
 	</table>
+	
+
+	{{ pagination(pager, "client.client_list") }}
+
 </div>
+
 
 
 {% endblock %}
