@@ -90,7 +90,8 @@ class Invoice(db.Model):
 
     inv_id = Column(BigInteger, Sequence('invoice_inv_id_seq'), primary_key=True)    
     disc_type = Column(String(10))    
-    disc_value = Column(String(10))   
+    disc_value = Column(String(10)) 
+    disc_desc = Column(Text)  
     purchase_no = Column(Integer)  
     invoice_no = Column(String(30))   
     date_value = Column(DateTime())  
@@ -134,7 +135,7 @@ class Client(db.Model):
     name = Column(String(150), nullable=False)
     address = Column(Text, nullable=False)    
     email = Column(String(150), nullable=False) 
-    phone = Column(String(20), nullable=False)        
+    phone = Column(String(25), nullable=False)        
     post_addr = Column(String(20), nullable=False) 
     date_created = Column(DateTime(), nullable=False)
     invoice = db.relationship('Invoice', backref='client', lazy=True)

@@ -204,7 +204,8 @@ def add_discount(invoice_id):
                 #sql update query
                 output.update({
                             'disc_type' : form.discount_type.data,
-                            'disc_value' : form.discount.data,                      
+                            'disc_value' : form.discount.data,
+                            'disc_desc' : form.disc_desc.data,                     
                         })   
                 return redirect(url_for('invoice.checkout', invoice_id=temp_output.inv_id))        
 
@@ -229,7 +230,8 @@ def delete_discount(invoice_id):
                                     ).update(
                                                 {
                                                     'disc_type' : None ,
-                                                    'disc_value' : None                       
+                                                    'disc_value' : None ,
+                                                    'disc_desc' : None,                       
                                                 }
                                             )
 

@@ -22,7 +22,7 @@ def input_required():
 
 
 
-def length( min=3, max=12 ):
+def length( min=3, max=25 ):
 
     def _length(form, field):
 
@@ -115,6 +115,10 @@ class DiscountFrm(Form):
     new_total = IntegerField('New Total :', 
                              render_kw={"class_": "form-control", 
                                         "readonly": "readonly"})
+
+    disc_desc = TextAreaField("Description", [input_required()], 
+                         render_kw={"class_": "form-control",
+                                    "autocomplete": "off"})
 
 
 class CreateClientForm(Form):

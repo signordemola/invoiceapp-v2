@@ -127,8 +127,9 @@
 				<table class="table table-striped table-condensed table-hover">
 					<thead>
 						<tr> 
+							<th>Label</th>					
 							<th>Discount</th>
-							<th>Value </th>						
+							<th>Value</th>	
 						</tr>
 					</thead>
 					<tbody>
@@ -137,10 +138,13 @@
 						{% if query_obj.disc_value %}
 							<tr>
 								<td>
+									{{ query_obj.disc_desc | truncate(40) }}
+								</td>
+								<td>
 									<p style="margin-bottom: 0px;">  
 										{{ query_obj.disc_value }} 
-										<label 
-											class="badge badge-info"> {{ disc_symbol[query_obj.disc_type] }}  
+										<label class="badge badge-info">
+											{{ disc_symbol[query_obj.disc_type] }}  
 										</label>
 									</p>
 								</td>
