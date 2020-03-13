@@ -138,7 +138,10 @@
 						{% if query_obj.disc_value %}
 							<tr>
 								<td>
-									{{ query_obj.disc_desc | truncate(40) }}
+									<i>
+										{{ query_obj.disc_desc | truncate(40) or 'none specified'}}
+									</i>
+									
 								</td>
 								<td>
 									<p style="margin-bottom: 0px;">  
