@@ -84,12 +84,12 @@ class ItemForm(Form):
                                             "autocomplete": "new-password"})
 
     rate = IntegerField('Rate :', [input_required(), check_sign()], 
-                                render_kw={"class_": "form-control", 
-                                            "autocomplete": "new-password"})
+                        render_kw={"class_": "form-control", 
+                                   "autocomplete": "new-password"})
     
     amt = IntegerField('Amount :', 
-                                render_kw={"class_": "form-control", 
-                                            "readonly": "readonly"})
+                        render_kw={"class_": "form-control", 
+                                   "readonly": "readonly"})
 
 
 class DiscountFrm(Form):
