@@ -116,7 +116,7 @@ class DiscountFrm(Form):
                              render_kw={"class_": "form-control", 
                                         "readonly": "readonly"})
 
-    disc_desc = TextAreaField("Description", [input_required()], 
+    disc_desc = TextAreaField("Description", [], 
                          render_kw={"class_": "form-control",
                                     "autocomplete": "off"})
 
