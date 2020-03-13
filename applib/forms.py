@@ -2,7 +2,7 @@ from wtforms import Form, validators, Field
 from wtforms.fields import (BooleanField, StringField, 
                             TextField, SubmitField, DateField, 
                             IntegerField, TextAreaField, SelectField,
-                            HiddenField, DateTimeField,PasswordField)
+                            HiddenField, DateTimeField,PasswordField, FloatField)
 from wtforms.validators import input_required, Email, Length, ValidationError
 
 from wtforms import form, validators, fields
@@ -84,12 +84,12 @@ class ItemForm(Form):
                                             "autocomplete": "new-password"})
 
     rate = IntegerField('Rate :', [input_required(), check_sign()], 
-                                render_kw={"class_": "form-control", 
-                                            "autocomplete": "new-password"})
+                        render_kw={"class_": "form-control", 
+                                   "autocomplete": "new-password"})
     
     amt = IntegerField('Amount :', 
-                                render_kw={"class_": "form-control", 
-                                            "readonly": "readonly"})
+                        render_kw={"class_": "form-control", 
+                                   "readonly": "readonly"})
 
 
 class DiscountFrm(Form):
@@ -116,8 +116,8 @@ class DiscountFrm(Form):
                              render_kw={"class_": "form-control", 
                                         "readonly": "readonly"})
 
-    disc_desc = TextAreaField("Description", 
-                         render_kw={"class_": "form-control",
+    disc_desc = TextAreaField("Description", [], 
+                             render_kw={"class_": "form-control",
                                     "autocomplete": "off"})
 
 
@@ -243,12 +243,12 @@ class PaymentForm(Form):
                                         (3, "Online Merchant"), (4, "Cheque")],
                                 render_kw={"class_": "form-control"})
 
-    amount_paid = IntegerField("Amount Paid",
+    amount_paid = FloatField("Amount Paid",
                                 [input_required(), check_sign()], 
                                 render_kw={"class_": "form-control",
                                            "autocomplete": "new-password"})
 
-    balance = IntegerField("Balance", 
+    balance = FloatField("Balance", 
                                 render_kw={"class_": "form-control",
                                            "readonly": "readonly",
                                            "autocomplete": "new-password"})

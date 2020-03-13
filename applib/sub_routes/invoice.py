@@ -86,6 +86,7 @@ def checkout(invoice_id):
 
     form = CreateInvoiceForm()
     currency_label = {x[0]: x[1] for x in form.currency.choices}
+    client_type_label = {x[0]: x[1] for x in form.client_type.choices}
 
     with m.sql_cursor() as db:
         
@@ -98,6 +99,7 @@ def checkout(invoice_id):
                                             m.Invoice.disc_type,
                                             m.Invoice.disc_desc, 
                                             m.Invoice.currency,
+                                            m.Invoice.client_type,
                                             m.Client.address,
                                             m.Client.post_addr,
                                             m.Client.name,
@@ -139,6 +141,8 @@ def checkout(invoice_id):
 
         _amount = 0
         total = 0
+        vat = 0
+        vat_total = 0
 
         for x in item_for_amount:
             _amount += float(x.amount)
@@ -148,7 +152,17 @@ def checkout(invoice_id):
                                          client_invoice_details.disc_value, _amount)
 
         total = _amount - float(data['discount'])
+
+        if client_invoice_details.client_type == 1:
+            vat = - 0.075 * total
+            vat_total = total
+        else:
+            vat = + 0.075 * total
+            vat_total = total + vat
+
+        data['vat'] = vat
         data['total'] = total
+        data['vat_total'] = vat_total
 
         if request.method == 'POST':
 

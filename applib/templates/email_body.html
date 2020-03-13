@@ -72,7 +72,7 @@
 										<br />
 
 										{% if discount %}
-                              Discount Label : {{ discount_description }}
+                              Discount Label : {{ discount_description or 'Discount' }}
 
                               <br />
 
@@ -81,7 +81,15 @@
 
 										<br />
 
-										Total Amount:   <b> {{ cur_fmt(total) }} {{ currency }} </b>  <br />
+                              VAT(7.5%) : {{ cur_fmt(vat) }} {{ currency }}
+
+                              <br />
+
+                              Subtotal : {{ cur_fmt(total) }} {{ currency }} 
+
+                              <br />
+
+										Total Amount :  <b> {{ cur_fmt(vat_total) }} {{ currency }} </b>  <br />
 
 
 										<br />

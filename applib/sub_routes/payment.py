@@ -78,19 +78,35 @@ def add(invoice_name, invoice_id):
 		invoice_query = db.query( m.Invoice.inv_id,
 								  m.Invoice.disc_type, 
 								  m.Invoice.disc_value,
+								  m.Invoice.client_type,
 								  m.Invoice.currency).filter_by(
 																inv_id=invoice_id
 																).first()
+
 		data = {}
+
 		total = 0
 		_amount = 0
+		# vat = 0
+		# vat_total = 0
+
 		for x in item_details:
 			_amount += float(x.amount) 
+
 
 		discount = calc_discount(invoice_query.disc_type, 
 								 invoice_query.disc_value, _amount)
 		
 		total = _amount - float(discount)
+		vat_total = h.total_vat_amount(invoice_query.client_type, total)
+
+		# if invoice_query.client_type == 1:
+		# 	vat = - 0.075 * total
+		# 	vat_total = total
+		# else:
+		# 	vat = + 0.075 * total
+		# 	vat_total = total + vat
+
 
 		data['cur_fmt'] = comma_separation
 		data['currency'] = currency_label[invoice_query.currency]    
@@ -110,7 +126,7 @@ def add(invoice_name, invoice_id):
 	return render_template('add_payment.html', 
 						   form=form, 
 						   title="Add Payment",
-						   total=total,
+						   total=vat_total,
 						   item_details=item_details,
 						   kwargs=data,
 						   invoice_query=invoice_query)
@@ -203,11 +219,11 @@ def receipt(invoice_id):
 										  m.Client.post_addr, m.Client.name,
 										  m.Client.email, m.Client.phone
 										).join(m.Invoice,
-							 				   m.Invoice.inv_id == m.Payment.invoice_id
-							 			).join(m.Client,
+											   m.Invoice.inv_id == m.Payment.invoice_id
+										).join(m.Client,
 											   m.Client.id == m.Invoice.client_id
 											   ).filter(
-											   		m.Payment.invoice_id == invoice_id
+													m.Payment.invoice_id == invoice_id
 													).first()
 
 		data = {

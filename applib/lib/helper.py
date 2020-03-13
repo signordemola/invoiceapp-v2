@@ -312,3 +312,17 @@ def set_pagination(obj, cur_page, page_size=10):
 	return  pager, page_lists
 
 
+
+def total_vat_amount(query_obj, total):
+
+	vat = 0
+	vat_total = 0
+
+	if query_obj == 1:
+		vat = - 0.075 * total
+		vat_total = total
+	else:
+		vat = + 0.075 * total
+		vat_total = total + vat
+
+	return vat_total
