@@ -324,5 +324,5 @@ def total_vat_amount(query_obj, total):
 	else:
 		vat = + 0.075 * total
 		vat_total = total + vat
-
+	
 	return vat_total

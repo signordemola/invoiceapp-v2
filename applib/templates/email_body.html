@@ -53,8 +53,8 @@
                      	
                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#ffffff;border-top:0px solid #ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
                            <tbody>
-                              <tr>
-                                 <td valign="top" style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
+                                <tr>
+                                    <td valign="top" style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
                                 	{% block body %}    
 	
 	                                    <p>Hi {{name}}, <br />
@@ -71,47 +71,64 @@
 
 										<br />
 
-										{% if discount %}
-                              Discount Label : {{ discount_description or 'Discount' }}
+                                
+                        <table style="border-collapse: collapse; 
+                                      display: table !important;
+                                      width: 100%; 
+                                      margin-bottom: 1rem; 
+                                      background-color: transparent; 
+                                      border-bottom-width: 2px;">
+                            <tbody> 
+                            
+                                <tr>
+                                    <td width='50%' style="text-align: center; vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;">
+                                        {% if discount %}
+                                        <b>Discount Label:</b>&nbsp; {{ discount_description or 'Discount' }}
 
-                              <br />
+                                        <br>
+                                        <br>
+                                        
+                                        <b>Discount Applied:</b>&nbsp; {{ cur_fmt(discount) }}
+                                        {% endif %}
 
-										Discount Applied :  {{ cur_fmt(discount) }}
-										{% endif %}
+                                        <br>
+                                        <br>
 
-										<br />
+                                        <b>VAT(7.5%):</b>&nbsp; {{ cur_fmt(vat) }} {{ currency }}
 
-                              VAT(7.5%) : {{ cur_fmt(vat) }} {{ currency }}
+                                        <br>
+                                        <br>
 
-                              <br />
+                                        <b>Subtotal:</b>&nbsp; {{ cur_fmt(total) }} {{ currency }} 
 
-                              Subtotal : {{ cur_fmt(total) }} {{ currency }} 
+                                        <br>
+                                        <br>
 
-                              <br />
+                                        <b>Total Amount:</b>&nbsp; {{ cur_fmt(vat_total) }} {{ currency }}
+                                    </td>
+                                </tr>
 
-										Total Amount :  <b> {{ cur_fmt(vat_total) }} {{ currency }} </b>  <br />
-
-
-										<br />
-
-
-										A PDF copy of it has been added as an attachment <br/>
-										<br />
-
-
-										Best regards,<br />
-										Ecardex Ventures
-
-                                    </p>
-                                    {% endblock %}
-                                 </td>
-                              </tr>
-                           </tbody>
+                            </tbody>
                         </table>
 
-                       
+						    {{type}} PDF copy has been added as an attachment 
+                            <br />
+							<br />
 
-                     </td>
+
+							Best regards,<br />
+							Ecardex Ventures
+
+                            </p>
+                            {% endblock %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                    </td>
                   </tr>
                   <tr>
                      <td align="center" valign="top">

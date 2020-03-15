@@ -13,26 +13,45 @@
 
 	{% endfor %}
 
-	<hr/> 
 	<br /> 
 	
-	<h3 class="text-center" style="font-weight: lighter;"> 
+	<h3 class="text-center" style="font-weight: lighter; text-align: center;"> 
 		Payment Description 
 	</h3>
-	Amount Paid: {{ cur_fmt(amount_paid) }} {{ currency }} 
 
-	<br/>
-	
-	Amount to Balance: {{ cur_fmt(amount_balance) }} {{ currency }}  
-	
-	<br />
+	<table style="border-collapse: collapse; display: table !important;
+        width: 100%; margin-bottom: 1rem; background-color: transparent; 
+        border-bottom-width: 2px;">
+        <tbody> 
+        
+            <tr>
+                <th width='50%' style="text-align: center; 
+                    vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;">
+                    Amount Paid&nbsp;
+                    <br>
+                    <br>
+                    Amount to Balance&nbsp;
+                    <br>
+                    <br>
+                    Total Amount&nbsp;
+                </th>
+                <td width='50%' style="text-align: center; vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;">
+                    {{ cur_fmt(amount_paid) }} {{ currency }} 
+                    <br>
+                    <br>
+                    {{ cur_fmt(amount_balance) }} {{ currency }}
+                    <br>
+                    <br>
+                    {{ cur_fmt(total) }} {{ currency }}
+                </td>
+            </tr>
 
-	Total Amount: {{ cur_fmt(total) }} {{ currency }}  <br />
+        </tbody>
+    </table>
 
-
-	<br />
-
-	A PDF copy of it has been added as an attachment <br/>
+	{{type}} PDF copy has been added as an attachment <br/>
 	<br />
 
 
