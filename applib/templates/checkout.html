@@ -43,7 +43,9 @@
 			<tbody>
 				{% if invoice_details or client_details %}
 					<tr>
-						<td>{{invoice_details.date_value.strftime("%Y-%m-%d")}}</td>
+						<td>
+							{{invoice_details.date_value.strftime("%Y-%m-%d")}}
+						</td>
 						<td> <b> {{client_details.name | title}} </b></td>
 						<td>{{client_details.address}}</td>
 						<td>{{client_details.email}}</td>
@@ -57,7 +59,7 @@
 					</tr>
 				{% else %}
 					<tr>
-						<td colspan="5"> <i> no records found... </i> </td>
+						<td colspan="6"> <i> no records found... </i> </td>
 					</tr>
 
 				{% endif %}
@@ -85,9 +87,13 @@
 				{% for item in items%}
 					<tr>
 						<td class="w-55">{{item.item_desc}}</td>
-						<td style="text-align: center;" class="w-8">{{item.qty}}</td>
+						<td style="text-align: center;" class="w-8">
+							{{item.qty}}
+						</td>
 						<td class="move_right w-15">{{item.rate}}</td>
-						<td class="move_right w-20">{{ kwargs['cur_fmt'](item.amount) }}</td>
+						<td class="move_right w-20">
+							{{ kwargs['cur_fmt'](item.amount) }}
+						</td>
 						<td class="move_right w-2">
 							<a 	href="{{url_for('item.edit_item', 							item_id=item.id, 									invoice_id=invoice_details.inv_id)}}" 
 								title="Edit Item" 								
@@ -118,7 +124,7 @@
 					<span style="font-size: 1.75rem;">Discount Applied</span> 
 					<span> 
 						<a class='theme_link' href="{{url_for('item.add_discount', invoice_id=invoice_details.inv_id)}}"> 
-							<i class="fa fa-plus-square fa-lg"></i> 
+							<i class="fa fa-edit fa-lg"></i> 
 						</a>
 						<a class="theme_link" id="delete_discount" href="{{url_for('item.delete_discount',	invoice_id=invoice_details.inv_id)}}" 
 						> <i class="fa fa-trash fa-lg"></i> </a>
