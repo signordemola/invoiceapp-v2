@@ -12,8 +12,6 @@
 	{{ x.item_desc | title }}  :  Amount {{ cur_fmt(x.amount)}} <br/>
 
 	{% endfor %}
-
-	<br /> 
 	
 	<h3 class="text-center" style="font-weight: lighter; text-align: center;"> 
 		Payment Description 
@@ -23,40 +21,66 @@
         width: 100%; margin-bottom: 1rem; background-color: transparent; 
         border-bottom-width: 2px;">
         <tbody> 
-        
+
             <tr>
                 <td width='50%' style="vertical-align: middle; padding: 15px; 
-                    border: 1px solid #dee2e6; border-right: none;">
-                    Subtotal&nbsp;
-                    <br>
-                    <br>
-                    VAT(7.5%)&nbsp;
-                    <br>
-                    <br>
-                    Amount Paid&nbsp;
-                    <br>
-                    <br>
-                    Amount to Balance&nbsp;
-                    <br>
-                    <br>
-                    <b>Total Amount&nbsp;</b>
-                </td>
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    Subtotal
+                </td> 
+                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-left: none;">
+                    {{ cur_fmt(subtotal) }} {{ currency }}
+                </th>
+            </tr>
+            <tr>
                 <td width='50%' style="vertical-align: middle; padding: 15px; 
-                    border: 1px solid #dee2e6; border-left: none;">
-                    <b>{{ cur_fmt(subtotal) }} {{ currency }}</b> 
-                    <br>
-                    <br>
-                    <b>{{ cur_fmt(vat) }} {{ currency }}</b> 
-                    <br>
-                    <br>
-                    <b>{{ cur_fmt(amount_paid) }} {{ currency }}</b> 
-                    <br>
-                    <br>
-                    <b>{{ cur_fmt(amount_balance) }} {{ currency }}</b>
-                    <br>
-                    <br>
-                    <b>{{ cur_fmt(total) }} {{ currency }}</b>
-                </td>
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    VAT(7.5%) 
+                </td> 
+                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-left: none;">
+                    {{ cur_fmt(vat) }} {{ currency }} 
+                </th>
+            </tr>
+            <tr>
+                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    Amount Paid 
+                </td> 
+                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-left: none;">
+                    {{ cur_fmt(amount_paid) }} {{ currency }} 
+                </th>
+            </tr>
+            <tr>
+                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    Amount to Balance 
+                </td> 
+                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-left: none;">
+                    {{ cur_fmt(amount_balance) }} {{ currency }} 
+                </th>
+            </tr>
+            <tr>
+                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    Total Amount 
+                </th> 
+                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-left: none;">
+                    {{ cur_fmt(total) }} {{ currency }} 
+                </th>
             </tr>
 
         </tbody>
