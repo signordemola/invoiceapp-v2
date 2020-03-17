@@ -46,8 +46,7 @@ def index():
     with m.sql_cursor() as db:
         #select query from invoice
         sub = db.query(m.Items.invoice_id, 
-                       m.func.sum(m.func.cast(m.Items.amount, 
-                                              m.ptype.INTEGER)
+                       m.func.sum(m.Items.amount                                              
                                   ).label("sub_total"),
                        ).group_by(
                             m.Items.invoice_id
@@ -69,10 +68,32 @@ def index():
                                                         m.Invoice.inv_id.desc()
                                                        )
 
-        vat_total, vat, total, discount = h.val_calculated_data(qry[0].disc_type, qry[0].disc_value, 
-                                                                qry[0].sub_total, qry[0].client_type)
 
         qry, page_row = set_pagination(qry, cur_page, 10)
+
+        grp_data = []
+
+        for x in qry.items:
+            retv = {}
+
+            retv['date_value'] = x.date_value 
+            retv['inv_id'] = x.inv_id 
+            retv['invoice_no'] = x.invoice_no
+            retv['client_name'] = x.name
+            retv['email'] = x.email
+            retv['status'] = x.status
+
+            vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value, 
+                                                                    x.sub_total, x.client_type)
+
+            retv['vat_total'] = vat_total
+            retv['vat'] = vat 
+            retv['total'] = total
+            retv['discount'] = discount 
+
+            grp_data.append(retv)
+
+
 
         cur_fmt = comma_separation
 
@@ -82,7 +103,7 @@ def index():
         flash(msg)
 
     return render_template('index.html',
-                            pager=qry, page_row=page_row, 
+                            pager=qry, page_row=page_row, data=grp_data, 
                             cur_page=cur_page, cur_fmt=cur_fmt, )
 
 
@@ -146,7 +167,7 @@ def checkout(invoice_id):
         _amount = 0
 
         for x in item_for_amount:
-            _amount += float(x.amount)
+            _amount += x.amount
 
         data['subtotal'] = _amount
         vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 

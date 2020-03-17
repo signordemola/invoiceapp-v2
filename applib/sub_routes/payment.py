@@ -87,10 +87,10 @@ def add(invoice_name, invoice_id):
 
 		data = {}
 
-		_amount = 0.00
+		_amount = 0
 
 		for x in item_details:
-			_amount += float(x.amount) 
+			_amount += x.amount
 
 		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
                                                                 invoice_query.disc_value, 
@@ -110,7 +110,6 @@ def add(invoice_name, invoice_id):
 			pay_md.invoice_id = invoice_id
 			pay_md.date_created = datetime.datetime.now().strftime("%b-%m-%d")
 			db.add(pay_md)
-
 
 			msg = "Payment has being Added"
 			return redirect(url_for('payment.index', msg=msg))
@@ -160,9 +159,9 @@ def edit(pay_id, invoice_id):
 		
 		data = {}
 
-		_amount = 0.00
+		_amount = 0
 		for x in item_details:
-			_amount += float(x.amount) 
+			_amount += x.amount
 
 		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
                                                                 invoice_query.disc_value, 
@@ -255,10 +254,10 @@ def receipt(invoice_id):
 							'qty': y.qty, 'rate': y.rate, 'amount': y.amount
 						})
 
-		_amount = 0.00
+		_amount = 0
 		
 		for x in item_for_amount:
-			_amount += float(x.amount)
+			_amount += x.amount
 
 
 		data['type'] = "Receipt"

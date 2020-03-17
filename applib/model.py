@@ -3,7 +3,7 @@
 import records
 from contextlib import contextmanager
 from sqlalchemy import (create_engine, Integer, String,
-                        Text, DateTime, BigInteger, Date, 
+                        Text, DateTime, BigInteger, Date, DECIMAL,
                         Column, ForeignKey, or_, Sequence, func)
 
 import sqlalchemy.dialects.postgresql as ptype
@@ -111,7 +111,7 @@ class Items(db.Model):
     item_desc = Column(String(150), nullable=False)
     qty = Column(Integer, nullable=False)
     rate = Column(Integer, nullable=False)
-    amount = Column(String(30))
+    amount = Column(DECIMAL(15,2))
     invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.inv_id'),
         nullable=False)
 
@@ -157,7 +157,7 @@ class Expense(db.Model):
     # status =1 for pending, 2 for approved and 3 for declined 
     status = Column(Integer, nullable=False, default=0)
     aproved_by = Column(String(100), nullable=False)
-    amount = Column(String(100), nullable=False)
+    amount = Column(DECIMAL(15, 2), nullable=False)
     
     # 2, salary payment, 3 bonus payment
     # 4 miscellinous payments  and 5 vat remittance payments 
@@ -175,8 +175,8 @@ class Payment(db.Model):
     date_created = Column(DateTime, nullable=False, 
                           default=datetime.datetime.now())
     payment_mode = Column(Integer, nullable=False)
-    amount_paid = Column(String(30))
-    balance = Column(String(30))
+    amount_paid = Column(DECIMAL(15, 2))
+    balance = Column(DECIMAL(15,2))
     invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.inv_id'), nullable=False)
     status = Column(Integer, nullable=False, default=0)
     
