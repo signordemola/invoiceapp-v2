@@ -53,12 +53,13 @@ def index():
                             m.Items.invoice_id
                        ).subquery()
 
-        qry = db.query( m.Invoice.inv_id, 
-                        m.Invoice.invoice_no, m.Client.email, 
-                        m.Client.name, m.Invoice.date_value,                      
-                        sub.c.sub_total,
-                        sub.c.invoice_id,
-                        m.Payment.status
+        qry = db.query(m.Invoice.inv_id, 
+                       m.Invoice.invoice_no, m.Invoice.disc_type, m.Invoice.disc_value,
+                       m.Invoice.client_type, m.Client.email, 
+                       m.Client.name, m.Invoice.date_value,                      
+                       sub.c.sub_total,
+                       sub.c.invoice_id,
+                       m.Payment.status
                       ).outerjoin(sub, sub.c.invoice_id == m.Invoice.inv_id
                         ).outerjoin(m.Payment, 
                                     m.Payment.invoice_id == m.Invoice.inv_id
@@ -67,9 +68,12 @@ def index():
                                             ).order_by(
                                                         m.Invoice.inv_id.desc()
                                                        )
-        
+
+        vat_total, vat, total, discount = h.val_calculated_data(qry[0].disc_type, qry[0].disc_value, 
+                                                                qry[0].sub_total, qry[0].client_type)
+
         qry, page_row = set_pagination(qry, cur_page, 10)
-        
+
         cur_fmt = comma_separation
 
                                   
@@ -79,7 +83,7 @@ def index():
 
     return render_template('index.html',
                             pager=qry, page_row=page_row, 
-                            cur_page=cur_page, cur_fmt=cur_fmt)
+                            cur_page=cur_page, cur_fmt=cur_fmt, )
 
 
 
@@ -93,21 +97,21 @@ def checkout(invoice_id):
     with m.sql_cursor() as db:
         
         client_invoice_details = db.query(
-                                            m.Invoice.inv_id,
-                                            m.Invoice.date_value,
-                                            m.Invoice.invoice_no,
-                                            m.Invoice.purchase_no,
-                                            m.Invoice.disc_value,
-                                            m.Invoice.disc_type,
-                                            m.Invoice.disc_desc, 
-                                            m.Invoice.currency,
-                                            m.Invoice.client_type,
-                                            m.Client.address,
-                                            m.Client.post_addr,
-                                            m.Client.name,
-                                            m.Client.email,
-                                            m.Client.phone,
-                                            m.Client.id.label('client_id')
+                                           m.Invoice.inv_id,
+                                           m.Invoice.date_value,
+                                           m.Invoice.invoice_no,
+                                           m.Invoice.purchase_no,
+                                           m.Invoice.disc_value,
+                                           m.Invoice.disc_type,
+                                           m.Invoice.disc_desc, 
+                                           m.Invoice.currency,
+                                           m.Invoice.client_type,
+                                           m.Client.address,
+                                           m.Client.post_addr,
+                                           m.Client.name,
+                                           m.Client.email,
+                                           m.Client.phone,
+                                           m.Client.id.label('client_id')
                                         ).join(
                                                 m.Client,
                                                 m.Client.id == m.Invoice.client_id
@@ -121,49 +125,35 @@ def checkout(invoice_id):
                                    m.Items.amount
                                   ).filter_by(invoice_id=invoice_id).all()
 
-
         data = {
-                    'invoice_no': client_invoice_details.invoice_no,
-                    'date_value': datetime.datetime.now().strftime("%Y-%m-%d"),
-                    'invoice_due': datetime.datetime.now().strftime("%Y-%m-%d"),
-                    'purchase_order_no': client_invoice_details.purchase_no,
-                    'discount_applied': client_invoice_details.disc_value,
-                    'discount_description': client_invoice_details.disc_desc,
-                    'address': client_invoice_details.address,
-                    'post_addr': client_invoice_details.post_addr,
-                    'name': client_invoice_details.name,
-                    'disc_type': client_invoice_details.disc_type,
-                    'email': client_invoice_details.email,
-                    'phone': client_invoice_details.phone,
-                    'currency': currency_label[client_invoice_details.currency]
+                'invoice_no': client_invoice_details.invoice_no,
+                'date_value': datetime.datetime.now().strftime("%Y-%m-%d"),
+                'invoice_due': datetime.datetime.now().strftime("%Y-%m-%d"),
+                'purchase_order_no': client_invoice_details.purchase_no,
+                'discount_applied': client_invoice_details.disc_value,
+                'discount_description': client_invoice_details.disc_desc,
+                'address': client_invoice_details.address,
+                'post_addr': client_invoice_details.post_addr,
+                'name': client_invoice_details.name,
+                'disc_type': client_invoice_details.disc_type,
+                'email': client_invoice_details.email,
+                'phone': client_invoice_details.phone,
+                'currency': currency_label[client_invoice_details.currency]
                 }
 
         data['cur_fmt'] = comma_separation
 
-
         _amount = 0
-        total = 0
-        vat = 0
-        vat_total = 0
 
         for x in item_for_amount:
             _amount += float(x.amount)
 
         data['subtotal'] = _amount
-        data['discount'] = calc_discount(client_invoice_details.disc_type, 
-                                         client_invoice_details.disc_value, _amount)
+        vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
+                                                              client_invoice_details.disc_value, 
+                                                              _amount, client_invoice_details.client_type)
 
-        total = _amount - float(data['discount'])
-
-
-        # vat_total = h.total_vat_amount(client_invoice_details.client_type, total)
-        if client_invoice_details.client_type == 1:
-            vat = - 0.075 * total
-            vat_total = total
-        else:
-            vat = + 0.075 * total
-            vat_total = total + vat
-
+        data['discount'] = discount
         data['vat'] = vat
         data['total'] = total
         data['vat_total'] = vat_total
@@ -177,8 +167,6 @@ def checkout(invoice_id):
                                 'qty': y.qty, 'rate': y.rate, 'amount': y.amount
                               })
 
-            # this needs to be replaced to an email template 
-            # data['body'] = "Please see the invoice attached in mail."
             data['type'] = "Invoice"
             generate_pdf(_template='new_invoice.html', args=items, 
                         kwargs=data, email_body_template='email_body.html')
@@ -208,7 +196,6 @@ def client_invoice():
 
         if request.method == 'POST' and form.validate():
      
-            # with m.sql_cursor() as db:
             invoice = m.Invoice()
             m.form2model(form, invoice)
             invoice.date_value = datetime.datetime.now()

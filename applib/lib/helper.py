@@ -231,19 +231,6 @@ def set_email_read_feedback(**kwargs):
 	return link
 
 
-def calc_discount(query_disc_type, query_disc_value, query_sub_total):
-	
-	if query_disc_type == 'fixed':
-		return query_disc_value
-	elif query_disc_type == 'percent':
-		return int(query_disc_value)/100.0 * int(query_sub_total)
-
-	return 0
-
-
-
-
-
 
 def generate_pdf(_template, args, kwargs, email_body_template):
 
@@ -308,15 +295,30 @@ def set_pagination(obj, cur_page, page_size=10):
 		if counter > 7:
 			break
 
-
 	return  pager, page_lists
 
 
+def calc_discount(query_disc_type, query_disc_value, query_sub_total):
+	
+	discount = 0.00
+	if query_disc_type == 'fixed':
+		discount = query_disc_value
+	elif query_disc_type == 'percent':
+		discount = int(query_disc_value)/100.0 * int(query_sub_total)
 
-def total_vat_amount(query_obj, total):
+	return float(discount)
+
+
+
+def val_calculated_data(query_disc_type, query_disc_value, query_sub_total, query_obj):
 
 	vat = 0
 	vat_total = 0
+	total = 0
+
+	discount = calc_discount(query_disc_type, query_disc_value, query_sub_total)
+
+	total = query_sub_total - discount
 
 	if query_obj == 1:
 		vat = - 0.075 * total
@@ -325,4 +327,4 @@ def total_vat_amount(query_obj, total):
 		vat = + 0.075 * total
 		vat_total = total + vat
 	
-	return vat_total, vat
+	return vat_total, vat, total, discount

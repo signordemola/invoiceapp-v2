@@ -78,29 +78,25 @@ def add(invoice_name, invoice_id):
 		item_details = db.query(m.Items.amount, m.Items.item_desc).filter_by(
 														invoice_id=invoice_id
 														).all()
-		invoice_query = db.query( m.Invoice.inv_id,
-								  m.Invoice.disc_type, 
-								  m.Invoice.disc_value,
-								  m.Invoice.client_type,
-								  m.Invoice.currency).filter_by(
-																inv_id=invoice_id
-																).first()
+		invoice_query = db.query(m.Invoice.inv_id,
+								 m.Invoice.disc_type, 
+								 m.Invoice.disc_value,
+								 m.Invoice.client_type,
+								 m.Invoice.currency).filter_by(inv_id=invoice_id
+															   ).first()
 
 		data = {}
 
-		total = 0
-		_amount = 0
+		_amount = 0.00
 
 		for x in item_details:
 			_amount += float(x.amount) 
 
-
-		discount = calc_discount(invoice_query.disc_type, 
-								 invoice_query.disc_value, _amount)
+		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
+                                                                invoice_query.disc_value, 
+                                                                _amount, 
+                                                                invoice_query.client_type)
 		
-		total = _amount - float(discount)
-		vat_total, vat = h.total_vat_amount(invoice_query.client_type, total)
-
 		data['sub_total'] = total
 		data['vat'] = vat
 
@@ -122,6 +118,7 @@ def add(invoice_name, invoice_id):
 	return render_template('add_payment.html', 
 						   form=form, 
 						   title="Add Payment",
+						   discount=discount,
 						   total=vat_total,
 						   subtotal=total,
 						   vat=vat,
@@ -162,16 +159,15 @@ def edit(pay_id, invoice_id):
 								 ).filter_by(inv_id=invoice_id).first()
 		
 		data = {}
-		total = 0
-		_amount = 0
+
+		_amount = 0.00
 		for x in item_details:
 			_amount += float(x.amount) 
 
-		discount = calc_discount(invoice_query.disc_type, 
-								 invoice_query.disc_value, _amount)
-		
-		total = _amount - float(discount)
-		vat_total, vat = h.total_vat_amount(invoice_query.client_type, total)
+		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
+                                                                invoice_query.disc_value, 
+                                                                _amount, 
+                                                                invoice_query.client_type)
 
 		data['cur_fmt'] = comma_separation
 		data['currency'] = currency_label[invoice_query.currency]    
@@ -195,6 +191,7 @@ def edit(pay_id, invoice_id):
 	return render_template("add_payment.html", 
 							form=form, 
 							title="Edit Payment",
+							discount=discount,
 							total=vat_total,
 							subtotal=total,
 							vat=vat,
@@ -257,7 +254,7 @@ def receipt(invoice_id):
 							'id': y.id, 'item_desc': y.item_desc,
 							'qty': y.qty, 'rate': y.rate, 'amount': y.amount
 						})
-		total = 0.00
+
 		_amount = 0.00
 		
 		for x in item_for_amount:
@@ -267,12 +264,11 @@ def receipt(invoice_id):
 		data['type'] = "Receipt"
 		data['amount_balance'] = client_invoice_details.balance
 		data['amount_paid'] = client_invoice_details.amount_paid
-		data['discount'] = calc_discount(client_invoice_details.disc_type,
-							client_invoice_details.disc_value, _amount)
-							
 
-		total = _amount - float(data['discount'])
-		vat_total, vat = h.total_vat_amount(client_invoice_details.client_type, total)
+		vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
+                                                                client_invoice_details.disc_value, 
+                                                                _amount, 
+                                                                client_invoice_details.client_type)
 
 		data['subtotal'] = total
 		data['vat'] = vat

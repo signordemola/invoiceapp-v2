@@ -169,17 +169,17 @@
 				</table>
 		
 			</div>
-			<div class="col-md-6">
+			
+			<div class="col-md-6" style="margin-top: 15%;">
 
-				<h4 class="text-muted" style="text-align: center; 
-				                       margin-top: 15%; 
-				           font-weight: bold; font-size: 17px;">
+				<h4 class="text-muted" style="text-align: center;
+				           font-weight: bold; font-size: 15px;">
 					Vat calculated: {{ kwargs['cur_fmt'](kwargs['vat']) }} {{ kwargs['currency'] }} 
 				</h4>
-				<h3 class="text-muted" style="text-align: center; 
-				                         font-weight: bold; font-size: 17px;">
+				<h4 class="text-muted" style="text-align: center; 
+				                         font-weight: bold; font-size: 15px;">
 					Subtotal : {{ kwargs['cur_fmt'](kwargs['total']) }} {{ kwargs['currency'] }} 
-				</h3>
+				</h4>
 				<h3 style="text-align: center; font-weight: bold;">
 					Total : {{ kwargs['cur_fmt'](kwargs['vat_total']) }} {{ kwargs['currency'] }} 
 				</h3>
