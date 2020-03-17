@@ -57,7 +57,7 @@
                                     <td valign="top" style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
                                 	{% block body %}    
 	
-	                                    <p>Hi {{name}}, <br />
+	                                    <p>Hi {{name | title}}, <br />
 										<br />
 										A new {{type}} has been generated for you by Ecardex Ventures. Here's a quick summary:<br />
 										<br />
@@ -79,34 +79,67 @@
                                       background-color: transparent; 
                                       border-bottom-width: 2px;">
                             <tbody> 
-                            
+                            {% if discount %}
                                 <tr>
-                                    <td width='50%' style="text-align: center; vertical-align: middle; padding: 15px; 
-                                        border: 1px solid #dee2e6;">
-                                        {% if discount %}
-                                        <b>Discount Label:</b>&nbsp; {{ discount_description or 'Discount' }}
-
-                                        <br>
-                                        <br>
-                                        
-                                        <b>Discount Applied:</b>&nbsp; {{ cur_fmt(discount) }}
-                                        {% endif %}
-
-                                        <br>
-                                        <br>
-
-                                        <b>VAT(7.5%):</b>&nbsp; {{ cur_fmt(vat) }} {{ currency }}
-
-                                        <br>
-                                        <br>
-
-                                        <b>Subtotal:</b>&nbsp; {{ cur_fmt(total) }} {{ currency }} 
-
-                                        <br>
-                                        <br>
-
-                                        <b>Total Amount:</b>&nbsp; {{ cur_fmt(vat_total) }} {{ currency }}
-                                    </td>
+                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6; 
+                                        border-right: none;">
+                                        Discount Label
+                                    </td> 
+                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6; 
+                                        border-left: none;"> 
+                                        {{ discount_description or 'Discount' }}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-right: none;">
+                                        Discount Applied
+                                    </td> 
+                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-left: none;">
+                                        {{ cur_fmt(discount) }}
+                                    </th>
+                                </tr>
+                            {% endif %}
+                                <tr>
+                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-right: none;">
+                                        VAT(7.5%)
+                                    </td> 
+                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-left: none;">
+                                        {{ cur_fmt(vat) }} {{ currency }}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-right: none;">
+                                        Subtotal 
+                                    </td> 
+                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-left: none;">
+                                        {{ cur_fmt(total) }} {{ currency }} 
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-right: none;">
+                                        Total Amount 
+                                    </th> 
+                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        border: 1px solid #dee2e6;
+                                        border-left: none;">
+                                        {{ cur_fmt(vat_total) }} {{ currency }} 
+                                    </th>
                                 </tr>
 
                             </tbody>

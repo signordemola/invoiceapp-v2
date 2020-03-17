@@ -61,7 +61,16 @@
 				</tbody>
 			</table>
 			
-			<h3 style="text-align: center;margin-top: 15%; font-weight: bold;">
+			<h4 class="text-muted" style="text-align: center; 
+				                       margin-top: 15%; 
+				           font-weight: bold; font-size: 17px;">
+				Vat calculated: {{ kwargs['cur_fmt'](vat) }} {{ kwargs['currency'] }} 
+			</h4>
+			<h3 class="text-muted" style="text-align: center; 
+			                         font-weight: bold; font-size: 17px;">
+				Subtotal : {{ kwargs['cur_fmt'](sub_total) }} {{ kwargs['currency'] }} 
+			</h3>
+			<h3 style="text-align: center; font-weight: bold;">
 				Total : {{ kwargs['cur_fmt'](total) }} {{ kwargs['currency'] }} 
 			</h3> 
  

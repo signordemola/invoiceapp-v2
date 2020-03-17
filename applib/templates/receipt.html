@@ -236,20 +236,34 @@
 
 					<table id="Bottom_table_taken" class="table table-hover summary">
 						<tbody>
+
+							<tr>
+								<td scope="row">Sub Total </td>
+								<td> 
+									{{ cur_fmt(subtotal) }} {{ currency }}
+								</td>
+							</tr>
+
+							<tr>
+								<td scope="row">VAT(7.5%) </td>
+								<td> 
+									{{ cur_fmt(vat) }} {{ currency }}
+								</td>
+							</tr>
 							
 							<tr>
-								<th scope="row"> Amount Paid </th>
+								<td scope="row">Amount Paid </td>
 								<td> {{ cur_fmt(amount_paid) }} </td>
 							</tr>
 
 							<tr>
-								<th scope="row"> Amount To Balance </th>
+								<td scope="row">Amount To Balance </td>
 								<td> {{ cur_fmt(amount_balance) or '0.00' }} </td>
 							</tr>
 						
 							<tr>
-								<th scope="row"> Total </th>
-								<td> {{ cur_fmt(total) }} </td>
+								<td scope="row"><b>Total </b></td>
+								<td><b>{{ cur_fmt(total) }} </b></td>
 							</tr>
 							
 						</tbody>

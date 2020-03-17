@@ -50,7 +50,9 @@ def index():
 									).filter(m.Payment.invoice_id == m.Invoice.inv_id
 									).order_by(m.Invoice.inv_id.desc())
 		
-		qry, page_row = set_pagination(qry, cur_page)									
+		qry, page_row = set_pagination(qry, cur_page)
+
+		cur_fmt = comma_separation									
 
 
 	msg = request.args.get("msg")
@@ -60,8 +62,9 @@ def index():
 
 	return render_template('payment.html', data=qry, status_label=status,
 							date_format=h.date_format, pager=qry, 
-							page_row=page_row, cur_page=cur_page
-						)
+							page_row=page_row, cur_page=cur_page, 
+							cur_fmt=cur_fmt
+						   )
 
 
 @mod.route("/add/<int:invoice_id>/<invoice_name>", methods=["POST", "GET"])
@@ -96,7 +99,10 @@ def add(invoice_name, invoice_id):
 								 invoice_query.disc_value, _amount)
 		
 		total = _amount - float(discount)
-		vat_total = h.total_vat_amount(invoice_query.client_type, total)
+		vat_total, vat = h.total_vat_amount(invoice_query.client_type, total)
+
+		data['sub_total'] = total
+		data['vat'] = vat
 
 		data['cur_fmt'] = comma_separation
 		data['currency'] = currency_label[invoice_query.currency]    
@@ -117,6 +123,8 @@ def add(invoice_name, invoice_id):
 						   form=form, 
 						   title="Add Payment",
 						   total=vat_total,
+						   subtotal=total,
+						   vat=vat,
 						   item_details=item_details,
 						   kwargs=data,
 						   invoice_query=invoice_query)
@@ -163,7 +171,7 @@ def edit(pay_id, invoice_id):
 								 invoice_query.disc_value, _amount)
 		
 		total = _amount - float(discount)
-		vat_total = h.total_vat_amount(invoice_query.client_type, total)
+		vat_total, vat = h.total_vat_amount(invoice_query.client_type, total)
 
 		data['cur_fmt'] = comma_separation
 		data['currency'] = currency_label[invoice_query.currency]    
@@ -188,6 +196,8 @@ def edit(pay_id, invoice_id):
 							form=form, 
 							title="Edit Payment",
 							total=vat_total,
+							subtotal=total,
+							vat=vat,
 							item_details=item_details,
 							kwargs=data,
 							invoice_query=invoice_query)
@@ -223,7 +233,7 @@ def receipt(invoice_id):
 
 		data = {
 				'invoice_no': client_invoice_details.invoice_no,
-				'date_value': client_invoice_details.date_created,
+				'date_value': client_invoice_details.date_created.strftime("%Y-%m-%d"),
 				'address': client_invoice_details.address,
 				'post_addr': client_invoice_details.post_addr,
 				'name': client_invoice_details.name,
@@ -262,9 +272,10 @@ def receipt(invoice_id):
 							
 
 		total = _amount - float(data['discount'])
-		vat_total = h.total_vat_amount(client_invoice_details.client_type, total)
+		vat_total, vat = h.total_vat_amount(client_invoice_details.client_type, total)
 
-
+		data['subtotal'] = total
+		data['vat'] = vat
 		data['total'] = vat_total
 		data['status'] = status[client_invoice_details.status]
 		data['currency'] = currency_label[client_invoice_details.currency]

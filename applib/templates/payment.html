@@ -31,7 +31,7 @@
 						{{ item.name }} </a></b> 
 				</td>
 				<td> {{ item.payment_desc | truncate(60) }} </td>
-				<td> {{ item.balance }} </td>
+				<td> {{ cur_fmt(item.balance) }} </td>
 				<td> {{ status_label[item.status] }} </td>
 				<td><a href="{{url_for('payment.receipt', 								invoice_id=item.inv_id)}}" 
 					   title=" Email Receipt "> 

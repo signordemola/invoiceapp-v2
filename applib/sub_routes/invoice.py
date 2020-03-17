@@ -69,7 +69,8 @@ def index():
                                                        )
         
         qry, page_row = set_pagination(qry, cur_page, 10)
-
+        
+        cur_fmt = comma_separation
 
                                   
     msg = request.args.get('msg')
@@ -78,7 +79,7 @@ def index():
 
     return render_template('index.html',
                             pager=qry, page_row=page_row, 
-                            cur_page=cur_page)
+                            cur_page=cur_page, cur_fmt=cur_fmt)
 
 
 

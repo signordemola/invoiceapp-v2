@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<p>Hi {{name}}, <br />
+<p>Hi {{name | title}}, <br />
 	<br />
 	A new {{type}} has been generated for you by Ecardex Ventures. Here's a quick summary:<br />
 	<br />
@@ -25,26 +25,37 @@
         <tbody> 
         
             <tr>
-                <th width='50%' style="text-align: center; 
-                    vertical-align: middle; padding: 15px; 
-                    border: 1px solid #dee2e6;">
+                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6; border-right: none;">
+                    Subtotal&nbsp;
+                    <br>
+                    <br>
+                    VAT(7.5%)&nbsp;
+                    <br>
+                    <br>
                     Amount Paid&nbsp;
                     <br>
                     <br>
                     Amount to Balance&nbsp;
                     <br>
                     <br>
-                    Total Amount&nbsp;
-                </th>
-                <td width='50%' style="text-align: center; vertical-align: middle; padding: 15px; 
-                    border: 1px solid #dee2e6;">
-                    {{ cur_fmt(amount_paid) }} {{ currency }} 
+                    <b>Total Amount&nbsp;</b>
+                </td>
+                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6; border-left: none;">
+                    <b>{{ cur_fmt(subtotal) }} {{ currency }}</b> 
                     <br>
                     <br>
-                    {{ cur_fmt(amount_balance) }} {{ currency }}
+                    <b>{{ cur_fmt(vat) }} {{ currency }}</b> 
                     <br>
                     <br>
-                    {{ cur_fmt(total) }} {{ currency }}
+                    <b>{{ cur_fmt(amount_paid) }} {{ currency }}</b> 
+                    <br>
+                    <br>
+                    <b>{{ cur_fmt(amount_balance) }} {{ currency }}</b>
+                    <br>
+                    <br>
+                    <b>{{ cur_fmt(total) }} {{ currency }}</b>
                 </td>
             </tr>
 

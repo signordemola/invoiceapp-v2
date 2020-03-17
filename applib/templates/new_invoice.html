@@ -225,40 +225,37 @@
 							<tbody>
 								
 								<tr>
-									<th scope="row">Sub Total </th>
-									<td> {{ cur_fmt(subtotal) }} {{ currency }}</td>
+									<td scope="row">Sub Total </td>
+									<td> 
+										{{ cur_fmt(subtotal) }} {{ currency }}
+									</td>
 								</tr>
 
 								<tr>
-									<th scope="row">Discount Label </th>
+									<td scope="row">Discount Label </td>
 									<td> 
-									{{ discount_description or 'Discount'}} 
+										{{ discount_description or 'Discount'}} 
 									</td>
 								</tr>
 								
 								<tr>
-									<th scope="row">Discount applied </th>
+									<td scope="row">Discount applied </td>
 									<td> 
 									   -{{ cur_fmt(discount) }} {{ currency }}
 									</td>
 								</tr>
 
 								<tr>
-									<th scope="row">VAT(7.5%) </th>
-									<td> {{ cur_fmt(vat) }} {{ currency }}</td>
-								</tr>
-
-								<tr>
-									<th scope="row">Subtotal </th>
+									<td scope="row">VAT(7.5%) </td>
 									<td> 
-										{{ cur_fmt(total) }} {{ currency }}
+										{{ cur_fmt(vat) }} {{ currency }}
 									</td>
 								</tr>
 							
 								<tr>
-									<th scope="row">Total </th>
+									<td scope="row"><b>Total </b></td>
 									<td> 
-										{{ cur_fmt(vat_total) }} {{ currency }}
+										<b>{{ cur_fmt(vat_total) }} {{ currency }}</b>
 									</td>
 								</tr>
 								

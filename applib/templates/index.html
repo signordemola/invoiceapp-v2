@@ -50,7 +50,7 @@
 							</td>
 							<td> {{ val.name | title }} </td>
 							<td> {{ val.email }} </td>
-							<td> {{ val.sub_total or '0.00' }} </td>
+							<td> {{ cur_fmt(val.sub_total) or '0.00' }} </td>
 							<td> 
 								<a href="{{url_for('item.add_item', 				invoice_id=val.inv_id )}}"
 									title="Add Invoice Item"> 
