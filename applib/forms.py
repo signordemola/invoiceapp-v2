@@ -228,14 +228,6 @@ class PaymentForm(Form):
                                            "readonly": "readonly",
                                            "style": "margin-bottom : 10px"})
 
-    payment_desc = TextAreaField('Description', [input_required()], 
-                                render_kw={"class_": "form-control", 
-                                            "autocomplete": "new-password"})
-
-    # date_paid = DateTimeField("Date of Payment", [input_required()],
-    #                             render_kw={"class_":"form-control",
-    #                                        "autocomplete": "new-password"})
-
     payment_mode = SelectField("Mode Of Payment", [input_required()], 
                                 coerce=int,
                                 choices=[(0, "Select a Mode..."), 
@@ -243,7 +235,7 @@ class PaymentForm(Form):
                                         (3, "Online Merchant"), (4, "Cheque")],
                                 render_kw={"class_": "form-control"})
 
-    amount_paid = FloatField("Amount Paid",
+    amount_paid = FloatField("Amount",
                                 [input_required(), check_sign()], 
                                 render_kw={"class_": "form-control",
                                            "autocomplete": "new-password"})
@@ -257,6 +249,10 @@ class PaymentForm(Form):
                                 coerce=int, 
                                 choices=[(1, "Complete"), (2, "Partial")], 
                                 render_kw={"class_": "form-control"})
+
+    payment_desc = TextAreaField('Comments', 
+                                render_kw={"class_": "form-control", 
+                                            "autocomplete": "new-password"})
         
 
 class LoginForm(Form):

@@ -306,7 +306,7 @@ def calc_discount(query_disc_type, query_disc_value, query_sub_total):
         discount = query_disc_value
 
     elif query_disc_type == 'percent':
-        discount = query_disc_value / 100.0 * query_sub_total
+        discount = query_disc_value / 100 * query_sub_total
 
     return discount
 
@@ -323,10 +323,10 @@ def val_calculated_data(query_disc_type, query_disc_value, query_sub_total, quer
     total = float(query_sub_total - discount)
 
     if query_obj == 1:
-        vat = -( 7.5/100.0 * total)
+        vat = -( 7.5/100 * total)
         vat_total = total
     else:
-        vat = 7.5/100.0 * total
+        vat = 7.5/100 * total
         vat_total = total + vat
     
     return vat_total, vat, total, discount

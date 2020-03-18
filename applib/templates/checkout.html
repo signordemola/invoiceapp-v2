@@ -19,13 +19,22 @@
 	<div class="col-md-12">
 		<br><br>
 		<p>
-			<b>Invoice: {{invoice_details.inv_id}}	
+			<b>Invoice: {{invoice_details.inv_id}}
+				{% if invoice_details.status == None %}	
 				<a 	href="{{url_for('payment.add', 										invoice_name=invoice_details.name,
 						invoice_id=invoice_details.inv_id)}}" 
 					class="fas fa-receipt" 
 					style="float: right; background-color: #eee"> 
 					Proceed to Payment 
 				</a>
+				{% else %}
+				<a 	href="{{url_for('payment.edit', 									pay_id=invoice_details.pay_id,
+						invoice_id=invoice_details.inv_id)}}" 
+					class="fas fa-receipt" 
+					style="float: right; background-color: #eee"> 
+					Proceed to Payment 
+				</a>
+				{% endif %}
 			</b>
 		</p>
 		<h3>Client Details</h3>

@@ -93,9 +93,9 @@ def add(invoice_name, invoice_id):
 			_amount += x.amount
 
 		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
-                                                                invoice_query.disc_value, 
-                                                                _amount, 
-                                                                invoice_query.client_type)
+																invoice_query.disc_value, 
+																_amount, 
+																invoice_query.client_type)
 		
 		data['sub_total'] = total
 		data['vat'] = vat
@@ -132,6 +132,9 @@ def add(invoice_name, invoice_id):
 def edit(pay_id, invoice_id):
 
 	form = PaymentForm(request.form)
+	payment_mode_label = {x[0]: x[1] for x in form.payment_mode.choices}
+	status_label = {x[0]: x[1] for x in form.status.choices}
+
 	form_inv = CreateInvoiceForm()
 	currency_label = {x[0]: x[1] for x in form_inv.currency.choices}
 	
@@ -154,30 +157,62 @@ def edit(pay_id, invoice_id):
 								 m.Invoice.disc_type, 
 								 m.Invoice.disc_value,
 								 m.Invoice.client_type,
-								 m.Invoice.currency
-								 ).filter_by(inv_id=invoice_id).first()
-		
+								 m.Invoice.currency,
+								 m.Payment.date_created,
+								 m.Payment.amount_paid,
+								 m.Payment.payment_mode,
+								 m.Payment.balance,
+								 m.Payment.status
+								 ).join(
+										m.Payment, 
+										m.Payment.invoice_id == m.Invoice.inv_id
+								 ).filter(m.Invoice.inv_id == invoice_id).all()
+
+		amount_sum = db.query(m.func.sum(m.Payment.amount_paid).label("amount_paid_sum"), 
+							  m.Payment.invoice_id
+							 ).join(
+							  m.Invoice, 
+							  m.Invoice.inv_id == m.Payment.invoice_id
+							 ).filter(
+							  m.Invoice.inv_id == invoice_id
+							 ).group_by(m.Payment.invoice_id).first()
+
+		_amount_sum = amount_sum.amount_paid_sum
+		grp_data = []
+
+
+		for x in invoice_query:
+			retv = {}
+
+			retv['date_created'] = x.date_created.strftime("%d-%m-%Y")
+			retv['amount_paid'] = x.amount_paid
+			retv['payment_mode'] = payment_mode_label[x.payment_mode]
+			retv['balance'] = x.balance
+			retv['status'] = status_label[x.status]
+
+			grp_data.append(retv)
+
 		data = {}
 
 		_amount = 0
 		for x in item_details:
 			_amount += x.amount
 
-		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
-                                                                invoice_query.disc_value, 
-                                                                _amount, 
-                                                                invoice_query.client_type)
+		vat_total, vat, total, discount = h.val_calculated_data(invoice_query[0].disc_type, 
+																invoice_query[0].disc_value, 
+																_amount, 
+																invoice_query[0].client_type)
 
 		data['cur_fmt'] = comma_separation
-		data['currency'] = currency_label[invoice_query.currency]    
+		data['currency'] = currency_label[invoice_query[0].currency]    
 		pay_data = db.query(m.Payment.id,
 							m.Client.name.label('client_name'),
-							m.Payment.payment_desc,
+							# m.Payment.payment_desc,
 							m.Payment.client_name,
-							m.Payment.payment_mode,
-							m.Payment.amount_paid,
+							# m.Payment.payment_mode,
+							# m.Payment.amount_paid,
 							m.Payment.balance,
-							m.Payment.status
+							# m.Payment.status
 							).join(
 							m.Invoice,
 							m.Invoice.inv_id == m.Payment.invoice_id
@@ -185,18 +220,22 @@ def edit(pay_id, invoice_id):
 							m.Client, m.Client.id == m.Invoice.client_id
 							).filter(m.Payment.id == pay_id).first()
 
+		
+
 		m.model2form(pay_data, form)
 
-	return render_template("add_payment.html", 
+	return render_template("edit_payment.html", 
 							form=form, 
-							title="Edit Payment",
+							title="Add Payment",
 							discount=discount,
 							total=vat_total,
 							subtotal=total,
+							amount_sum=_amount_sum,
 							vat=vat,
 							item_details=item_details,
 							kwargs=data,
-							invoice_query=invoice_query)
+							grp_data=grp_data)
+
 
 
 @mod.route("/receipt/<int:invoice_id>", methods=['POST', 'GET'])
@@ -265,9 +304,9 @@ def receipt(invoice_id):
 		data['amount_paid'] = client_invoice_details.amount_paid
 
 		vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
-                                                                client_invoice_details.disc_value, 
-                                                                _amount, 
-                                                                client_invoice_details.client_type)
+																client_invoice_details.disc_value, 
+																_amount, 
+																client_invoice_details.client_type)
 
 		data['subtotal'] = total
 		data['vat'] = vat

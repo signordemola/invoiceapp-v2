@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% from 'base.html' import form_layout %}
+
+{% block in_style %}
+	table{
+		margin-top: 15%;
+	}
+{% endblock %}
+
+{% block main %}
+	<div class="col-md-6"> 
+
+		<table class="table table-condensed table-striped">
+				<thead>
+					<th> Date </th>
+					<th> Amount </th>
+					<th> Pay Mode </th>
+					<th> Balance </th>
+					<th> Status </th>
+				</thead>
+				<tbody>
+				{% for item in grp_data %} 
+					<tr>
+						<td>{{ item.date_created }}</td>
+						<td>{{ item.amount_paid }}</td>
+						<td>{{ item.payment_mode }}</td>
+						<td>{{ item.balance }}</td>
+						<td>{{ item.status }}</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="5"> <i> no records found... </i> </td>
+					</tr>
+				{% endfor %}
+				</tbody>
+		</table>
+	
+	</div>
+
+	<div class="col-md-6">
+		
+ 		<div>
+
+			<table class="table table-condensed table-striped">
+				<thead>
+					<th> Item </th>
+					<th> Amount </th>
+				</thead>
+				<tbody>
+				{% for item in item_details %} 
+					<tr>
+						<td> {{item.item_desc}} </td>
+						<td> {{kwargs['cur_fmt'](item.amount)}} </td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="2"> <i> no records found... </i> </td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+			
+			<div style="margin-top: 15%;">
+				<button type="button" 
+			    class="btn btn-success btn-block"
+			    data-toggle="modal" 
+				data-target="#exampleModalCenter">
+					Make New Payment
+			    </button>
+			    <br>
+			    <h4 class="text-muted" style="text-align: center; 
+				                         font-weight: bold; font-size: 15px;">
+					Sum of Amount Paid : {{ kwargs['cur_fmt'](amount_sum) }} {{ kwargs['currency'] }} 
+				</h4>
+				{% if discount %}
+				<h4 class="text-muted" style="text-align: center;  
+					           font-weight: bold; font-size: 15px;">
+					Discounted Amount: {{ kwargs['cur_fmt'](discount) }} {{ kwargs['currency'] }} 
+				</h4>
+				{% endif %}
+				<h4 class="text-muted" style="text-align: center;  
+					           font-weight: bold; font-size: 15px;">
+					Vat calculated: {{ kwargs['cur_fmt'](vat) }} {{ kwargs['currency'] }} 
+				</h4>
+				<h4 class="text-muted" style="text-align: center; 
+				                         font-weight: bold; font-size: 15px;">
+					Subtotal : {{ kwargs['cur_fmt'](subtotal) }} {{ kwargs['currency'] }} 
+				</h4>
+				<h3 style="text-align: center; font-weight: bold;">
+					Total : {{ kwargs['cur_fmt'](total) }} {{ kwargs['currency'] }} 
+				</h3>
+			</div>
+			 
+ 
+		</div>
+		 
+	</div>
+	<div class="modal fade" id="exampleModalCenter" tabindex="-1" 
+				role="dialog" aria-labelledby="exampleModalCenterTitle" 
+				aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      	<div class="modal-body">
+
+						{% block forms %}
+		
+							<div class="title text-center space_between">
+								<h3> {{title}} </h3>
+							</div>
+							<hr> 
+							<div>
+								<form action="" method='post'>			
+									{{ form_layout(form) }}			
+									<br>
+									<hr>  
+									<div class="row space_top">
+											
+										<div class="col-md-6">
+											<button type="button" 
+						          				class="btn btn-default btn_cl btn-block" data-dismiss="modal">
+							            			Cancel
+							        		</button>					
+										</div>
+										<div class="col-md-6">
+											<button type="submit" class="btn btn-success btn-block"> Pay Now </button>					
+										</div>
+
+									</div>			 
+								</form>
+							</div>
+		
+						{% endblock %}
+
+			      	</div>
+			    </div>
+			</div>
+		</div>
+
+{% endblock %}
+
+{% block scripts %}
+	
+	var total = {{total}};
+	var amount_paid = document.getElementById("amount_paid");
+	var balance = document.getElementById("balance")
+	amount_paid.addEventListener("keyup", calculate);
+
+	function calculate(){
+		var displayAmount = 0;
+		displayAmount = total - amount_paid.value;
+		if (isNaN(displayAmount)) {
+  			balance.value = 0.00;
+		} else {
+  			balance.value = displayAmount;
+		}	
+	}
+
+{% endblock %}
+

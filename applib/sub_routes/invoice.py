@@ -45,7 +45,7 @@ def index():
 
     with m.sql_cursor() as db:
         #select query from invoice
-        sub = db.query(m.Items.invoice_id, 
+        sub = db.query(m.Items.invoice_id,
                        m.func.sum(m.Items.amount                                              
                                   ).label("sub_total"),
                        ).group_by(
@@ -94,7 +94,6 @@ def index():
             grp_data.append(retv)
 
 
-
         cur_fmt = comma_separation
 
                                   
@@ -127,6 +126,8 @@ def checkout(invoice_id):
                                            m.Invoice.disc_desc, 
                                            m.Invoice.currency,
                                            m.Invoice.client_type,
+                                           m.Payment.status,
+                                           m.Payment.id.label("pay_id"),
                                            m.Client.address,
                                            m.Client.post_addr,
                                            m.Client.name,
@@ -134,12 +135,14 @@ def checkout(invoice_id):
                                            m.Client.phone,
                                            m.Client.id.label('client_id')
                                         ).join(
-                                                m.Client,
-                                                m.Client.id == m.Invoice.client_id
-                                                ).filter(
-                                                    m.Invoice.inv_id == invoice_id
-                                                    ).first()
-
+                                               m.Client,
+                                               m.Client.id == m.Invoice.client_id
+                                        ).outerjoin(
+                                               m.Payment, 
+                                               m.Payment.invoice_id == m.Invoice.inv_id
+                                        ).filter(
+                                                m.Invoice.inv_id == invoice_id
+                                            ).first()
 
         item_for_amount = db.query(m.Items.id, m.Items.item_desc,
                                    m.Items.qty, m.Items.rate,
@@ -159,7 +162,8 @@ def checkout(invoice_id):
                 'disc_type': client_invoice_details.disc_type,
                 'email': client_invoice_details.email,
                 'phone': client_invoice_details.phone,
-                'currency': currency_label[client_invoice_details.currency]
+                'currency': currency_label[client_invoice_details.currency],
+                'status': client_invoice_details.status,
                 }
 
         data['cur_fmt'] = comma_separation
