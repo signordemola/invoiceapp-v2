@@ -52,16 +52,19 @@ def index():
                             m.Items.invoice_id
                        ).subquery()
 
+        recent_payments = db.query(m.Payment.invoice_id, m.func.sum(m.Payment.amount_paid).label('recent_payment')
+                                    ).group_by(m.Payment.invoice_id).subquery()
+
         qry = db.query(m.Invoice.inv_id, 
                        m.Invoice.invoice_no, m.Invoice.disc_type, m.Invoice.disc_value,
                        m.Invoice.client_type, m.Client.email, 
                        m.Client.name, m.Invoice.date_value,                      
                        sub.c.sub_total,
                        sub.c.invoice_id,
-                       m.Payment.status
+                       recent_payments.c.recent_payment
                       ).outerjoin(sub, sub.c.invoice_id == m.Invoice.inv_id
-                        ).outerjoin(m.Payment, 
-                                    m.Payment.invoice_id == m.Invoice.inv_id
+                        ).outerjoin(recent_payments, 
+                                    recent_payments.c.invoice_id == m.Invoice.inv_id
                                     ).filter(
                                              m.Invoice.client_id == m.Client.id
                                             ).order_by(
@@ -81,10 +84,11 @@ def index():
             retv['invoice_no'] = x.invoice_no
             retv['client_name'] = x.name
             retv['email'] = x.email
-            retv['status'] = x.status
 
             vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value, 
                                                                     x.sub_total, x.client_type)
+
+            retv['status'] = 1 if (x.recent_payment - h.float2decimal(vat_total)) == 0 else 2 
 
             retv['vat_total'] = vat_total
             retv['vat'] = vat 

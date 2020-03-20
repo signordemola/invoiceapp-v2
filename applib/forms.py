@@ -250,7 +250,7 @@ class PaymentForm(Form):
                                 choices=[(1, "Complete"), (2, "Partial")], 
                                 render_kw={"class_": "form-control"})
 
-    payment_desc = TextAreaField('Comments', 
+    payment_desc = TextAreaField('Comments', [input_required()], 
                                 render_kw={"class_": "form-control", 
                                             "autocomplete": "new-password"})
         

@@ -27,6 +27,7 @@ import subprocess
 import pdfkit
 import base64
 from sqlalchemy_pagination import paginate
+from decimal import Decimal
 
 
 
@@ -244,6 +245,8 @@ def generate_pdf(_template, args, kwargs, email_body_template):
     pdf_output = '{}_{}.pdf'.format(kwargs['type'], 
                                 file_prefix)
 
+    pdf_output = os.path.join("tmp_pdf", pdf_output)
+
     mode = get_config("mode")
 
     if mode == '1':
@@ -330,3 +333,8 @@ def val_calculated_data(query_disc_type, query_disc_value, query_sub_total, quer
         vat_total = total + vat
     
     return vat_total, vat, total, discount
+
+
+
+def float2decimal(value):
+    return Decimal(str(value))

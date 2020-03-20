@@ -66,7 +66,14 @@ app.register_blueprint(itm.mod)
 app.register_blueprint(pay.mod)
 
 
-api.add_resource(InvoiceApi, '/invoice/gen', methods=['POST'])
+# api.add_resource(InvoiceApi, '/invoice/gen', methods=['POST'])
 
- 
+
+
+app.jinja_env.filters['date_format'] = h.date_format
+app.jinja_env.filters['comma_sep'] = h.comma_separation
+
+
+
+
  

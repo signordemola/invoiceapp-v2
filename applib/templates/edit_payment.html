@@ -20,13 +20,13 @@
 					<th> Status </th>
 				</thead>
 				<tbody>
-				{% for item in grp_data %} 
+				{% for x in payments %} 
 					<tr>
-						<td>{{ item.date_created }}</td>
-						<td>{{ item.amount_paid }}</td>
-						<td>{{ item.payment_mode }}</td>
-						<td>{{ item.balance }}</td>
-						<td>{{ item.status }}</td>
+						<td>{{ x.date_created | date_format }}</td>
+						<td>{{ x.amount_paid | comma_sep }}</td>
+						<td>{{ pay_lbl[x.payment_mode] }}</td>
+						<td>{{ x.balance | comma_sep }}</td>
+						<td>{{ x.status }}</td>
 					</tr>
 				{% else %}
 					<tr>
@@ -48,10 +48,10 @@
 					<th> Amount </th>
 				</thead>
 				<tbody>
-				{% for item in item_details %} 
+				{% for y in items %} 
 					<tr>
-						<td> {{item.item_desc}} </td>
-						<td> {{kwargs['cur_fmt'](item.amount)}} </td>
+						<td> {{ y.item_desc }} </td>
+						<td> {{ y.amount | comma_sep }} </td>
 					</tr>
 				{% else %}
 					<tr>
@@ -61,6 +61,7 @@
 				</tbody>
 			</table>
 			
+			{% set cur = cur_lbl[invoice_data.currency]  %}
 			<div style="margin-top: 15%;">
 				<button type="button" 
 			    class="btn btn-success btn-block"
@@ -71,24 +72,24 @@
 			    <br>
 			    <h4 class="text-muted" style="text-align: center; 
 				                         font-weight: bold; font-size: 15px;">
-					Sum of Amount Paid : {{ kwargs['cur_fmt'](amount_sum) }} {{ kwargs['currency'] }} 
+					Sum of Amount Paid : {{ invoice_data.total_paid | comma_sep }} {{ cur }} 
 				</h4>
 				{% if discount %}
 				<h4 class="text-muted" style="text-align: center;  
 					           font-weight: bold; font-size: 15px;">
-					Discounted Amount: {{ kwargs['cur_fmt'](discount) }} {{ kwargs['currency'] }} 
+					Discounted Amount: {{ discount|comma_sep }} {{ cur}} 
 				</h4>
 				{% endif %}
 				<h4 class="text-muted" style="text-align: center;  
 					           font-weight: bold; font-size: 15px;">
-					Vat calculated: {{ kwargs['cur_fmt'](vat) }} {{ kwargs['currency'] }} 
+					Vat calculated: {{ vat | comma_sep }} {{ cur }} 
 				</h4>
 				<h4 class="text-muted" style="text-align: center; 
 				                         font-weight: bold; font-size: 15px;">
-					Subtotal : {{ kwargs['cur_fmt'](subtotal) }} {{ kwargs['currency'] }} 
+					Subtotal : {{ subtotal | comma_sep }} {{ cur }} 
 				</h4>
 				<h3 style="text-align: center; font-weight: bold;">
-					Total : {{ kwargs['cur_fmt'](total) }} {{ kwargs['currency'] }} 
+					Total : {{ total | comma_sep }} {{ cur }} 
 				</h3>
 			</div>
 			 
@@ -104,11 +105,7 @@
 			      	<div class="modal-body">
 
 						{% block forms %}
-		
-							<div class="title text-center space_between">
-								<h3> {{title}} </h3>
-							</div>
-							<hr> 
+		 
 							<div>
 								<form action="" method='post'>			
 									{{ form_layout(form) }}			
@@ -141,14 +138,22 @@
 
 {% block scripts %}
 	
-	var total = {{total}};
+	var error = {{form.errors | safe}}
+
+	if (Object.keys(error).length > 0) {
+		$("#exampleModalCenter").modal('show')
+	}
+	
+
+
+	var cur_balance = {{cur_balance}};
 	var amount_paid = document.getElementById("amount_paid");
 	var balance = document.getElementById("balance")
 	amount_paid.addEventListener("keyup", calculate);
 
 	function calculate(){
 		var displayAmount = 0;
-		displayAmount = total - amount_paid.value;
+		displayAmount = cur_balance - amount_paid.value;
 		if (isNaN(displayAmount)) {
   			balance.value = 0.00;
 		} else {

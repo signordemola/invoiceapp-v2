@@ -24,16 +24,17 @@
 		</tr>
 		</thead>
 		<tbody>
-		{% for item in pager.items %}
+		{% set payment_status = {1: 'Complete', 2: 'Partial'} %}
+		{% for x in data %}
 			<tr>
-				<td> {{ date_format(item.date_created) }} </td>
-				<td> <b><a href="{{url_for('payment.edit', pay_id=item.id, invoice_id=item.invoice_id)}}" title="Edit Payment"> 
-						{{ item.name }} </a></b> 
+				<td> {{ date_format(x.date_created) }} </td>
+				<td> <b><a href="{{url_for('payment.edit', pay_id=x.id, invoice_id=x.invoice_id)}}" title="Edit Payment"> 
+						{{ x.name }} </a></b> 
 				</td>
-				<td> {{ item.payment_desc | truncate(60) }} </td>
-				<td> {{ cur_fmt(item.balance) }} </td>
-				<td> {{ status_label[item.status] }} </td>
-				<td><a href="{{url_for('payment.receipt', 								invoice_id=item.inv_id)}}" 
+				<td> {{ x.payment_desc | truncate(60) }} </td>
+				<td> {{ cur_fmt(x.balance) }} </td>
+				<td> {{ payment_status[x.status] }} </td>
+				<td><a href="{{url_for('payment.receipt', 								invoice_id=x.inv_id)}}" 
 					   title=" Email Receipt "> 
 					   <i class="fa fa-envelope fa-lg"> </i> 
 					</a>

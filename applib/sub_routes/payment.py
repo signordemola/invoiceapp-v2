@@ -1,13 +1,13 @@
 
 from flask import (Blueprint, request, url_for, 
-				   render_template, redirect, session, flash)
+                   render_template, redirect, session, flash)
 
 import applib.model as m
 from applib.forms import PaymentForm, CreateInvoiceForm
 from applib.lib import helper as h 
 from applib.lib.helper import (get_config, send_email, calc_discount,
-								set_email_read_feedback, generate_pdf, 
-								comma_separation, set_pagination)
+                                set_email_read_feedback, generate_pdf, 
+                                comma_separation, set_pagination)
 
 from flask_login import login_required
 
@@ -27,214 +27,259 @@ mod = Blueprint('payment', __name__, url_prefix='/admin/payment')
 @mod.route("/")
 @login_required
 def index():
-	form = PaymentForm(request.form)
-	status = { x[0]: x[1] for x in form.status.choices}
-	cur_page = request.args.get('page', 1, int)
+    form = PaymentForm(request.form)
+    status = { x[0]: x[1] for x in form.status.choices}
+    cur_page = request.args.get('page', 1, int)
 
 
-	with m.sql_cursor() as db:
-		qry = db.query(m.Payment.id,
-					   m.Payment.payment_desc,
-					   m.Payment.date_created,
-					   m.Payment.payment_mode,
-					   m.Payment.amount_paid,
-					   m.Payment.balance,
-					   m.Payment.invoice_id,
-					   m.Payment.status,
-					   m.Client.name,
-					   m.Invoice.inv_id.label("inv_id"),
-					  ).join(m.Invoice,
-							 m.Invoice.inv_id == m.Payment.invoice_id
-							 ).join(m.Client,
-									m.Client.id == m.Invoice.client_id
-									).filter(m.Payment.invoice_id == m.Invoice.inv_id
-									).order_by(m.Invoice.inv_id.desc())
-		
-		qry, page_row = set_pagination(qry, cur_page)
+    with m.sql_cursor() as db:
 
-		cur_fmt = comma_separation									
+        description = db.query(
+                                m.Payment.invoice_id, 
+                                m.func.max(m.Payment.id).label('pid'),
+                                m.func.sum(m.Payment.amount_paid).label("paid")
+                            ).group_by(m.Payment.invoice_id).subquery()
+
+        sub = db.query(m.Items.invoice_id,
+                               m.func.sum(m.Items.amount                                              
+                                          ).label("sub_total"),
+                               ).group_by(
+                                    m.Items.invoice_id
+                               ).subquery()
+
+        qry = db.query(
+                        m.Invoice.invoice_no,
+                        m.Invoice.inv_id,
+                        m.Invoice.disc_type, 
+                        m.Invoice.disc_value,
+                        m.Invoice.client_type,
+                        description.c.pid,                        
+                        description.c.paid,
+                        description.c.invoice_id,
+                        sub.c.sub_total,
+                        m.Payment.payment_desc,
+                        m.Payment.date_created,
+                        m.Payment.payment_mode,
+                        m.Payment.status, 
+                        m.Payment.id,
+                        m.Client.name   
+                    ).join(
+                        description,
+                        description.c.invoice_id == m.Invoice.inv_id                 
+                    ).outerjoin(sub, 
+                        sub.c.invoice_id == m.Invoice.inv_id
+                    ).join(
+                        m.Payment,
+                        m.Payment.id == description.c.pid
+                    ).join(m.Client,
+                           m.Client.id == m.Invoice.client_id                    
+                    ).order_by(description.c.pid.desc())
 
 
-	msg = request.args.get("msg")
-	if msg:
-		flash(msg)
+        qry, page_row = set_pagination(qry, cur_page)
+
+        grp_data = []
+
+        for x in qry.items:
+            retv = {}
+
+            retv['id'] = x.id
+            retv['invoice_id'] = x.invoice_id
+            retv['inv_id'] = x.inv_id
+            retv['date_created'] = x.date_created 
+            retv['name'] = x.name 
+            retv['payment_desc'] = x.payment_desc
+            
+
+            vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value, 
+                                                                    x.sub_total, x.client_type)
+
+            retv['balance'] = h.float2decimal(vat_total) - x.paid
+            retv['status'] = 1 if (x.paid - h.float2decimal(vat_total)) == 0 else 2 
+
+            grp_data.append(retv)
+
+        cur_fmt = comma_separation                                  
 
 
-	return render_template('payment.html', data=qry, status_label=status,
-							date_format=h.date_format, pager=qry, 
-							page_row=page_row, cur_page=cur_page, 
-							cur_fmt=cur_fmt
-						   )
+    msg = request.args.get("msg")
+    if msg:
+        flash(msg)
+
+
+    return render_template('payment.html', pager=qry, status_label=status,
+                            date_format=h.date_format, data=grp_data, 
+                            page_row=page_row, cur_page=cur_page, 
+                            cur_fmt=cur_fmt
+                           )
 
 
 @mod.route("/add/<int:invoice_id>/<invoice_name>", methods=["POST", "GET"])
 @login_required
 def add(invoice_name, invoice_id):
-	form = PaymentForm(request.form, client_name=invoice_name)
-	form_inv = CreateInvoiceForm()
-	currency_label = {x[0]: x[1] for x in form_inv.currency.choices} 
-	
-	with m.sql_cursor() as db:
-		item_details = db.query(m.Items.amount, m.Items.item_desc).filter_by(
-														invoice_id=invoice_id
-														).all()
-		invoice_query = db.query(m.Invoice.inv_id,
-								 m.Invoice.disc_type, 
-								 m.Invoice.disc_value,
-								 m.Invoice.client_type,
-								 m.Invoice.currency).filter_by(inv_id=invoice_id
-															   ).first()
+    form = PaymentForm(request.form, client_name=invoice_name)
+    form_inv = CreateInvoiceForm()
+    currency_label = {x[0]: x[1] for x in form_inv.currency.choices} 
+    
+    with m.sql_cursor() as db:
+        item_details = db.query(m.Items.amount, m.Items.item_desc).filter_by(
+                                                        invoice_id=invoice_id
+                                                        ).all()
+        invoice_query = db.query(m.Invoice.inv_id,
+                                 m.Invoice.disc_type, 
+                                 m.Invoice.disc_value,
+                                 m.Invoice.client_type,
+                                 m.Invoice.currency).filter_by(inv_id=invoice_id
+                                                               ).first()
 
-		data = {}
+        data = {}
 
-		_amount = 0
+        _amount = 0
 
-		for x in item_details:
-			_amount += x.amount
+        for x in item_details:
+            _amount += x.amount
 
-		vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
-																invoice_query.disc_value, 
-																_amount, 
-																invoice_query.client_type)
-		
-		data['sub_total'] = total
-		data['vat'] = vat
+        vat_total, vat, total, discount = h.val_calculated_data(invoice_query.disc_type, 
+                                                                invoice_query.disc_value, 
+                                                                _amount, 
+                                                                invoice_query.client_type)
+        
+        data['sub_total'] = total
+        data['vat'] = vat
 
-		data['cur_fmt'] = comma_separation
-		data['currency'] = currency_label[invoice_query.currency]    
-	
+        data['cur_fmt'] = comma_separation
+        data['currency'] = currency_label[invoice_query.currency]    
+    
 
-		if request.method == 'POST' and form.validate():
-			pay_md = m.Payment()
-			m.form2model(form, pay_md)
-			pay_md.invoice_id = invoice_id
-			pay_md.date_created = datetime.datetime.now().strftime("%b-%m-%d")
-			db.add(pay_md)
+        if request.method == 'POST' and form.validate():
+            pay_md = m.Payment()
+            m.form2model(form, pay_md)
+            pay_md.invoice_id = invoice_id
+            pay_md.date_created = datetime.datetime.now().strftime("%b-%m-%d")
+            db.add(pay_md)
 
-			msg = "Payment has being Added"
-			return redirect(url_for('payment.index', msg=msg))
+            msg = "Payment has being Added"
+            return redirect(url_for('payment.index', msg=msg))
 
-	return render_template('add_payment.html', 
-						   form=form, 
-						   title="Add Payment",
-						   discount=discount,
-						   total=vat_total,
-						   subtotal=total,
-						   vat=vat,
-						   item_details=item_details,
-						   kwargs=data,
-						   invoice_query=invoice_query)
-	
+    return render_template('add_payment.html', 
+                           form=form, 
+                           title="Add Payment",
+                           discount=discount,
+                           total=vat_total,
+                           subtotal=total,
+                           vat=vat,
+                           item_details=item_details,
+                           kwargs=data,
+                           invoice_query=invoice_query)
+    
 
 
 @mod.route("/edit/<int:pay_id>/<int:invoice_id>", methods=["POST", "GET"])
 @login_required
 def edit(pay_id, invoice_id):
 
-	form = PaymentForm(request.form)
-	payment_mode_label = {x[0]: x[1] for x in form.payment_mode.choices}
-	status_label = {x[0]: x[1] for x in form.status.choices}
+    form = PaymentForm(**request.form)
 
-	form_inv = CreateInvoiceForm()
-	currency_label = {x[0]: x[1] for x in form_inv.currency.choices}
-	
-	if request.method == 'POST' and form.validate():
-		with m.sql_cursor() as db:
-			pay_md = db.query(m.Payment).get(pay_id)
-			m.form2model(form, pay_md)
-		
-		return redirect(url_for("payment.index", msg='Paymemt updated successfully.'))
-			
-	with m.sql_cursor() as db:
+    payment_mode_label = {x[0]: x[1] for x in form.payment_mode.choices}
+    status_label = {x[0]: x[1] for x in form.status.choices}
+    currency_label = {x[0]: x[1] for x in CreateInvoiceForm().currency.choices}
 
-		item_details = db.query(m.Items.amount, 
-								m.Items.item_desc
-								).filter_by(
-											invoice_id=invoice_id
-											).all()
+    if request.method == 'POST' and form.validate():
+        
+        with m.sql_cursor() as db:
+            pay_md = m.Payment()
+            m.form2model(form, pay_md)
+            pay_md.invoice_id = invoice_id
+            pay_md.date_created = datetime.datetime.now().strftime("%b-%m-%d")
+            db.add(pay_md)
+        
+        return redirect(url_for("payment.index", msg='Paymemt updated successfully.'))
 
-		invoice_query = db.query(m.Invoice.inv_id, 
-								 m.Invoice.disc_type, 
-								 m.Invoice.disc_value,
-								 m.Invoice.client_type,
-								 m.Invoice.currency,
-								 m.Payment.date_created,
-								 m.Payment.amount_paid,
-								 m.Payment.payment_mode,
-								 m.Payment.balance,
-								 m.Payment.status
-								 ).join(
-										m.Payment, 
-										m.Payment.invoice_id == m.Invoice.inv_id
-								 ).filter(m.Invoice.inv_id == invoice_id).all()
+    with m.sql_cursor() as db:
 
-		amount_sum = db.query(m.func.sum(m.Payment.amount_paid).label("amount_paid_sum"), 
-							  m.Payment.invoice_id
-							 ).join(
-							  m.Invoice, 
-							  m.Invoice.inv_id == m.Payment.invoice_id
-							 ).filter(
-							  m.Invoice.inv_id == invoice_id
-							 ).group_by(m.Payment.invoice_id).first()
+        item_details = db.query(m.Items.invoice_id, m.func.sum(m.Items.amount).label('total_amount')
+                                ).group_by(m.Items.invoice_id).subquery()
 
-		_amount_sum = amount_sum.amount_paid_sum
-		grp_data = []
+        prev_amount_paid = db.query(m.Payment.invoice_id, 
+                                    m.func.sum(m.Payment.amount_paid).label('total_paid')
+                                    ).group_by(m.Payment.invoice_id).subquery()
 
 
-		for x in invoice_query:
-			retv = {}
+        invoice_data = db.query(m.Invoice.inv_id, 
+                                 m.Invoice.disc_type, 
+                                 m.Invoice.disc_value,
+                                 m.Invoice.client_type,
+                                 m.Invoice.currency,
+                                 m.Client.name,
+                                 item_details.c.total_amount,
+                                 prev_amount_paid.c.total_paid
+                                ).join(
+                                    m.Client,
+                                    m.Client.id == m.Invoice.client_id
+                                ).join(
+                                    item_details, 
+                                    item_details.c.invoice_id == invoice_id 
+                                ).join(
+                                    prev_amount_paid,
+                                    prev_amount_paid.c.invoice_id == invoice_id
+                                ).filter(m.Invoice.inv_id == invoice_id).first()
+ 
+        payment_history = db.query(m.Payment
+                                   ).filter(
+                                    m.Payment.invoice_id == invoice_id
+                                   )
 
-			retv['date_created'] = x.date_created.strftime("%d-%m-%Y")
-			retv['amount_paid'] = x.amount_paid
-			retv['payment_mode'] = payment_mode_label[x.payment_mode]
-			retv['balance'] = x.balance
-			retv['status'] = status_label[x.status]
 
-			grp_data.append(retv)
+        def calc_balance(amount, total):
+            return total - amount
 
-		data = {}
+        
+        vat_total, vat, total, discount = h.val_calculated_data(invoice_data.disc_type, 
+                                        invoice_data.disc_value, 
+                                        invoice_data.total_amount, 
+                                        invoice_data.client_type)
 
-		_amount = 0
-		for x in item_details:
-			_amount += x.amount
 
-		vat_total, vat, total, discount = h.val_calculated_data(invoice_query[0].disc_type, 
-																invoice_query[0].disc_value, 
-																_amount, 
-																invoice_query[0].client_type)
+        payment_agg = []
 
-		data['cur_fmt'] = comma_separation
-		data['currency'] = currency_label[invoice_query[0].currency]    
-		pay_data = db.query(m.Payment.id,
-							m.Client.name.label('client_name'),
-							# m.Payment.payment_desc,
-							m.Payment.client_name,
-							# m.Payment.payment_mode,
-							# m.Payment.amount_paid,
-							m.Payment.balance,
-							# m.Payment.status
-							).join(
-							m.Invoice,
-							m.Invoice.inv_id == m.Payment.invoice_id
-							).join(
-							m.Client, m.Client.id == m.Invoice.client_id
-							).filter(m.Payment.id == pay_id).first()
+        dynamic_amt = h.float2decimal(0) 
+        cur_balance = h.float2decimal(0)  
 
-		
 
-		m.model2form(pay_data, form)
+        for x in payment_history.all():
+            
+            dynamic_amt += x.amount_paid
+            cur_balance = calc_balance(dynamic_amt, h.float2decimal(vat_total))
+            tmp = {
+                "date_created":x.date_created,
+                "amount_paid":x.amount_paid,
+                "payment_mode":x.payment_mode,
+                "balance":cur_balance,
+                "status":status_label[x.status]
+            }
 
-	return render_template("edit_payment.html", 
-							form=form, 
-							title="Add Payment",
-							discount=discount,
-							total=vat_total,
-							subtotal=total,
-							amount_sum=_amount_sum,
-							vat=vat,
-							item_details=item_details,
-							kwargs=data,
-							grp_data=grp_data)
+            payment_agg.append(tmp)
+
+
+        item_data = db.query(m.Items).filter(m.Items.invoice_id == invoice_id)
+
+
+        form.client_name.data = invoice_data.name
+        form.balance.data = cur_balance
+
+
+        retv = dict(
+            form=form, title="Add Payment", discount=discount,
+            total=vat_total, subtotal=total, vat=vat,
+            pay_lbl=payment_mode_label, stat_lbl=status_label,
+            cur_lbl=currency_label, payments=payment_agg,
+            items=item_data, invoice_data=invoice_data, 
+            cur_balance=cur_balance
+        )
+    
+
+    return render_template("edit_payment.html", **retv)
+                            
 
 
 
@@ -242,86 +287,86 @@ def edit(pay_id, invoice_id):
 @login_required
 def receipt(invoice_id):
 
-	form_pay = PaymentForm()
-	status = {x[0]: x[1] for x in form_pay.status.choices}
+    form_pay = PaymentForm()
+    status = {x[0]: x[1] for x in form_pay.status.choices}
 
-	form_inv = CreateInvoiceForm()
-	currency_label = {x[0]: x[1] for x in form_inv.currency.choices}
+    form_inv = CreateInvoiceForm()
+    currency_label = {x[0]: x[1] for x in form_inv.currency.choices}
 
-	with m.sql_cursor() as db:
-		client_invoice_details = db.query(m.Invoice.inv_id.label("invoice_id"),
-										  m.Invoice.invoice_no, m.Invoice.disc_value,
-										  m.Invoice.disc_type, m.Invoice.currency,
-										  m.Invoice.client_type,
-										  m.Payment.amount_paid, m.Payment.status, 
-										  m.Payment.date_created,
-										  m.Payment.balance, m.Client.address,
-										  m.Client.post_addr, m.Client.name,
-										  m.Client.email, m.Client.phone
-										).join(m.Invoice,
-											   m.Invoice.inv_id == m.Payment.invoice_id
-										).join(m.Client,
-											   m.Client.id == m.Invoice.client_id
-											   ).filter(
-													m.Payment.invoice_id == invoice_id
-													).first()
+    with m.sql_cursor() as db:
+        client_invoice_details = db.query(m.Invoice.inv_id.label("invoice_id"),
+                                          m.Invoice.invoice_no, m.Invoice.disc_value,
+                                          m.Invoice.disc_type, m.Invoice.currency,
+                                          m.Invoice.client_type,
+                                          m.Payment.amount_paid, m.Payment.status, 
+                                          m.Payment.date_created,
+                                          m.Payment.balance, m.Client.address,
+                                          m.Client.post_addr, m.Client.name,
+                                          m.Client.email, m.Client.phone
+                                        ).join(m.Invoice,
+                                               m.Invoice.inv_id == m.Payment.invoice_id
+                                        ).join(m.Client,
+                                               m.Client.id == m.Invoice.client_id
+                                               ).filter(
+                                                    m.Payment.invoice_id == invoice_id
+                                                    ).first()
 
-		data = {
-				'invoice_no': client_invoice_details.invoice_no,
-				'date_value': client_invoice_details.date_created.strftime("%Y-%m-%d"),
-				'address': client_invoice_details.address,
-				'post_addr': client_invoice_details.post_addr,
-				'name': client_invoice_details.name,
-				'email': client_invoice_details.email,
-				'phone': client_invoice_details.phone
-			}
+        data = {
+                'invoice_no': client_invoice_details.invoice_no,
+                'date_value': client_invoice_details.date_created.strftime("%Y-%m-%d"),
+                'address': client_invoice_details.address,
+                'post_addr': client_invoice_details.post_addr,
+                'name': client_invoice_details.name,
+                'email': client_invoice_details.email,
+                'phone': client_invoice_details.phone
+            }
 
-		data['cur_fmt'] = comma_separation
+        data['cur_fmt'] = comma_separation
 
-		item_for_amount = db.query(
-									m.Items.id,
-									m.Items.item_desc,
-									m.Items.qty,
-									m.Items.rate,
-									m.Items.amount
-								).filter_by(invoice_id=invoice_id).all()
+        item_for_amount = db.query(
+                                    m.Items.id,
+                                    m.Items.item_desc,
+                                    m.Items.qty,
+                                    m.Items.rate,
+                                    m.Items.amount
+                                ).filter_by(invoice_id=invoice_id).all()
 
-		items = []
-		for y in item_for_amount:
-			items.append({
-							'id': y.id, 'item_desc': y.item_desc,
-							'qty': y.qty, 'rate': y.rate, 'amount': y.amount
-						})
+        items = []
+        for y in item_for_amount:
+            items.append({
+                            'id': y.id, 'item_desc': y.item_desc,
+                            'qty': y.qty, 'rate': y.rate, 'amount': y.amount
+                        })
 
-		_amount = 0
-		
-		for x in item_for_amount:
-			_amount += x.amount
-
-
-		data['type'] = "Receipt"
-		data['amount_balance'] = client_invoice_details.balance
-		data['amount_paid'] = client_invoice_details.amount_paid
-
-		vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
-																client_invoice_details.disc_value, 
-																_amount, 
-																client_invoice_details.client_type)
-
-		data['subtotal'] = total
-		data['vat'] = vat
-		data['total'] = vat_total
-		data['status'] = status[client_invoice_details.status]
-		data['currency'] = currency_label[client_invoice_details.currency]
+        _amount = 0
+        
+        for x in item_for_amount:
+            _amount += x.amount
 
 
-		if request.method == 'GET':
-			generate_pdf(_template='receipt.html', args=items, 
-						 kwargs=data, email_body_template='email_receipt.html')
-			
+        data['type'] = "Receipt"
+        data['amount_balance'] = client_invoice_details.balance
+        data['amount_paid'] = client_invoice_details.amount_paid
 
-			msg = "Receipt has been emailed to the Customer successfully."
-			return redirect(url_for('payment.index', msg=msg))
+        vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
+                                                                client_invoice_details.disc_value, 
+                                                                _amount, 
+                                                                client_invoice_details.client_type)
+
+        data['subtotal'] = total
+        data['vat'] = vat
+        data['total'] = vat_total
+        data['status'] = status[client_invoice_details.status]
+        data['currency'] = currency_label[client_invoice_details.currency]
+
+
+        if request.method == 'GET':
+            generate_pdf(_template='receipt.html', args=items, 
+                         kwargs=data, email_body_template='email_receipt.html')
+            
+
+            msg = "Receipt has been emailed to the Customer successfully."
+            return redirect(url_for('payment.index', msg=msg))
 
 
 
