@@ -141,8 +141,8 @@
 		}
 
 		#footer_div{
-			margin-top: 25%; 
-			padding-top: 7%;
+			margin-top: 8%; 
+			padding-top: 5%;
 		}
 
 		#lower_table{
@@ -272,6 +272,29 @@
 					</table> 	
 
 					</div>
+					<h2 class="text-center" style="font-weight: lighter;"> 
+						Payment History 
+					</h2>
+					<table id="Top_table_taken" class="table table-striped">
+						<thead>
+							<th scope="col"> Date Paid </th>
+							<th scope="col" style="text-align: right; padding-right: 40px;"> Amount </th>
+						</thead>
+						<tbody>
+						{% for x in payments %} 
+							<tr>
+								<td>{{ x.date_created }}</td>
+								<td style="text-align: right; padding-right: 30px;">
+									{{ cur_fmt(x.amount_paid) }} {{ currency }}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="2"> <i> no records found... </i> </td>
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
 
 				</div>	
 				

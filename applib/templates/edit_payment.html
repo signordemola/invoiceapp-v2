@@ -63,7 +63,8 @@
 			
 			{% set cur = cur_lbl[invoice_data.currency]  %}
 			<div style="margin-top: 15%;">
-				<button type="button" 
+				<button style="align-items: center;" 
+				type="button" 
 			    class="btn btn-success btn-block"
 			    data-toggle="modal" 
 				data-target="#exampleModalCenter">
@@ -91,6 +92,11 @@
 				<h3 style="text-align: center; font-weight: bold;">
 					Total : {{ total | comma_sep }} {{ cur }} 
 				</h3>
+				<a style="align-items: center;"
+				href="{{url_for('payment.index')}}" 
+			    class="btn btn-light btn-block">
+					Back to Payment
+			    </a>
 			</div>
 			 
  

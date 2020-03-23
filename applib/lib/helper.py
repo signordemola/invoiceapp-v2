@@ -233,12 +233,12 @@ def set_email_read_feedback(**kwargs):
 
 
 
-def generate_pdf(_template, args, kwargs, email_body_template):
+def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[]):
 
     env = Environment(loader=FileSystemLoader('applib/templates/'))
 
     template = env.get_template(_template)
-    _template = template.render(posts=args, **kwargs)
+    _template = template.render(posts=args, payments=pay_history, **kwargs)
     
     file_prefix = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
@@ -267,7 +267,7 @@ def generate_pdf(_template, args, kwargs, email_body_template):
                                     email_title=message_subject)
 
     template1 = env.get_template(email_body_template)
-    _template1 = template1.render(items=args, status_link=_link, **kwargs)
+    _template1 = template1.render(items=args, payments=pay_history, status_link=_link, **kwargs)
 
     send_email(pdf_output, kwargs['email'], message_subject, _template1, kwargs['type'])
 

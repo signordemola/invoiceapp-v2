@@ -360,9 +360,34 @@ def receipt(invoice_id):
         data['currency'] = currency_label[client_invoice_details.currency]
 
 
+        payment_history = db.query(m.Payment
+                                   ).filter(
+                                    m.Payment.invoice_id == invoice_id
+                                   )
+
+        def calc_balance(amount, total):
+            return total - amount
+
+        dynamic_amt = h.float2decimal(0) 
+        cur_balance = h.float2decimal(0)
+
+        payment_agg = []
+        tmp = {}
+        
+        
+        for x in payment_history.all():
+            
+            dynamic_amt += x.amount_paid
+            cur_balance = calc_balance(dynamic_amt, h.float2decimal(vat_total))
+
+            tmp["date_created"] = x.date_created.strftime("%Y-%m-%d")
+            tmp["amount_paid"] = x.amount_paid
+         
+            payment_agg.append(tmp)
         if request.method == 'GET':
             generate_pdf(_template='receipt.html', args=items, 
-                         kwargs=data, email_body_template='email_receipt.html')
+                         kwargs=data, email_body_template='email_receipt.html', 
+                         pay_history=payment_agg)
             
 
             msg = "Receipt has been emailed to the Customer successfully."

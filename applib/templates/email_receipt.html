@@ -84,6 +84,46 @@
             </tr>
 
         </tbody>
+    </table >
+
+    <h3 class="text-center" style="font-weight: lighter; text-align: center;"> 
+        Payment History 
+    </h3>
+    <table style="border-collapse: collapse; display: table !important;
+        width: 100%; margin-bottom: 1rem; background-color: transparent; 
+        border-bottom-width: 2px;">
+        <tr>
+            <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;"> 
+                Date Paid 
+            </th>
+            <th width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;"> 
+                Amount 
+            </th>
+        </tr>
+        <tbody>
+        {% for x in payments %} 
+            <tr>
+                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    {{ x.date_created }} 
+                </td>
+                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                    {{ cur_fmt(x.amount_paid) }} {{ currency }}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="2"> <i> no records found... </i> </td>
+            </tr>
+        {% endfor %}
+        </tbody>
     </table>
 
 	{{type}} PDF copy has been added as an attachment <br/>
