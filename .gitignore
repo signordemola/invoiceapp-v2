@@ -8,6 +8,7 @@
 *.pyc
 
 tmp/
+tmp_pdf/
 __pycache__/
 
 .invoiceEnv/
