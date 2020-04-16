@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block in_style %}
+	
+.spread-content{
+	display: flex;
+    justify-content: space-between;
+}
+
+{% endblock %}
+
+{% block main %}
+
+
+<div class="col-md-12">
+	
+	<h3 class="mb-5 header_text">
+		<b> Dashboard Stats</b>
+	</h3>
+	
+	<div style="margin-bottom: 25px;">
+
+	<div class="row">
+		<div class="col-md-4">
+			<div class="alert alert-danger">
+				<h3> Expenses </h3>
+				<div class="spread-content">
+				<p>
+					<span> <b> NGN {{cur_exp_val | comma_sep }} </b> </span>
+					<br/>				
+					<i> {{cur_month | upper }} </i>
+				</p>
+				<i class="fas fa-cart-arrow-down fa-3x"></i>
+				</div>
+
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="alert alert-success">
+				<h3> Income </h3>
+				<div class="spread-content">
+					<p>
+						<span> <b> NGN {{cur_income_val | comma_sep }} </b> </span>
+						<br/>				
+						<i> {{cur_month | upper }} </i>
+					</p>
+					<i class="fas fa-warehouse fa-3x"></i>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="alert alert-info">
+				<h3> Debts </h3>
+				<div class="spread-content">
+				<p>
+					<span> <b> NGN {{ debt_val | comma_sep }} </b> </span>
+					<br/>				
+					<i> {{cur_month | upper }} </i>
+				</p>
+				<i class="fas fa-coins fa-3x"></i>
+				</div>
+			</div>	
+		</div>
+	</div>
+
+	<div style="width:100%; height: 400px; padding: 10px; border:solid 1px #eeeeee; border-radius:5px; background: #eee;">			
+		<canvas id="chartarea" style="height: 380px;border-radius:5px; width:100%; background:#fff;border: solid 1px #ddd;"></canvas>		
+	</div>
+	
+	
+		
+	</div>
+
+
+</div>
+{% endblock %}
+
+{% block script_files %}
+
+<!-- <link rel="stylesheet" href="https://cdnjs.com/libraries/Chart.js"> -->
+<!-- <script src="https://www.jsdelivr.com/package/npm/chart.js?path=dist"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+
+<script>
+	var plot_data ={
+			type: 'line',
+			data: {
+				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', "August", "September", "October", 'November', "December"],
+				datasets: [
+				{
+					label: 'Income',
+					fill: true,
+					backgroundColor: "#2d862d",
+					borderColor: "#2d862d",
+					data: {{inc_output| safe }}
+				}, 
+				{
+					label: 'Expenditure',
+					fill: false,
+					backgroundColor: "#992600",
+					borderColor: "#992600",
+					borderDash: [5, 5],
+					data:{{exp_output | safe }}
+					 ,
+				}, 
+				// {
+				// 	label: 'Potential Income',
+				// 	fill: false,
+				// 	backgroundColor: "#005580",
+				// 	borderColor: "#005580",
+				// 	data: [
+				// 		0,2,0,3,4,5,6,7,0, 9, 100000, 100
+				// 	],
+				// 	fill: true,
+				// }
+				]
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Financial Flow'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Month'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}]
+				}
+			}
+		}
+	
+	var myLineChart = new Chart($("#chartarea")[0].getContext('2d'), plot_data
+
+	);
+
+</script>
+
+{% endblock %}
+
+
+
+

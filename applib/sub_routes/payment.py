@@ -155,7 +155,8 @@ def add(invoice_name, invoice_id):
             pay_md = m.Payment()
             m.form2model(form, pay_md)
             pay_md.invoice_id = invoice_id
-            pay_md.date_created = datetime.datetime.now().strftime("%b-%m-%d")
+
+            pay_md.date_created = datetime.datetime.now()
             db.add(pay_md)
 
             msg = "Payment has being Added"
@@ -190,7 +191,7 @@ def edit(pay_id, invoice_id):
             pay_md = m.Payment()
             m.form2model(form, pay_md)
             pay_md.invoice_id = invoice_id
-            pay_md.date_created = datetime.datetime.now().strftime("%b-%m-%d")
+            pay_md.date_created = datetime.datetime.now()
             db.add(pay_md)
         
         return redirect(url_for("payment.index", msg='Paymemt updated successfully.'))
