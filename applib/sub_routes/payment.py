@@ -295,12 +295,19 @@ def receipt(invoice_id):
     currency_label = {x[0]: x[1] for x in form_inv.currency.choices}
 
     with m.sql_cursor() as db:
+
+        aggr_amount_paid = db.query(
+                                m.Payment.invoice_id, 
+                                m.func.sum(m.Payment.amount_paid).label("paid")
+                            ).group_by(m.Payment.invoice_id).subquery()
+
         client_invoice_details = db.query(m.Invoice.inv_id.label("invoice_id"),
                                           m.Invoice.invoice_no, m.Invoice.disc_value,
                                           m.Invoice.disc_type, m.Invoice.currency,
                                           m.Invoice.client_type,
                                           m.Payment.amount_paid, m.Payment.status, 
                                           m.Payment.date_created,
+                                          aggr_amount_paid.c.paid,
                                           m.Payment.balance, m.Client.address,
                                           m.Client.post_addr, m.Client.name,
                                           m.Client.email, m.Client.phone
@@ -308,18 +315,20 @@ def receipt(invoice_id):
                                                m.Invoice.inv_id == m.Payment.invoice_id
                                         ).join(m.Client,
                                                m.Client.id == m.Invoice.client_id
+                                        ).join(aggr_amount_paid,
+                                               aggr_amount_paid.c.invoice_id == m.Invoice.inv_id
                                                ).filter(
                                                     m.Payment.invoice_id == invoice_id
-                                                    ).first()
+                                                    )
 
         data = {
-                'invoice_no': client_invoice_details.invoice_no,
-                'date_value': client_invoice_details.date_created.strftime("%Y-%m-%d"),
-                'address': client_invoice_details.address,
-                'post_addr': client_invoice_details.post_addr,
-                'name': client_invoice_details.name,
-                'email': client_invoice_details.email,
-                'phone': client_invoice_details.phone
+                'invoice_no': client_invoice_details[0].invoice_no,
+                'date_value': client_invoice_details[0].date_created.strftime("%Y-%m-%d"),
+                'address': client_invoice_details[0].address,
+                'post_addr': client_invoice_details[0].post_addr,
+                'name': client_invoice_details[0].name,
+                'email': client_invoice_details[0].email,
+                'phone': client_invoice_details[0].phone
             }
 
         data['cur_fmt'] = comma_separation
@@ -345,26 +354,27 @@ def receipt(invoice_id):
             _amount += x.amount
 
 
+        for x in client_invoice_details.all():
+            
+            vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value, 
+                                                                    _amount, x.client_type)
+
+            data['amount_paid'] = x.paid
+            data['amount_balance'] = h.float2decimal(vat_total) - x.paid
+            data['subtotal'] = total
+            data['vat'] = vat
+            data['total'] = vat_total
+            data['status'] = status[x.status]
+            data['currency'] = currency_label[x.currency]
+
+
         data['type'] = "Receipt"
-        data['amount_balance'] = client_invoice_details.balance
-        data['amount_paid'] = client_invoice_details.amount_paid
 
-        vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
-                                                                client_invoice_details.disc_value, 
-                                                                _amount, 
-                                                                client_invoice_details.client_type)
-
-        data['subtotal'] = total
-        data['vat'] = vat
-        data['total'] = vat_total
-        data['status'] = status[client_invoice_details.status]
-        data['currency'] = currency_label[client_invoice_details.currency]
-
-
-        payment_history = db.query(m.Payment
+        payment_history = db.query(m.Payment.date_created,
+                                   m.Payment.amount_paid
                                    ).filter(
                                     m.Payment.invoice_id == invoice_id
-                                   )
+                                   ).all()
 
         def calc_balance(amount, total):
             return total - amount
@@ -373,13 +383,15 @@ def receipt(invoice_id):
         cur_balance = h.float2decimal(0)
 
         payment_agg = []
-        tmp = {}
         
         
-        for x in payment_history.all():
-            
+        
+        for x in payment_history:
+
             dynamic_amt += x.amount_paid
             cur_balance = calc_balance(dynamic_amt, h.float2decimal(vat_total))
+
+            tmp = {}
 
             tmp["date_created"] = x.date_created.strftime("%Y-%m-%d")
             tmp["amount_paid"] = x.amount_paid
