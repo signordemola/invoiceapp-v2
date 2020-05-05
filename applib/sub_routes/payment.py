@@ -311,15 +311,15 @@ def receipt(invoice_id):
                                           m.Payment.balance, m.Client.address,
                                           m.Client.post_addr, m.Client.name,
                                           m.Client.email, m.Client.phone
-                                        ).join(m.Invoice,
-                                               m.Invoice.inv_id == m.Payment.invoice_id
+                                        ).join(m.Payment,
+                                               m.Payment.invoice_id == m.Invoice.inv_id
                                         ).join(m.Client,
                                                m.Client.id == m.Invoice.client_id
                                         ).join(aggr_amount_paid,
                                                aggr_amount_paid.c.invoice_id == m.Invoice.inv_id
                                                ).filter(
-                                                    m.Payment.invoice_id == invoice_id
-                                                    )
+                                                    m.Invoice.inv_id == invoice_id
+                                                    ).all()
 
         data = {
                 'invoice_no': client_invoice_details[0].invoice_no,
@@ -354,7 +354,7 @@ def receipt(invoice_id):
             _amount += x.amount
 
 
-        for x in client_invoice_details.all():
+        for x in client_invoice_details:
             
             vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value, 
                                                                     _amount, x.client_type)
