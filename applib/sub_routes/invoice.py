@@ -15,7 +15,7 @@ from jinja2 import Environment, PackageLoader, FileSystemLoader
 import random 
 
 
-from applib.model import db_session
+# from applib.model import db_session
 from applib import model as m 
 from applib.forms import CreateInvoiceForm
 
@@ -53,20 +53,23 @@ def index():
                        ).subquery()
 
 
-        recent_payments = db.query(m.Payment.invoice_id, m.func.sum(m.Payment.amount_paid).label('recent_payment')
-                                    ).group_by(m.Payment.invoice_id).subquery()
+        recent_payments = db.query(m.Payment.invoice_id, 
+                                  m.func.max(m.Payment.status).label('status'),
+                                   m.func.sum(m.Payment.amount_paid).label('recent_payment')
+                                  ).group_by(m.Payment.invoice_id).subquery()
 
         qry = db.query(m.Invoice.inv_id, 
                        m.Invoice.invoice_no, m.Invoice.disc_type, m.Invoice.disc_value,
                        m.Invoice.client_type, m.Client.email, 
                        m.Client.name, m.Invoice.date_value,
-                       m.Payment.status,                      
+                       # m.Payment.status,                      
                        sub.c.sub_total,
                        sub.c.invoice_id,
-                       recent_payments.c.recent_payment
+                       recent_payments.c.recent_payment,
+                       recent_payments.c.status
                       ).outerjoin(sub, sub.c.invoice_id == m.Invoice.inv_id
-                      ).outerjoin(m.Payment, 
-                                  m.Payment.invoice_id == m.Invoice.inv_id
+                      # ).outerjoin(m.Payment, 
+                      #             m.Payment.invoice_id == m.Invoice.inv_id
                       ).outerjoin(recent_payments, 
                                   recent_payments.c.invoice_id == m.Invoice.inv_id
                                   ).filter(m.Invoice.client_id == m.Client.id
