@@ -370,11 +370,6 @@ def receipt(invoice_id):
 
         data['type'] = "Receipt"
 
-        vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details[0].disc_type, 
-                                                                client_invoice_details[0].disc_value, 
-                                                                _amount, 
-                                                                client_invoice_details[0].client_type)
-
         payment_history = db.query(m.Payment.date_created,
                                    m.Payment.amount_paid
                                    ).filter(
