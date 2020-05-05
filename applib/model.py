@@ -172,8 +172,7 @@ class Payment(db.Model):
     id = Column(BigInteger, Sequence('payment_id_seq'), primary_key=True)
     client_name = Column(String(150), nullable=False)
     payment_desc = Column(Text)
-    date_created = Column(DateTime, nullable=False, 
-                          default=datetime.datetime.now())
+    date_created = Column(DateTime, nullable=False, default=datetime.datetime.now())
     payment_mode = Column(Integer, nullable=False)
     amount_paid = Column(DECIMAL(15, 2))
     balance = Column(DECIMAL(15,2))

@@ -42,6 +42,7 @@ import applib.sub_routes.expense as exp
 import applib.sub_routes.invoice as inv
 import applib.sub_routes.item as itm
 import applib.sub_routes.payment as pay
+import applib.sub_routes.dashboard as dashboard
 
 
 api = Api(app)
@@ -64,7 +65,7 @@ app.register_blueprint(exp.mod)
 app.register_blueprint(inv.mod)
 app.register_blueprint(itm.mod)
 app.register_blueprint(pay.mod)
-
+app.register_blueprint(dashboard.mod)
 
 # api.add_resource(InvoiceApi, '/invoice/gen', methods=['POST'])
 
