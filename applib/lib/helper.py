@@ -209,7 +209,7 @@ def send_email(filename, receiver_email, msg_subject,
 
             part.add_header(
                 "Content-Disposition",
-                "attachment; filename={}.{}".format(email_filename, 
+                "attachment; filename={}.{}.pdf".format(email_filename, 
                                                     datetime.datetime.now().strftime("%b.%m.%Y.%S"))
             )
             
