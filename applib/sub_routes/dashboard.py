@@ -143,9 +143,9 @@ def index():
 
     tmp_exp = {int(x): k for x,k in annual_exp}
 
-    for x,k in annual_exp:
-        total_expenditure += k 
-
+    # for x,k in annual_exp:
+    #     total_expenditure += k 
+    
     income_aggregate, exp_aggregate = h.float2decimal('0'), h.float2decimal('0')
 
     for x,k in annual_income:
