@@ -157,63 +157,63 @@ def checkout(invoice_id):
                                    m.Items.amount
                                   ).filter_by(invoice_id=invoice_id).all()
 
-        data = {
-                'invoice_no': client_invoice_details.invoice_no,
-                'date_value': datetime.datetime.now().strftime("%Y-%m-%d"),
-                'invoice_due': datetime.datetime.now().strftime("%Y-%m-%d"),
-                'purchase_order_no': client_invoice_details.purchase_no,
-                'discount_applied': client_invoice_details.disc_value,
-                'discount_description': client_invoice_details.disc_desc,
-                'address': client_invoice_details.address,
-                'post_addr': client_invoice_details.post_addr,
-                'name': client_invoice_details.name,
-                'disc_type': client_invoice_details.disc_type,
-                'email': client_invoice_details.email,
-                'phone': client_invoice_details.phone,
-                'currency': currency_label[client_invoice_details.currency],
-                'status': client_invoice_details.status,
-                }
+    data = {
+            'invoice_no': client_invoice_details.invoice_no,
+            'date_value': datetime.datetime.now().strftime("%Y-%m-%d"),
+            'invoice_due': datetime.datetime.now().strftime("%Y-%m-%d"),
+            'purchase_order_no': client_invoice_details.purchase_no,
+            'discount_applied': client_invoice_details.disc_value,
+            'discount_description': client_invoice_details.disc_desc,
+            'address': client_invoice_details.address,
+            'post_addr': client_invoice_details.post_addr,
+            'name': client_invoice_details.name,
+            'disc_type': client_invoice_details.disc_type,
+            'email': client_invoice_details.email,
+            'phone': client_invoice_details.phone,
+            'currency': currency_label[client_invoice_details.currency],
+            'status': client_invoice_details.status,
+            }
 
-        data['cur_fmt'] = comma_separation
+    data['cur_fmt'] = comma_separation
 
-        _amount = 0
+    _amount = 0
 
-        for x in item_for_amount:
-            _amount += x.amount
+    for x in item_for_amount:
+        _amount += x.amount
 
-        data['subtotal'] = _amount
-        vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
-                                                              client_invoice_details.disc_value, 
-                                                              _amount, client_invoice_details.client_type)
+    data['subtotal'] = _amount
+    vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type, 
+                                                          client_invoice_details.disc_value, 
+                                                          _amount, client_invoice_details.client_type)
 
-        data['discount'] = discount
-        data['vat'] = vat
-        data['total'] = total
-        data['vat_total'] = vat_total
+    data['discount'] = discount
+    data['vat'] = vat
+    data['total'] = total
+    data['vat_total'] = vat_total
 
-        if request.method == 'POST':
+    if request.method == 'POST':
 
-            items = []
-            for y in item_for_amount:
-                items.append({
-                                'id': y.id, 'item_desc': y.item_desc,
-                                'qty': y.qty, 'rate': y.rate, 'amount': y.amount
-                              })
+        items = []
+        for y in item_for_amount:
+            items.append({
+                            'id': y.id, 'item_desc': y.item_desc,
+                            'qty': y.qty, 'rate': y.rate, 'amount': y.amount
+                          })
 
-            data['type'] = "Invoice"
-            generate_pdf(_template='new_invoice.html', args=items, 
-                        kwargs=data, email_body_template='email_body.html')
-            
-            msg = "Invoice has been emailed to the customer successfully."
-            return redirect(url_for('invoice.index', msg=msg))
+        data['type'] = "Invoice"
+        generate_pdf(_template='new_invoice.html', args=items, 
+                    kwargs=data, email_body_template='email_body.html')
+        
+        msg = "Invoice has been emailed to the customer successfully."
+        return redirect(url_for('invoice.index', msg=msg))
 
 
-        # render the page on GET 
-        return render_template('checkout.html', 
-                                invoice_details=client_invoice_details,
-                                client_details=client_invoice_details, 
-                                kwargs=data,
-                                items=item_for_amount)
+    # render the page on GET 
+    return render_template('checkout.html', 
+                            invoice_details=client_invoice_details,
+                            client_details=client_invoice_details, 
+                            kwargs=data,
+                            items=item_for_amount)
 
 
 @mod.route('/add', methods=['POST', 'GET'])

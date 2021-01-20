@@ -39,7 +39,8 @@ def login():
     if request.method == 'POST' and form.validate():
         username = form.usr_name.data
         password = form.psd_wrd.data
-
+        
+        
         with m.sql_cursor() as db:
             
             user = db.query(m.Users).filter(m.Users.username == username

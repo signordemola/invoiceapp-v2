@@ -62,9 +62,10 @@ def add_item(invoice_id):
             # insert item query
             item = m.Items(**params)
             db.add(item)
-            db.flush()
+            db.flush() 
 
-            return redirect(url_for('invoice.index'))
+
+            return redirect(url_for('invoice.checkout', invoice_id=invoice_id))
 
 
     return render_template('add_item.html', form=form)

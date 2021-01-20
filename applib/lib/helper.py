@@ -16,13 +16,13 @@ from jinja2 import Template
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 import random 
 import subprocess as sc 
-
+import requests as rq 
 
 import datetime
 import urllib 
 import base64
 
-import os
+import os, json
 import subprocess
 import pdfkit
 import base64
@@ -199,28 +199,42 @@ def send_email(filename, receiver_email, msg_subject,
         message.attach(MIMEText(body, "html"))  #Add body to Email
         # filename = pdf_output  # In same directory as script
 
-        if filename:
+        attach_name = "{}.{}.pdf".format(email_filename, 
+                                         datetime.datetime.now().strftime("%b.%m.%Y.%S"))
+        
+        attach_name = None
+
+        if filename:    
 
             with open(filename, "rb") as attachment:  # Open PDF file in readable binary mode
                 part = MIMEBase("application", "octet-stream")   # Add file as application/octet-stream
-                part.set_payload(attachment.read())  # Email client can usually download this automatically as attachment
+                attach_data = attachment.read()
+                part.set_payload(attach_data)  # Email client can usually download this automatically as attachment
 
             encoders.encode_base64(part)  # Encode file in ASCII characters to send by email 
 
+            
+
             part.add_header(
                 "Content-Disposition",
-                "attachment; filename={}.{}.pdf".format(email_filename, 
-                                                    datetime.datetime.now().strftime("%b.%m.%Y.%S"))
+                "attachment; filename={}".format(attach_name)
             )
             
             message.attach(part)   
         
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(
-                sender_email, receiver_email, message.as_string()
-                )
+        # context = ssl.create_default_context()
+        # with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        #     server.login(sender_email, password)
+        #     server.sendmail(
+        #         sender_email, receiver_email, message.as_string()
+        #         )
+
+        resp = send_email_postmark(receiver_email, msg_subject, email_body, 
+                file_path=None, attachment_content=attach_data, attachment_name=attach_name)
+
+        print(resp)
+
+
 
 
 def set_email_read_feedback(**kwargs):
@@ -338,3 +352,47 @@ def val_calculated_data(query_disc_type, query_disc_value, query_sub_total, quer
 
 def float2decimal(value):
     return Decimal(str(value))
+
+
+
+def attach_functn(file_path):
+    with open(file_path, 'rb') as f:
+            data = f.read()
+        
+    encoded = base64.b64encode(data).decode()
+    return encoded
+
+
+def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None, attachment_content=None, attachment_name="", attach_type="application/pdf"):
+
+
+    cfg = get_config('mapappemail')
+
+    params = {
+            "From": cfg['sender'],
+            "To": receiver_email,
+            "Subject": msg_subject,
+            "HtmlBody": email_body,
+            "MessageStream": "outbound"
+        }
+
+    if file_path:
+        attachment = attachment_content or attach_functn(file_path)
+        params['Attachments'] = [
+                {
+                  "Name": attachment_name,
+                  "Content": attachment,
+                  "ContentType": attach_type
+                }
+            ]
+
+    payload = json.dumps(params)
+
+    
+    headers = {"X-Postmark-Server-Token": cfg['key'],
+                "Content-Type": "application/json", "Accept": "application/json"}
+
+
+    r = rq.post(cfg["postmark"], data=payload, headers=headers)
+
+    return r.text

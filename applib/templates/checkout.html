@@ -21,14 +21,14 @@
 		<p>
 			<b>Invoice: {{invoice_details.inv_id}}
 				{% if invoice_details.status == None %}	
-				<a 	href="{{url_for('payment.add', 										invoice_name=invoice_details.name,
+				<a 	href="{{url_for('payment.add', invoice_name=invoice_details.name,
 						invoice_id=invoice_details.inv_id)}}" 
 					class="fas fa-receipt" 
 					style="float: right; background-color: #eee"> 
 					Proceed to Payment 
 				</a>
 				{% else %}
-				<a 	href="{{url_for('payment.edit', 									pay_id=invoice_details.pay_id,
+				<a 	href="{{url_for('payment.edit',pay_id=invoice_details.pay_id,
 						invoice_id=invoice_details.inv_id)}}" 
 					class="fas fa-receipt" 
 					style="float: right; background-color: #eee"> 
@@ -60,7 +60,7 @@
 						<td>{{client_details.email}}</td>
 						<td>{{client_details.phone}}</td>
 						<td class="move_right"><a 
-							href="{{url_for('client.edit_client', 						client_id=invoice_details.client_id)}}" 
+							href="{{url_for('client.edit_client',client_id=invoice_details.client_id)}}" 
 							title="Edit Invoice" 
 							class="fas fa-edit" 
 							style="color: green"></a>

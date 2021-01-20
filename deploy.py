@@ -32,6 +32,15 @@ def set_args():
     parser.add_argument('-p', '--pyenv', default=None, help='set the python path')
 
 
+    parser.add_argument('-f', '--logfile',
+                        action="store_true", help='the gunicorn logger',
+                        default=False
+                        )
+    parser.add_argument('-s', '--session', default=60, type=int, help='session timeout setting')
+    parser.add_argument('-g', '--graceperiod', default=60, type=int, help='gracefull timeout period setting')
+
+
+
     return parser.parse_args()
 
 
@@ -55,10 +64,18 @@ def init():
     if options.reload:
         _opt.append('--reload')
 
-    _opt.append("-b  :{}".format(options.port))
 
     _opt.append('--log-level=%s'%options.setlog)
+    
+    _opt.append(f'--timeout={options.session}')
+    _opt.append(f"--graceful-timeout={options.graceperiod}")
+    _opt.append(f"--bind=:{options.port}")
+    
     _opt.append("serve:create_app()")
+
+
+
+
 
     s.call(_opt)
 

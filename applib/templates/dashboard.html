@@ -19,7 +19,16 @@
 	</h3>
 	
 	<div style="margin-bottom: 25px;">
-
+	<form action="" method="get">
+		<div class="row">
+		<div class="col-md-3 offset-md-8">
+			<input type="text" name='year' class="form-control form-control-sm" placeholder="year">&nbsp;
+		</div>
+		<div class="col-md-1">
+			<button type='submit' class="btn btn-light btn-sm"> Search </button>
+		</div>
+		</div>
+	</form>
 	<div class="row">
 		<div class="col-md-4">
 			<div class="alert alert-danger">
@@ -63,9 +72,34 @@
 		</div>
 	</div>
 
-	<div style="width:100%; height: 400px; padding: 10px; border:solid 1px #eeeeee; border-radius:5px; background: #eee;">			
+	<br>
+	<div class="row">
+		<div class="col-md-8">
+			<div style="width:100%; height: 400px; padding: 10px; border:solid 1px #eeeeee; border-radius:5px; background: #eee;">			
 		<canvas id="chartarea" style="height: 380px;border-radius:5px; width:100%; background:#fff;border: solid 1px #ddd;"></canvas>		
+			</div>
+		</div>
+			
+		<div class="col-md-4">
+			<div class="card" style="background: #eeeeee;">
+				<div class="card-body text-center">
+					 <p> Total Expenditure </p>
+					 <h2 style="color:#721c24;"> <b>  {{aggregate[1] | comma_sep }}  </b> 
+					 </h2>
+					<p class="text-muted"> financial year : {{year}} </p>
+				</div>
+			</div> <br>  <br> 
+			<div class="card" style="background: #eeeeee;">
+				<div class="card-body text-center">					
+					<p> 	Total Income  </p>
+					<h2 style="color:#155724;"> <b> {{aggregate[0] | comma_sep }} </b> </h2>
+					<p class="text-muted"> financial year : {{year}} </p>
+				</div>
+			</div>
+		</div>
 	</div>
+
+
 	
 	
 		
@@ -77,15 +111,13 @@
 
 {% block script_files %}
 
-<!-- <link rel="stylesheet" href="https://cdnjs.com/libraries/Chart.js"> -->
-<!-- <script src="https://www.jsdelivr.com/package/npm/chart.js?path=dist"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
 
 <script>
 	var plot_data ={
 			type: 'line',
 			data: {
-				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', "August", "September", "October", 'November', "December"],
+				labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', "Aug", "Sep", "Oct", 'Nov', "Dec"],
 				datasets: [
 				{
 					label: 'Income',
@@ -102,24 +134,14 @@
 					borderDash: [5, 5],
 					data:{{exp_output | safe }}
 					 ,
-				}, 
-				// {
-				// 	label: 'Potential Income',
-				// 	fill: false,
-				// 	backgroundColor: "#005580",
-				// 	borderColor: "#005580",
-				// 	data: [
-				// 		0,2,0,3,4,5,6,7,0, 9, 100000, 100
-				// 	],
-				// 	fill: true,
-				// }
+				} 
 				]
 			},
 			options: {
 				responsive: true,
 				title: {
 					display: true,
-					text: 'Financial Flow'
+					text: 'Financial Flow {{year}}'
 				},
 				tooltips: {
 					mode: 'index',
