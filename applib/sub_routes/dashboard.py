@@ -51,7 +51,7 @@ def index():
     nt = datetime.datetime.now()
  
     yr = request.args.get('year', nt.year, int)
-    nt.replace(year=yr)
+    nt = nt.replace(year=yr)
 
     with m.sql_cursor() as db:
  
@@ -145,7 +145,7 @@ def index():
 
     # for x,k in annual_exp:
     #     total_expenditure += k 
-    
+
     income_aggregate, exp_aggregate = h.float2decimal('0'), h.float2decimal('0')
 
     for x,k in annual_income:
