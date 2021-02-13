@@ -177,7 +177,7 @@ def add_discount(invoice_id):
         temp_output = output.first()
          
         for x in resp:
-            resp_amount += float(x.amount)
+            resp_amount += x.amount
 
         if temp_output.disc_type is None:
             form = DiscountFrm(sub_total=resp_amount)
@@ -191,7 +191,7 @@ def add_discount(invoice_id):
                                                temp_output.disc_value, 
                                                resp_amount)
             form.sub_total.data = resp_amount 
-            form.new_total.data = resp_amount - float(form.disc_amt.data)
+            form.new_total.data = resp_amount - form.disc_amt.data
 
          
         if request.method == 'POST':
