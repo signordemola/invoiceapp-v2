@@ -323,7 +323,7 @@ def calc_discount(query_disc_type, query_disc_value, query_sub_total):
         discount = query_disc_value
 
     elif query_disc_type == 'percent':
-        discount = float(query_disc_value) / 100 * query_sub_total
+        discount = float(query_disc_value) / 100 * float(query_sub_total)
 
     return discount
 
