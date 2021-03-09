@@ -403,8 +403,8 @@ def get_month_range(year, month):
     dt = datetime.datetime.now()
     rng = calendar.monthrange(year, month)
 
-    start = dt.replace(year=dt.year, month=dt.month, day=1,hour=0, minute=0, second=1)
-    end = dt.replace(year=dt.year, month=dt.month, day=rng[1],hour=23, minute=59, second=59)
+    start = dt.replace(year=year, month=month, day=1,hour=0, minute=0, second=1)
+    end = dt.replace(year=year, month=month, day=rng[1],hour=23, minute=59, second=59)
 
     return start, end
 
