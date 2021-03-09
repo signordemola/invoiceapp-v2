@@ -38,10 +38,7 @@ def index():
         year, mon, day = month_filter.split('-')
 
         start, end = h.get_month_range(int(year), int(mon))
-
-    
-    import pudb;pudb.set_trace()
-
+ 
 
 
     with m.sql_cursor() as db:
