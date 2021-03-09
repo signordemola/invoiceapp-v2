@@ -30,6 +30,18 @@ def index():
     form = PaymentForm(request.form)
     status = { x[0]: x[1] for x in form.status.choices}
     cur_page = request.args.get('page', 1, int)
+    month_filter = request.args.get('filtermonth', None)
+
+    start, end = None, None 
+
+    if month_filter:
+        year, mon, day = month_filter.split('-')
+
+        start, end = h.get_month_range(int(year), int(mon))
+
+    
+    import pudb;pudb.set_trace()
+
 
 
     with m.sql_cursor() as db:
@@ -74,6 +86,9 @@ def index():
                     ).join(m.Client,
                            m.Client.id == m.Invoice.client_id                    
                     ).order_by(description.c.pid.desc())
+
+        if start and end:
+            qry = qry.filter(m.Payment.date_created.between(start, end))
 
 
         qry, page_row = set_pagination(qry, cur_page)

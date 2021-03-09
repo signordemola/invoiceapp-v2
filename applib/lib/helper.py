@@ -18,7 +18,7 @@ import random
 import subprocess as sc 
 import requests as rq 
 
-import datetime
+import datetime, calendar
 import urllib 
 import base64
 
@@ -396,3 +396,17 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
     r = rq.post(cfg["postmark"], data=payload, headers=headers)
 
     return r.text
+
+
+def get_month_range(year, month):
+
+    dt = datetime.datetime.now()
+    rng = calendar.monthrange(year, month)
+
+    start = dt.replace(year=dt.year, month=dt.month, day=1,hour=0, minute=0, second=1)
+    end = dt.replace(year=dt.year, month=dt.month, day=rng[1],hour=23, minute=59, second=59)
+
+    return start, end
+
+
+
