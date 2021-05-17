@@ -40,7 +40,6 @@ def index():
         start, end = h.get_month_range(int(year), int(mon))
  
 
-
     with m.sql_cursor() as db:
 
         description = db.query(
@@ -84,9 +83,14 @@ def index():
                            m.Client.id == m.Invoice.client_id                    
                     ).order_by(description.c.pid.desc())
 
+        total_amount = db.query(m.func.sum(m.Payment.amount_paid).label("paid"))
+
+
         if start and end:
             qry = qry.filter(m.Payment.date_created.between(start, end))
+            total_amount = total_amount.filter(m.Payment.date_created.between(start, end))
 
+        total_amount= total_amount.scalar()
 
         qry, page_row = set_pagination(qry, cur_page)
 
@@ -122,7 +126,7 @@ def index():
     return render_template('payment.html', pager=qry, status_label=status,
                             date_format=h.date_format, data=grp_data, 
                             page_row=page_row, cur_page=cur_page, 
-                            cur_fmt=cur_fmt
+                            cur_fmt=cur_fmt, total_paid=total_amount
                            )
 
 

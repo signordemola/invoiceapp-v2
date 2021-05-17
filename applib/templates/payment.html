@@ -62,6 +62,9 @@
 	</table>
 
 	{{ pagination(pager, 'payment.index') }}
+	<div class="text-right">
+		Total Received : NGN <b> {{ (total_paid or 0) | comma_sep }} </b>
+	</div>
 </div>
 {% endblock %}
  
