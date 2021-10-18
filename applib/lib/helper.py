@@ -379,7 +379,7 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
             "MessageStream": "outbound"
         }
 
-    if file_path or len(attachment_name) > 0:
+    if file_path or attachment_name is not None:
         attachment = attachment_content or attach_functn(file_path)
         params['Attachments'] = [
                 {
