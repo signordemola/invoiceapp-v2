@@ -365,7 +365,8 @@ def attach_functn(file_path):
     return encoded
 
 
-def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None, attachment_content=None, attachment_name="", attach_type="application/pdf"):
+def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None, 
+    attachment_content=None, attachment_name="", attach_type="application/pdf"):
 
 
     cfg = get_config('mapappemail')
@@ -378,7 +379,7 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
             "MessageStream": "outbound"
         }
 
-    if file_path:
+    if file_path or attachment_name:
         attachment = attachment_content or attach_functn(file_path)
         params['Attachments'] = [
                 {
