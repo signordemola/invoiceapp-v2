@@ -201,7 +201,7 @@ def send_email(filename, receiver_email, msg_subject,
 
         attach_name = None
         attach_data = b''
-        
+
         attach_name = "{}.{}.pdf".format(email_filename, 
                                          datetime.datetime.now().strftime("%b.%m.%Y.%S"))
         
@@ -385,7 +385,7 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
         params['Attachments'] = [
                 {
                   "Name": attachment_name,
-                  "Content": attachment,
+                  "Content": str(attachment),
                   "ContentType": attach_type
                 }
             ]
