@@ -203,6 +203,8 @@ def send_email(filename, receiver_email, msg_subject,
                                          datetime.datetime.now().strftime("%b.%m.%Y.%S"))
         
         attach_name = None
+        
+        attach_data = b''
 
         if filename:    
 
