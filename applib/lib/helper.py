@@ -199,12 +199,13 @@ def send_email(filename, receiver_email, msg_subject,
         message.attach(MIMEText(body, "html"))  #Add body to Email
         # filename = pdf_output  # In same directory as script
 
+        attach_name = None
+        attach_data = b''
+        
         attach_name = "{}.{}.pdf".format(email_filename, 
                                          datetime.datetime.now().strftime("%b.%m.%Y.%S"))
         
-        attach_name = None
         
-        attach_data = b''
 
         if filename:    
 
