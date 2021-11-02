@@ -3,7 +3,7 @@ from configobj import ConfigObj
 
 from passlib.hash import pbkdf2_sha256
 
-from flask import url_for 
+from flask import url_for
 
 import email, smtplib, ssl
 from email import encoders
@@ -14,12 +14,12 @@ from email.mime.multipart import MIMEMultipart
 
 from jinja2 import Template
 from jinja2 import Environment, PackageLoader, FileSystemLoader
-import random 
-import subprocess as sc 
-import requests as rq 
+import random
+import subprocess as sc
+import requests as rq
 
 import datetime, calendar
-import urllib 
+import urllib
 import base64
 
 import os, json
@@ -50,15 +50,15 @@ def get_config(header, key=None, filename='config.ini'):
 
 class SetUri:
     """
-        # default uri 
+        # default uri
         # dialect+driver://username:password@host:port/database
 
-        # default uri 
+        # default uri
         # dialect+driver://username:password@host:port/database
 
-        # postgresql uri structure 
-        >>> postgresql://scott:tiger@localhost:5432/mydatabase 
-        # sqlite uri structure 
+        # postgresql uri structure
+        >>> postgresql://scott:tiger@localhost:5432/mydatabase
+        # sqlite uri structure
         >>> sqlite:///foo.db
 
     """
@@ -70,7 +70,7 @@ class SetUri:
     def set_credentials(self):
         tmp = self.db_cfg
         output = ''
-        
+
         if tmp['username']:
             output = tmp['username'] + ':' + tmp["password"]
 
@@ -78,7 +78,7 @@ class SetUri:
 
 
     def set_connections(self):
-        
+
         output = ''
 
         if self.db_cfg['host']:
@@ -87,12 +87,12 @@ class SetUri:
         return output
 
 
-    def set_db(self):        
+    def set_db(self):
         return  '/' + self.db_cfg['database']
 
 
     def set_driver(self):
-        output = self.db_cfg['dialect'] 
+        output = self.db_cfg['dialect']
         if self.db_cfg.get('driver', None):
             output += '+' + self.db_cfg['driver']
 
@@ -102,8 +102,8 @@ class SetUri:
 
 
     def run(self):
-        
-        return (self.set_driver() + self.set_credentials() 
+
+        return (self.set_driver() + self.set_credentials()
                 + self.set_connections() + self.set_db()
                 )
 
@@ -134,7 +134,7 @@ def validate_hash(passwd, hash):
 
 
 def date_format(date_obj, strft='%H: %M: %S'):
-    
+
     now = datetime.datetime.now()
     diff = now - date_obj
 
@@ -149,19 +149,19 @@ def date_format(date_obj, strft='%H: %M: %S'):
 
     else:
         retv = date_obj.strftime("%d-%m-%Y")
-    
+
 
     return retv
 
 
-def encode_param(**kwargs):        
+def encode_param(**kwargs):
     tmp = urllib.parse.urlencode(kwargs)
     params = base64.b64encode(tmp.encode('utf-8')).decode('utf-8')
 
     return params
 
 
-def decode_param(value): 
+def decode_param(value):
 
     if isinstance(value, str):
         value = value.encode("utf-8")
@@ -169,19 +169,19 @@ def decode_param(value):
     ret_val = base64.b64decode(value)
     ret_val = ret_val.decode("utf-8")
 
-    out = {} 
+    out = {}
 
     for x in ret_val.split("&"):
         key,val = x.split("=")
-        out[key] = urllib.parse.unquote(val) 
+        out[key] = urllib.parse.unquote(val)
 
     return out
 
 
 
-def send_email(filename, receiver_email, msg_subject, 
+def send_email(filename, receiver_email, msg_subject,
                email_body, email_filename=""):
-    
+
     email_params = get_config('email')
 
     if email_params['live'] == '1':
@@ -202,29 +202,29 @@ def send_email(filename, receiver_email, msg_subject,
         attach_name = None
         attach_data = b''
 
-        attach_name = "{}.{}.pdf".format(email_filename, 
+        attach_name = "{}.{}.pdf".format(email_filename,
                                          datetime.datetime.now().strftime("%b.%m.%Y.%S"))
-        
-        
 
-        if filename:    
+
+
+        if filename:
 
             with open(filename, "rb") as attachment:  # Open PDF file in readable binary mode
                 part = MIMEBase("application", "octet-stream")   # Add file as application/octet-stream
                 attach_data = attachment.read()
                 part.set_payload(attach_data)  # Email client can usually download this automatically as attachment
 
-            encoders.encode_base64(part)  # Encode file in ASCII characters to send by email 
+            encoders.encode_base64(part)  # Encode file in ASCII characters to send by email
 
-            
+
 
             part.add_header(
                 "Content-Disposition",
                 "attachment; filename={}".format(attach_name)
             )
-            
-            message.attach(part)   
-        
+
+            message.attach(part)
+
         # context = ssl.create_default_context()
         # with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         #     server.login(sender_email, password)
@@ -232,7 +232,7 @@ def send_email(filename, receiver_email, msg_subject,
         #         sender_email, receiver_email, message.as_string()
         #         )
 
-        resp = send_email_postmark(receiver_email, msg_subject, email_body, 
+        resp = send_email_postmark(receiver_email, msg_subject, email_body,
                 file_path=None, attachment_content=attach_data, attachment_name=attach_name)
 
         print(resp)
@@ -243,8 +243,8 @@ def send_email(filename, receiver_email, msg_subject,
 def set_email_read_feedback(**kwargs):
 
     variables = encode_param(**kwargs)
-    link = url_for("admin.report_email_receipt", 
-            ref=variables, 
+    link = url_for("admin.report_email_receipt",
+            ref=variables,
             _external=True)
     return link
 
@@ -256,10 +256,10 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[]):
 
     template = env.get_template(_template)
     _template = template.render(posts=args, payments=pay_history, **kwargs)
-    
+
     file_prefix = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-    pdf_output = '{}_{}.pdf'.format(kwargs['type'], 
+    pdf_output = '{}_{}.pdf'.format(kwargs['type'],
                                 file_prefix)
 
     pdf_output = os.path.join("tmp_pdf", pdf_output)
@@ -276,33 +276,35 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[]):
 
     else:
         pdfkit.from_string(_template, pdf_output)
-    
+
 
     message_subject = kwargs['type']+" Generated for "+ kwargs['name'].upper()
 
-    _link = set_email_read_feedback(email_receiver=kwargs['email'], 
+    _link = set_email_read_feedback(email_receiver=kwargs['email'],
                                     email_title=message_subject)
 
     template1 = env.get_template(email_body_template)
     _template1 = template1.render(items=args, payments=pay_history, status_link=_link, **kwargs)
+
+
 
     send_email(pdf_output, kwargs['email'], message_subject, _template1, kwargs['type'])
 
 
 def comma_separation(amt):
     _len = len(str(amt))
-    fmt = '{:' + str(_len) + ',.2f}' 
+    fmt = '{:' + str(_len) + ',.2f}'
     return fmt.format(float(amt))
 
 
 
 
 def set_pagination(obj, cur_page, page_size=10):
-    
+
     pg = abs(cur_page)
     pager = paginate(obj, pg, page_size)
- 
-    start_no = pg - 1 
+
+    start_no = pg - 1
     if start_no < 1:
         start_no = pg
 
@@ -311,7 +313,7 @@ def set_pagination(obj, cur_page, page_size=10):
 
     for x in range(start_no, pager.pages + 1 ):
         page_lists.append(x)
-        counter += 1 
+        counter += 1
         if counter > 7:
             break
 
@@ -319,9 +321,9 @@ def set_pagination(obj, cur_page, page_size=10):
 
 
 def calc_discount(query_disc_type, query_disc_value, query_sub_total):
-    
+
     discount = 0
-    
+
     if query_disc_type == 'fixed':
         discount = query_disc_value
 
@@ -348,7 +350,7 @@ def val_calculated_data(query_disc_type, query_disc_value, query_sub_total, quer
     else:
         vat = 7.5/100 * total
         vat_total = total + vat
-    
+
     return vat_total, vat, total, discount
 
 
@@ -360,15 +362,14 @@ def float2decimal(value):
 
 def attach_functn(file_path):
     with open(file_path, 'rb') as f:
-            data = f.read()
-        
-    encoded = base64.b64encode(data).decode()
+        data = f.read()
+
+    encoded = base64.b64encode(data).decode('utf-8')
     return encoded
 
 
-def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None, 
+def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
     attachment_content=None, attachment_name="", attach_type="application/pdf"):
-
 
     cfg = get_config('mapappemail')
 
@@ -380,8 +381,9 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
             "MessageStream": "outbound"
         }
 
-    if file_path or attachment_name is not None:
-        attachment = attachment_content or attach_functn(file_path)
+    if attachment_content is not None:
+
+        attachment = base64.b64encode(attachment_content).decode('utf-8')
         params['Attachments'] = [
                 {
                   "Name": attachment_name,
@@ -392,7 +394,7 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
 
     payload = json.dumps(params)
 
-    
+
     headers = {"X-Postmark-Server-Token": cfg['key'],
                 "Content-Type": "application/json", "Accept": "application/json"}
 
@@ -411,6 +413,3 @@ def get_month_range(year, month):
     end = dt.replace(year=year, month=month, day=rng[1],hour=23, minute=59, second=59)
 
     return start, end
-
-
-

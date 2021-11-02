@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>email_body</title>  
+	<title>email_body</title>
 </head>
 
 <body style="margin: 0; padding: 0; -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:none;">
@@ -14,13 +14,13 @@
                <tbody>
                   <tr>
                      <td align="center" valign="top">
-						
+
 						{% block header %}
                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
                            <tbody>
                               <tr>
                                  <td valign="top" style="padding-top:10px;padding-right:20px;padding-bottom:10px;padding-left:20px;color:#808080;font-family:Helvetica;font-size:10px;line-height:125%;text-align:left">
-                                    Ecardex Ventures
+                                    Ecardex Limited
                                  </td>
                               </tr>
                            </tbody>
@@ -50,16 +50,16 @@
                   </tr>
                   <tr>
                      <td align="center" valign="top">
-                     	
+
                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#ffffff;border-top:0px solid #ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
                            <tbody>
                                 <tr>
                                     <td valign="top" style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
-                                	{% block body %}    
-	
+                                	{% block body %}
+
 	                                    <p>Hi {{name | title}}, <br />
 										<br />
-										A new {{type}} has been generated for you by Ecardex Ventures. Here's a quick summary:<br />
+										A new {{type}} has been generated for you by Ecardex Limited. Here's a quick summary:<br />
 										<br />
 
 										{% for x in items %}
@@ -71,34 +71,34 @@
 
 										<br />
 
-                                
-                        <table style="border-collapse: collapse; 
+
+                        <table style="border-collapse: collapse;
                                       display: table !important;
-                                      width: 100%; 
-                                      margin-bottom: 1rem; 
-                                      background-color: transparent; 
+                                      width: 100%;
+                                      margin-bottom: 1rem;
+                                      background-color: transparent;
                                       border-bottom-width: 2px;">
-                            <tbody> 
+                            <tbody>
                             {% if discount %}
                                 <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
-                                        border: 1px solid #dee2e6; 
+                                    <td width='50%' style="vertical-align: middle; padding: 15px;
+                                        border: 1px solid #dee2e6;
                                         border-right: none;">
                                         Discount Label
-                                    </td> 
-                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
-                                        border: 1px solid #dee2e6; 
-                                        border-left: none;"> 
+                                    </td>
+                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                        border: 1px solid #dee2e6;
+                                        border-left: none;">
                                         {{ discount_description or 'Discount' }}
                                     </th>
                                 </tr>
                                 <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                    <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
                                         Discount Applied
-                                    </td> 
-                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                    </td>
+                                    <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
                                         {{ cur_fmt(discount) }}
@@ -106,52 +106,52 @@
                                 </tr>
                             {% endif %}
                                 <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                    <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
                                         VAT(7.5%)
-                                    </td> 
-                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                    </td>
+                                    <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
                                         {{ cur_fmt(vat) }} {{ currency }}
                                     </th>
                                 </tr>
                                 <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px; 
+                                    <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        Subtotal 
-                                    </td> 
-                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        Subtotal
+                                    </td>
+                                    <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ cur_fmt(total) }} {{ currency }} 
+                                        {{ cur_fmt(total) }} {{ currency }}
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                    <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        Total Amount 
-                                    </th> 
-                                    <th width='50%' style="vertical-align: middle; padding: 15px; 
+                                        Total Amount
+                                    </th>
+                                    <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ cur_fmt(vat_total) }} {{ currency }} 
+                                        {{ cur_fmt(vat_total) }} {{ currency }}
                                     </th>
                                 </tr>
 
                             </tbody>
                         </table>
 
-						    {{type}} PDF copy has been added as an attachment 
+						    {{type}} PDF copy has been added as an attachment
                             <br />
 							<br />
 
 
 							Best regards,<br />
-							Ecardex Ventures
+							Ecardex Limited
 
                             </p>
                             {% endblock %}
@@ -172,7 +172,7 @@
                               <tr>
                                  <td valign="top" style="color:#808080;font-family:Helvetica;font-size:12px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
                                     <div style="float: left; vertical-align:top;">
-                                       <a style="color:#808080;" target="_blank" href="www.ecardex.com">Ecardex Ventures</a>
+                                       <a style="color:#808080;" target="_blank" href="www.ecardex.com">Ecardex Limited</a>
                                        <br>
                                        08, ladipo kuku street, Opebi road, 23401 Ikeja, Lagos, NG
                                     </div>
