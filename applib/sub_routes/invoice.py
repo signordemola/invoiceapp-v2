@@ -6,7 +6,7 @@ import base64
 import datetime
 
 
-from flask import (Blueprint, request, url_for,
+from flask import (Blueprint, request, url_for, send_file,
                    render_template, redirect, session, flash)
 
 
@@ -113,6 +113,8 @@ def index():
                             pager=qry, page_row=page_row, data=grp_data,
                             cur_page=cur_page, cur_fmt=cur_fmt, )
 
+# +-------------------------+-------------------------+
+# +-------------------------+-------------------------+
 
 
 @mod.route('/checkout/<int:invoice_id>', methods=['POST', 'GET'])
@@ -121,6 +123,7 @@ def checkout(invoice_id):
 
     form = CreateInvoiceForm()
     currency_label = {x[0]: x[1] for x in form.currency.choices}
+
 
     with m.sql_cursor() as db:
 
@@ -191,7 +194,9 @@ def checkout(invoice_id):
     data['total'] = total
     data['vat_total'] = vat_total
 
-    if request.method == 'POST':
+    download = request.args.get("download", 0, int)
+
+    if request.method == 'POST' or download == 1:
         
         items = []
         for y in item_for_amount:
@@ -200,7 +205,16 @@ def checkout(invoice_id):
                             'qty': y.qty, 'rate': y.rate, 'amount': y.amount
                           })
 
+
+        
         data['type'] = "Invoice"
+        
+        if download == 1:
+            pdf_file = generate_pdf(_template='new_invoice.html', args=items,
+                    kwargs=data, email_body_template='email_body.html', isdownload=True)
+
+            return send_file(os.path.join(os.getcwd(), pdf_file))
+
         generate_pdf(_template='new_invoice.html', args=items,
                     kwargs=data, email_body_template='email_body.html')
 
@@ -208,8 +222,10 @@ def checkout(invoice_id):
         return redirect(url_for('invoice.index', msg=msg))
 
 
+
     # render the page on GET
     return render_template('checkout.html',
+                            invid=invoice_id,
                             invoice_details=client_invoice_details,
                             client_details=client_invoice_details,
                             kwargs=data,

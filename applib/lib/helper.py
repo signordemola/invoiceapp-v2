@@ -250,7 +250,7 @@ def set_email_read_feedback(**kwargs):
 
 
 
-def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[]):
+def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], isdownload=False):
 
     env = Environment(loader=FileSystemLoader('applib/templates/'))
 
@@ -278,6 +278,9 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[]):
         pdfkit.from_string(_template, pdf_output)
 
 
+    if isdownload:
+        return pdf_output
+        
     message_subject = kwargs['type']+" Generated for "+ kwargs['name'].upper()
 
     _link = set_email_read_feedback(email_receiver=kwargs['email'],
