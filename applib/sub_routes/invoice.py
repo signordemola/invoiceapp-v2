@@ -131,6 +131,7 @@ def checkout(invoice_id):
                                            m.Invoice.inv_id,
                                            m.Invoice.date_value,
                                            m.Invoice.invoice_no,
+                                           m.Invoice.invoice_due,
                                            m.Invoice.purchase_no,
                                            m.Invoice.disc_value,
                                            m.Invoice.disc_type,
@@ -160,10 +161,11 @@ def checkout(invoice_id):
                                    m.Items.amount
                                   ).filter_by(invoice_id=invoice_id).all()
 
+    
     data = {
             'invoice_no': client_invoice_details.invoice_no,
-            'date_value': datetime.datetime.now().strftime("%Y-%m-%d"),
-            'invoice_due': datetime.datetime.now().strftime("%Y-%m-%d"),
+            'date_value': client_invoice_details.date_value.strftime("%Y-%m-%d"),
+            'invoice_due': client_invoice_details.invoice_due.strftime("%Y-%m-%d"),
             'purchase_order_no': client_invoice_details.purchase_no,
             'discount_applied': client_invoice_details.disc_value,
             'discount_description': client_invoice_details.disc_desc,

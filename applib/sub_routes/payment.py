@@ -318,14 +318,19 @@ def receipt(invoice_id):
                             ).group_by(m.Payment.invoice_id).subquery()
 
         client_invoice_details = db.query(m.Invoice.inv_id.label("invoice_id"),
-                                          m.Invoice.invoice_no, m.Invoice.disc_value,
-                                          m.Invoice.disc_type, m.Invoice.currency,
+                                          m.Invoice.invoice_no, 
+                                          m.Invoice.disc_value,
+                                          m.Invoice.disc_type, 
+                                          m.Invoice.currency,
                                           m.Invoice.client_type,
-                                          m.Payment.amount_paid, m.Payment.status, 
+                                          m.Payment.amount_paid, 
+                                          m.Payment.status, 
                                           m.Payment.date_created,
                                           aggr_amount_paid.c.paid,
-                                          m.Payment.balance, m.Client.address,
-                                          m.Client.post_addr, m.Client.name,
+                                          m.Payment.balance, 
+                                          m.Client.address,
+                                          m.Client.post_addr, 
+                                          m.Client.name,
                                           m.Client.email, m.Client.phone
                                         ).join(m.Payment,
                                                m.Payment.invoice_id == m.Invoice.inv_id
