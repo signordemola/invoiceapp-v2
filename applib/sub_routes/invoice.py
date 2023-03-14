@@ -42,6 +42,7 @@ def index():
 
     posts=[]
     cur_page = request.args.get('page', 1, int)
+    search = request.args.get('search', "")
 
     with m.sql_cursor() as db:
         #select query from invoice
@@ -68,13 +69,20 @@ def index():
                        recent_payments.c.recent_payment,
                        recent_payments.c.status
                       ).outerjoin(sub, sub.c.invoice_id == m.Invoice.inv_id
-                      # ).outerjoin(m.Payment,
-                      #             m.Payment.invoice_id == m.Invoice.inv_id
+                     
                       ).outerjoin(recent_payments,
                                   recent_payments.c.invoice_id == m.Invoice.inv_id
                                   ).filter(m.Invoice.client_id == m.Client.id
                                            ).order_by(m.Invoice.inv_id.desc())
 
+        if search:
+             
+            qry = qry.filter(
+                    m.or_(
+                        m.Client.name.like(f'%{search}%'),
+                        m.Client.email.like(f"%{search}%")
+                    )
+                )
         qry, page_row = set_pagination(qry, cur_page, 10)
 
         grp_data = []
