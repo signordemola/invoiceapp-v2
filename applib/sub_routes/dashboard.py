@@ -23,7 +23,7 @@ from applib.lib import helper as h
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
-mod = Blueprint('dashboard', __name__, url_prefix='/admin/dashboard')
+mod = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -36,12 +36,7 @@ def get_year_range(year):
     start = datetime.datetime(year, 1, 1,hour=0, minute=0, second=0)
     end = datetime.datetime(year, dt.month, rng[1],hour=23, minute=59, second=59)
 
-    # start = dt.replace(hour=0, minute=0, second=0)
-    # end = dt.replace(hour=23, minute=59, second=59)
-
     return start, end
-
-
 
 
 @mod.route('/')
@@ -143,9 +138,6 @@ def index():
 
     tmp_exp = {int(x): k for x,k in annual_exp}
 
-    # for x,k in annual_exp:
-    #     total_expenditure += k 
-
     income_aggregate, exp_aggregate = h.float2decimal('0'), h.float2decimal('0')
 
     for x,k in annual_income:
@@ -178,8 +170,6 @@ def index():
     
     if cur_exp:
         cur_exp_value = int(cur_exp[0][1])
-
-
 
     return render_template("dashboard.html", 
                            inc_output=inc_output, 

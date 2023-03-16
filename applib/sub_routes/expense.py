@@ -1,6 +1,7 @@
 
 from flask import (Blueprint, request, url_for, 
-                   render_template, redirect, session, flash)
+                   render_template, redirect, flash
+                )
 
 
 import applib.model as m
@@ -10,7 +11,7 @@ from flask_login import login_required
 import datetime 
 
 
-mod = Blueprint('expense', __name__, url_prefix='/admin/expense')
+mod = Blueprint('expense', __name__, url_prefix='/expense')
 
 
 @mod.route("/")

@@ -29,14 +29,12 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.session_protection = "strong"
-login_manager.login_view = 'admin.login'
+login_manager.login_view = 'login'
 
 # declared here so that the db object would be set before introducing the model module
 
 from applib import model as m 
-from applib.api import InvoiceApi 
-
-import applib.sub_routes.admin as adm
+import applib.sub_routes.login as adm
 import applib.sub_routes.client as clt
 import applib.sub_routes.expense as exp  
 import applib.sub_routes.invoice as inv
@@ -67,9 +65,7 @@ app.register_blueprint(itm.mod)
 app.register_blueprint(pay.mod)
 app.register_blueprint(dashboard.mod)
 
-# api.add_resource(InvoiceApi, '/invoice/gen', methods=['POST'])
-
-
+  
 
 app.jinja_env.filters['date_format'] = h.date_format
 app.jinja_env.filters['comma_sep'] = h.comma_separation

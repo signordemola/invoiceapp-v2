@@ -5,17 +5,16 @@
 
 {% block body %}
 <p>
-	
-<h3> Email Read Confirmation </h3> <br/>
 
-Email Receiver : {{ email_receiver }} <br/>
-Email Title / Subject : {{ email_title }} <br/>  <br/>
+<h3> Email Read Confirmation </h3> <br />
 
+Email Receiver : {{ email_receiver }} <br />
+Email Title / Subject : {{ email_title }} <br /> <br />
+Open Counts: {{counter}}
 Date time {{ date_time }}
 
 </p>
 
 {% endblock %}
 
-{% block footer %}  {% endblock %}
-
+{% block footer %} {% endblock %}

@@ -7,22 +7,16 @@ import datetime
 
 
 from flask import (Blueprint, request, url_for, send_file,
-                   render_template, redirect, session, flash)
+                   render_template, redirect, flash)
 
-
-from jinja2 import Template
-from jinja2 import Environment, PackageLoader, FileSystemLoader
-import random
-
-
-# from applib.model import db_session
 from applib import model as m
 from applib.forms import CreateInvoiceForm
 
 from applib.lib import helper as h
-from applib.lib.helper import (get_config, send_email, calc_discount,
-                        set_email_read_feedback, generate_pdf, comma_separation,
-                        set_pagination)
+from applib.lib.helper import (
+    generate_pdf, 
+    comma_separation,
+    set_pagination)
 
 
 from flask_login import login_required
@@ -30,7 +24,7 @@ from flask_login import login_required
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
-mod = Blueprint('invoice', __name__, url_prefix='/admin/invoice')
+mod = Blueprint('invoice', __name__, url_prefix='/invoice')
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -62,14 +56,13 @@ def index():
         qry = db.query(m.Invoice.inv_id,
                        m.Invoice.invoice_no, m.Invoice.disc_type, m.Invoice.disc_value,
                        m.Invoice.client_type, m.Client.email,
-                       m.Client.name, m.Invoice.date_value,
-                       # m.Payment.status,
+                       m.Client.name, m.Invoice.date_value,  
                        sub.c.sub_total,
                        sub.c.invoice_id,
                        recent_payments.c.recent_payment,
                        recent_payments.c.status
-                      ).outerjoin(sub, sub.c.invoice_id == m.Invoice.inv_id
-                     
+                      ).outerjoin(
+                        sub, sub.c.invoice_id == m.Invoice.inv_id
                       ).outerjoin(recent_payments,
                                   recent_payments.c.invoice_id == m.Invoice.inv_id
                                   ).filter(m.Invoice.client_id == m.Client.id
@@ -100,15 +93,12 @@ def index():
             vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value,
                                                                     x.sub_total, x.client_type)
             retv['status'] = x.status
-            # retv['status'] = 1 if ((x.recent_payment or 0) - h.float2decimal(vat_total)) == 0 else 2
-
             retv['vat_total'] = vat_total
             retv['vat'] = vat
             retv['total'] = total
             retv['discount'] = discount
 
             grp_data.append(retv)
-
 
         cur_fmt = comma_separation
 
@@ -119,7 +109,8 @@ def index():
 
     return render_template('index.html',
                             pager=qry, page_row=page_row, data=grp_data,
-                            cur_page=cur_page, cur_fmt=cur_fmt, )
+                            cur_page=cur_page, cur_fmt=cur_fmt
+                        )
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -135,34 +126,34 @@ def checkout(invoice_id):
 
     with m.sql_cursor() as db:
 
-        client_invoice_details = db.query(
-                                           m.Invoice.inv_id,
-                                           m.Invoice.date_value,
-                                           m.Invoice.invoice_no,
-                                           m.Invoice.invoice_due,
-                                           m.Invoice.purchase_no,
-                                           m.Invoice.disc_value,
-                                           m.Invoice.disc_type,
-                                           m.Invoice.disc_desc,
-                                           m.Invoice.currency,
-                                           m.Invoice.client_type,
-                                           m.Payment.status,
-                                           m.Payment.id.label("pay_id"),
-                                           m.Client.address,
-                                           m.Client.post_addr,
-                                           m.Client.name,
-                                           m.Client.email,
-                                           m.Client.phone,
-                                           m.Client.id.label('client_id')
-                                        ).join(
-                                               m.Client,
-                                               m.Client.id == m.Invoice.client_id
-                                        ).outerjoin(
-                                               m.Payment,
-                                               m.Payment.invoice_id == m.Invoice.inv_id
-                                        ).filter(
-                                                m.Invoice.inv_id == invoice_id
-                                            ).first()
+        invoice_data = db.query(
+                        m.Invoice.inv_id,
+                        m.Invoice.date_value,
+                        m.Invoice.invoice_no,
+                        m.Invoice.invoice_due,
+                        m.Invoice.purchase_no,
+                        m.Invoice.disc_value,
+                        m.Invoice.disc_type,
+                        m.Invoice.disc_desc,
+                        m.Invoice.currency,
+                        m.Invoice.client_type,
+                        m.Payment.status,
+                        m.Payment.id.label("pay_id"),
+                        m.Client.address,
+                        m.Client.post_addr,
+                        m.Client.name,
+                        m.Client.email,
+                        m.Client.phone,
+                        m.Client.id.label('client_id')
+                    ).join(
+                            m.Client,
+                            m.Client.id == m.Invoice.client_id
+                    ).outerjoin(
+                            m.Payment,
+                            m.Payment.invoice_id == m.Invoice.inv_id
+                    ).filter(
+                            m.Invoice.inv_id == invoice_id
+                    ).first()
 
         item_for_amount = db.query(m.Items.id, m.Items.item_desc,
                                    m.Items.qty, m.Items.rate,
@@ -171,20 +162,20 @@ def checkout(invoice_id):
 
     
     data = {
-            'invoice_no': client_invoice_details.invoice_no,
-            'date_value': client_invoice_details.date_value.strftime("%Y-%m-%d"),
-            'invoice_due': client_invoice_details.invoice_due.strftime("%Y-%m-%d"),
-            'purchase_order_no': client_invoice_details.purchase_no,
-            'discount_applied': client_invoice_details.disc_value,
-            'discount_description': client_invoice_details.disc_desc,
-            'address': client_invoice_details.address,
-            'post_addr': client_invoice_details.post_addr,
-            'name': client_invoice_details.name,
-            'disc_type': client_invoice_details.disc_type,
-            'email': client_invoice_details.email,
-            'phone': client_invoice_details.phone,
-            'currency': currency_label[client_invoice_details.currency],
-            'status': client_invoice_details.status,
+            'invoice_no': invoice_data.invoice_no,
+            'date_value': invoice_data.date_value.strftime("%Y-%m-%d"),
+            'invoice_due': invoice_data.invoice_due.strftime("%Y-%m-%d"),
+            'purchase_order_no': invoice_data.purchase_no,
+            'discount_applied': invoice_data.disc_value,
+            'discount_description': invoice_data.disc_desc,
+            'address': invoice_data.address,
+            'post_addr': invoice_data.post_addr,
+            'name': invoice_data.name,
+            'disc_type': invoice_data.disc_type,
+            'email': invoice_data.email,
+            'phone': invoice_data.phone,
+            'currency': currency_label[invoice_data.currency],
+            'status': invoice_data.status,
             }
 
     data['cur_fmt'] = comma_separation
@@ -195,9 +186,9 @@ def checkout(invoice_id):
         _amount += x.amount
 
     data['subtotal'] = _amount
-    vat_total, vat, total, discount = h.val_calculated_data(client_invoice_details.disc_type,
-                                                          client_invoice_details.disc_value,
-                                                          _amount, client_invoice_details.client_type)
+    vat_total, vat, total, discount = h.val_calculated_data(invoice_data.disc_type,
+                                                          invoice_data.disc_value,
+                                                          _amount, invoice_data.client_type)
 
     data['discount'] = discount
     data['vat'] = vat
@@ -236,8 +227,8 @@ def checkout(invoice_id):
     # render the page on GET
     return render_template('checkout.html',
                             invid=invoice_id,
-                            invoice_details=client_invoice_details,
-                            client_details=client_invoice_details,
+                            invoice_details=invoice_data,
+                            client_details=invoice_data,
                             kwargs=data,
                             items=item_for_amount)
 

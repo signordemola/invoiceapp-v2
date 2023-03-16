@@ -1,28 +1,19 @@
 
 from flask import (Blueprint, request, url_for, 
-                   render_template, redirect, session, flash)
+                   render_template, redirect, flash)
 
 import applib.model as m
 from applib.forms import PaymentForm, CreateInvoiceForm
 from applib.lib import helper as h 
-from applib.lib.helper import (get_config, send_email, calc_discount,
-                                set_email_read_feedback, generate_pdf, 
+from applib.lib.helper import ( generate_pdf, 
                                 comma_separation, set_pagination)
 
 from flask_login import login_required
-
-import os
-import subprocess
-import pdfkit
-import base64
 import datetime
 
-from jinja2 import Template
-from jinja2 import Environment, PackageLoader, FileSystemLoader
-import random
 
 
-mod = Blueprint('payment', __name__, url_prefix='/admin/payment')
+mod = Blueprint('payment', __name__, url_prefix='/payment')
 
 @mod.route("/")
 @login_required

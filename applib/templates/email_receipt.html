@@ -3,135 +3,137 @@
 {% block body %}
 
 <p>Hi {{name | title}}, <br />
-	<br />
-	A new {{type}} has been generated for you by Ecardex Ventures. Here's a quick summary:<br />
-	<br />
+    <br />
+    A new {{type}} has been generated for you by Ecardex Ventures. Here's a quick summary:<br />
+    <br />
 
-	{% for x in items %}
+    {% for x in items %}
 
-	{{ x.item_desc | title }}  :  Amount {{ cur_fmt(x.amount)}} <br/>
+    {{ x.item_desc | title }} : Amount {{ cur_fmt(x.amount)}} <br />
 
-	{% endfor %}
-	
-	<h3 class="text-center" style="font-weight: lighter; text-align: center;"> 
-		Payment Description 
-	</h3>
+    {% endfor %}
 
-	<table style="border-collapse: collapse; display: table !important;
+<h3 class="text-center" style="font-weight: lighter; text-align: center;">
+    Payment Description
+</h3>
+
+<table style="border-collapse: collapse; display: table !important;
         width: 100%; margin-bottom: 1rem; background-color: transparent; 
         border-bottom-width: 2px;">
-        <tbody> 
+    <tbody>
 
-            <tr>
-                <td width='50%' style="vertical-align: middle; padding: 15px; 
+        <tr>
+            <td width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-right: none;">
-                    Subtotal
-                </td> 
-                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                Subtotal
+            </td>
+            <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-left: none;">
-                    {{ cur_fmt(subtotal) }} {{ currency }}
-                </th>
-            </tr>
-            <tr>
-                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                {{ cur_fmt(subtotal) }} {{ currency }}
+            </th>
+        </tr>
+        <tr>
+            <td width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-right: none;">
-                    VAT(7.5%) 
-                </td> 
-                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                VAT(7.5%)
+            </td>
+            <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-left: none;">
-                    {{ cur_fmt(vat) }} {{ currency }} 
-                </th>
-            </tr>
-            <tr>
-                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                {{ cur_fmt(vat) }} {{ currency }}
+            </th>
+        </tr>
+        <tr>
+            <td width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-right: none;">
-                    Amount Paid 
-                </td> 
-                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                Amount Paid
+            </td>
+            <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-left: none;">
-                    {{ cur_fmt(amount_paid) }} {{ currency }} 
-                </th>
-            </tr>
-            <tr>
-                <td width='50%' style="vertical-align: middle; padding: 15px; 
+                {{ cur_fmt(amount_paid) }} {{ currency }}
+            </th>
+        </tr>
+        <tr>
+            <td width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-right: none;">
-                    Amount to Balance 
-                </td> 
-                <th width='50%' style="vertical-align: middle; padding: 15px; 
+                Amount to Balance
+            </td>
+            <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-left: none;">
-                    {{ cur_fmt(amount_balance) }} {{ currency }} 
-                </th>
-            </tr>
-            <tr>
-                <th width='50%' style="vertical-align: middle; padding: 15px; 
-                    border: 1px solid #dee2e6;
-                    border-right: none;">
-                    Total Amount 
-                </th> 
-                <th width='50%' style="vertical-align: middle; padding: 15px; 
-                    border: 1px solid #dee2e6;
-                    border-left: none;">
-                    {{ cur_fmt(total) }} {{ currency }} 
-                </th>
-            </tr>
-
-        </tbody>
-    </table >
-
-    <h3 class="text-center" style="font-weight: lighter; text-align: center;"> 
-        Payment History 
-    </h3>
-    <table style="border-collapse: collapse; display: table !important;
-        width: 100%; margin-bottom: 1rem; background-color: transparent; 
-        border-bottom-width: 2px;">
+                {{ cur_fmt(amount_balance) }} {{ currency }}
+            </th>
+        </tr>
         <tr>
             <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
-                    border-right: none;"> 
-                Date Paid 
+                    border-right: none;">
+                Total Amount
             </th>
             <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
-                    border-right: none;"> 
-                Amount 
+                    border-left: none;">
+                {{ cur_fmt(total) }} {{ currency }}
             </th>
         </tr>
-        <tbody>
-        {% for x in payments %} 
-            <tr>
-                <td width='50%' style="vertical-align: middle; padding: 15px; 
+
+    </tbody>
+</table>
+
+<h3 class="text-center" style="font-weight: lighter; text-align: center;">
+    Payment History
+</h3>
+<table style="border-collapse: collapse; display: table !important;
+        width: 100%; margin-bottom: 1rem; background-color: transparent; 
+        border-bottom-width: 2px;">
+    <tr>
+        <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-right: none;">
-                    {{ x.date_created }} 
-                </td>
-                <td width='50%' style="vertical-align: middle; padding: 15px; 
+            Date Paid
+        </th>
+        <th width='50%' style="vertical-align: middle; padding: 15px; 
                     border: 1px solid #dee2e6;
                     border-right: none;">
-                    {{ cur_fmt(x.amount_paid) }} {{ currency }}
-                </td>
-            </tr>
+            Amount
+        </th>
+    </tr>
+    <tbody>
+        {% for x in payments %}
+        <tr>
+            <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                {{ x.date_created }}
+            </td>
+            <td width='50%' style="vertical-align: middle; padding: 15px; 
+                    border: 1px solid #dee2e6;
+                    border-right: none;">
+                {{ cur_fmt(x.amount_paid) }} {{ currency }}
+            </td>
+        </tr>
         {% else %}
-            <tr>
-                <td colspan="2"> <i> no records found... </i> </td>
-            </tr>
+        <tr>
+            <td colspan="2"> <i> no records found... </i> </td>
+        </tr>
         {% endfor %}
-        </tbody>
-    </table>
+    </tbody>
+</table>
 
-	{{type}} PDF copy has been added as an attachment <br/>
-	<br />
+{{type}} PDF copy has been added as an attachment <br />
+<br />
 
 
-	Best regards,<br />
-	Ecardex Ventures
+Best regards,<br />
+Ecardex Ventures
+<img src="{{status_link}}" style="height:0; width:0;">
+
 
 </p>
 

@@ -1,204 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<title>email_body</title>
+   <meta charset="UTF-8">
+   <title>email_body</title>
 </head>
 
 <body style="margin: 0; padding: 0; -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:none;">
-<table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" style="margin:0;padding:0;background-color:#d7d7d9;border-collapse:collapse;height:100%;width:100%">
-   <tbody>
-      <tr>
-         <td align="center" valign="top" style="margin:0;padding:15px 5px;height:100%;width:100%">
-            <table border="0" cellpadding="0" cellspacing="0" style="width:600px;border-collapse:collapse">
-               <tbody>
-                  <tr>
-                     <td align="center" valign="top">
+   <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%"
+      style="margin:0;padding:0;background-color:#d7d7d9;border-collapse:collapse;height:100%;width:100%">
+      <tbody>
+         <tr>
+            <td align="center" valign="top" style="margin:0;padding:15px 5px;height:100%;width:100%">
+               <table border="0" cellpadding="0" cellspacing="0" style="width:600px;border-collapse:collapse">
+                  <tbody>
+                     <tr>
+                        <td align="center" valign="top">
 
-						{% block header %}
-                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
-                           <tbody>
-                              <tr>
-                                 <td valign="top" style="padding-top:10px;padding-right:20px;padding-bottom:10px;padding-left:20px;color:#808080;font-family:Helvetica;font-size:10px;line-height:125%;text-align:left">
-                                    Ecardex Limited
-                                 </td>
-                              </tr>
-                           </tbody>
-                        </table>
-                        {% endblock %}
+                           {% block header %}
+                           <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                              style="background-color:#ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
+                              <tbody>
+                                 <tr>
+                                    <td valign="top"
+                                       style="padding-top:10px;padding-right:20px;padding-bottom:10px;padding-left:20px;color:#808080;font-family:Helvetica;font-size:10px;line-height:125%;text-align:left">
+                                       Ecardex Limited
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                           {% endblock %}
 
-                     </td>
-                  </tr>
-                  <tr>
-                     <td align="center" valign="top">
-						{% block logo %}
-                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#363B4D;border-top:0px solid #ffffff;border-collapse:collapse">
-                           <tbody>
-                              <tr>
-                                 <td valign="top" style="color:#ffffff;font-family:Helvetica;font-size:20px;font-weight:bold;line-height:100%;padding-top:20px;padding-right:45px;padding-bottom:20px;padding-left:45px;text-align:center;vertical-align:middle">
-                                    <a href="www.ecardex.com">
-                                    <!-- https://invoicely.com/images/mail/invoicely_mail_icon.png -->
-                                    <img draggable="false" src="https://apilayer-user-file-uploads.s3.amazonaws.com/7fbb8277c3be1e766549ec7a1eeb5260_LOGO+TRANSPARENT.png" alt="Ecardex Ventures" width="160" style="margin: 0 auto;display: block;" />
-                                    </a>
-                                 </td>
-                              </tr>
-                           </tbody>
-                        </table>
-                     	{% endblock %}
+                        </td>
+                     </tr>
+                     <tr>
+                        <td align="center" valign="top">
+                           {% block logo %}
+                           <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                              style="background-color:#363B4D;border-top:0px solid #ffffff;border-collapse:collapse">
+                              <tbody>
+                                 <tr>
+                                    <td valign="top"
+                                       style="color:#ffffff;font-family:Helvetica;font-size:20px;font-weight:bold;line-height:100%;padding-top:20px;padding-right:45px;padding-bottom:20px;padding-left:45px;text-align:center;vertical-align:middle">
+                                       <a href="www.ecardex.com">
+                                          <img draggable="false"
+                                             src="https://apilayer-user-file-uploads.s3.amazonaws.com/7fbb8277c3be1e766549ec7a1eeb5260_LOGO+TRANSPARENT.png"
+                                             alt="Ecardex Limited"
+                                             style="margin: 0 auto;display: block;  width: 80px;" />
+                                       </a>
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                           {% endblock %}
 
-                     </td>
-                  </tr>
-                  <tr>
-                     <td align="center" valign="top">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td align="center" valign="top">
 
-                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#ffffff;border-top:0px solid #ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
-                           <tbody>
-                                <tr>
-                                    <td valign="top" style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
-                                	{% block body %}
+                           <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                              style="background-color:#ffffff;border-top:0px solid #ffffff;border-bottom:0px solid #cccccc;border-collapse:collapse">
+                              <tbody>
+                                 <tr>
+                                    <td valign="top"
+                                       style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
+                                       {% block body %}
 
-	                                    <p>Hi {{name | title}}, <br />
-										<br />
-										A new {{type}} has been generated for you by Ecardex Limited. Here's a quick summary:<br />
-										<br />
+                                       <p>Hi {{name | title}}, <br />
+                                          <br />
+                                          A new {{type}} has been generated for you by Ecardex Limited. Here's a quick
+                                          summary:<br />
+                                          <br />
 
-										{% for x in items %}
+                                          {% for x in items %}
 
-										{{ x.item_desc | title }}  :  Amount {{ cur_fmt(x.amount)}} <br/>
+                                          {{ x.item_desc | title }} : Amount {{ cur_fmt(x.amount)}} <br />
 
-										{% endfor %}
-
-
-										<br />
+                                          {% endfor %}
 
 
-                        <table style="border-collapse: collapse;
+                                          <br />
+
+
+                                       <table style="border-collapse: collapse;
                                       display: table !important;
                                       width: 100%;
                                       margin-bottom: 1rem;
                                       background-color: transparent;
                                       border-bottom-width: 2px;">
-                            <tbody>
-                            {% if discount %}
-                                <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px;
+                                          <tbody>
+                                             {% if discount %}
+                                             <tr>
+                                                <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        Discount Label
-                                    </td>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                                   Discount Label
+                                                </td>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ discount_description or 'Discount' }}
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px;
+                                                   {{ discount_description or 'Discount' }}
+                                                </th>
+                                             </tr>
+                                             <tr>
+                                                <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        Discount Applied
-                                    </td>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                                   Discount Applied
+                                                </td>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ cur_fmt(discount) }}
-                                    </th>
-                                </tr>
-                            {% endif %}
-                                <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px;
+                                                   {{ cur_fmt(discount) }}
+                                                </th>
+                                             </tr>
+                                             {% endif %}
+                                             <tr>
+                                                <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        VAT(7.5%)
-                                    </td>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                                   VAT(7.5%)
+                                                </td>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ cur_fmt(vat) }} {{ currency }}
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <td width='50%' style="vertical-align: middle; padding: 15px;
+                                                   {{ cur_fmt(vat) }} {{ currency }}
+                                                </th>
+                                             </tr>
+                                             <tr>
+                                                <td width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        Subtotal
-                                    </td>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                                   Subtotal
+                                                </td>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ cur_fmt(total) }} {{ currency }}
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                                   {{ cur_fmt(total) }} {{ currency }}
+                                                </th>
+                                             </tr>
+                                             <tr>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                        Total Amount
-                                    </th>
-                                    <th width='50%' style="vertical-align: middle; padding: 15px;
+                                                   Total Amount
+                                                </th>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                        {{ cur_fmt(vat_total) }} {{ currency }}
-                                    </th>
-                                </tr>
+                                                   {{ cur_fmt(vat_total) }} {{ currency }}
+                                                </th>
+                                             </tr>
 
-                            </tbody>
-                        </table>
+                                          </tbody>
+                                       </table>
 
-						    {{type}} PDF copy has been added as an attachment
-                            <br />
-							<br />
+                                       {{type}} PDF copy has been added as an attachment
+                                       <br />
+                                       <br />
 
 
-							Best regards,<br />
-							Ecardex Limited
+                                       Best regards,<br />
+                                       Ecardex Limited
 
-                            </p>
-                            {% endblock %}
+                                       </p>
+                                       {% endblock %}
                                     </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                 </tr>
+                              </tbody>
+                           </table>
 
 
-                    </td>
-                  </tr>
-                  <tr>
-                     <td align="center" valign="top">
-                     	{% block footer %}
+                        </td>
+                     </tr>
+                     <tr>
+                        <td align="center" valign="top">
+                           {% block footer %}
 
-                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#eeeeee;border-top:0px solid #ffffff;border-collapse:collapse">
-                           <tbody>
-                              <tr>
-                                 <td valign="top" style="color:#808080;font-family:Helvetica;font-size:12px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
-                                    <div style="float: left; vertical-align:top;">
-                                       <a style="color:#808080;" target="_blank" href="www.ecardex.com">Ecardex Limited</a>
-                                       <br>
-                                       08, ladipo kuku street, Opebi road, 23401 Ikeja, Lagos, NG
-                                    </div>
-                                    <a href="mailto:support@ecardex.com" style="float: right; text-decoration: none; background: #ff6633;color: #fff;padding: 5px 10px;border: 0px solid #ff6633; border-radius: 2px;">Contact Us</a><wbr>&nbsp;
-                                 </td>
-                              </tr>
-                           </tbody>
-                        </table>
-						<img src="{{status_link or ''}}" height="1" width="1">
+                           <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                              style="background-color:#eeeeee;border-top:0px solid #ffffff;border-collapse:collapse">
+                              <tbody>
+                                 <tr>
+                                    <td valign="top"
+                                       style="color:#808080;font-family:Helvetica;font-size:12px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
+                                       <div style="float: left; vertical-align:top;">
+                                          <a style="color:#808080;" target="_blank" href="www.ecardex.com">Ecardex
+                                             Limited</a>
+                                          <br>
+                                          2, segun sonola street, egbeda akowonjo, 100624 Alimosho, Lagos, NG
+                                       </div>
+                                       <a href="mailto:support@ecardex.com"
+                                          style="float: right; text-decoration: none; background: #ff6633;color: #fff;padding: 5px 10px;border: 0px solid #ff6633; border-radius: 2px;">Contact
+                                          Us</a><wbr>&nbsp;
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                           <img src="{{status_link}}" style="height:0; width:0;">
 
-                        {% endblock %}
+                           {% endblock %}
 
-                     </td>
-                  </tr>
-               </tbody>
-            </table>
-  			</a>
-         </td>
-      </tr>
-   </tbody>
-</table>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+               </a>
+            </td>
+         </tr>
+      </tbody>
+   </table>
 </body>
+
 </html>
 
 
 
 
 </body>
+
 </html>

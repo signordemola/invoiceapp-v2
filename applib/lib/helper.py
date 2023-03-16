@@ -201,13 +201,11 @@ def send_email(filename, receiver_email, msg_subject,
 
         attach_name = None
         attach_data = b''
-
-        attach_name = "{}.{}.pdf".format(email_filename,
-                                         datetime.datetime.now().strftime("%b.%m.%Y.%S"))
-
-
+ 
 
         if filename:
+            attach_name = "{}.{}.pdf".format(email_filename,
+                                         datetime.datetime.now().strftime("%b.%m.%Y.%S"))
 
             with open(filename, "rb") as attachment:  # Open PDF file in readable binary mode
                 part = MIMEBase("application", "octet-stream")   # Add file as application/octet-stream
@@ -215,9 +213,7 @@ def send_email(filename, receiver_email, msg_subject,
                 part.set_payload(attach_data)  # Email client can usually download this automatically as attachment
 
             encoders.encode_base64(part)  # Encode file in ASCII characters to send by email
-
-
-
+ 
             part.add_header(
                 "Content-Disposition",
                 "attachment; filename={}".format(attach_name)
@@ -225,6 +221,7 @@ def send_email(filename, receiver_email, msg_subject,
 
             message.attach(part)
 
+            
         # context = ssl.create_default_context()
         # with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         #     server.login(sender_email, password)
@@ -235,6 +232,7 @@ def send_email(filename, receiver_email, msg_subject,
         resp = send_email_postmark(receiver_email, msg_subject, email_body,
                 file_path=None, attachment_content=attach_data, attachment_name=attach_name)
 
+
         print(resp)
 
 
@@ -243,7 +241,7 @@ def send_email(filename, receiver_email, msg_subject,
 def set_email_read_feedback(**kwargs):
 
     variables = encode_param(**kwargs)
-    link = url_for("admin.report_email_receipt",
+    link = url_for("login.report_email_receipt",
             ref=variables,
             _external=True)
     return link
@@ -285,7 +283,7 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], i
 
     _link = set_email_read_feedback(email_receiver=kwargs['email'],
                                     email_title=message_subject)
-
+    print(email_body_template, '\n\n\n')
     template1 = env.get_template(email_body_template)
     _template1 = template1.render(items=args, payments=pay_history, status_link=_link, **kwargs)
 
@@ -384,7 +382,7 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
             "MessageStream": "outbound"
         }
 
-    if attachment_content is not None:
+    if attachment_content and attachment_name:
 
         attachment = base64.b64encode(attachment_content).decode('utf-8')
         params['Attachments'] = [
@@ -397,10 +395,8 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
 
     payload = json.dumps(params)
 
-
     headers = {"X-Postmark-Server-Token": cfg['key'],
                 "Content-Type": "application/json", "Accept": "application/json"}
-
 
     r = rq.post(cfg["postmark"], data=payload, headers=headers)
 

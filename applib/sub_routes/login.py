@@ -24,12 +24,13 @@ import base64
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
-mod = Blueprint('admin', __name__, url_prefix='/admin')
+mod = Blueprint('login', __name__)
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
 
+@mod.route('/', methods=['POST', 'GET'])
 @mod.route('/login', methods=['POST', 'GET'])
 def login():
     
@@ -70,7 +71,7 @@ def login():
 @login_required
 def logout_app():
     logout_user()
-    return redirect(url_for('admin.login'))
+    return redirect(url_for('login.login'))
 
 
 
@@ -87,19 +88,18 @@ def report_email_receipt():
             email_body="thebodyof themail"         
     """ 
     ref = request.args.get("ref")
-
+ 
     if ref:        
         values = decode_param(ref)
-        
+        counter = 1
         with m.sql_cursor() as db:
             qry = db.query(m.EmailReceipt).filter_by(ref=ref)
-
-            if qry.first():
-                qry.update({"counter": qry.first().counter + 1,
+            fetch_qry = qry.first()
+            if fetch_qry:
+                counter = fetch_qry.counter + 1 
+                qry.update({"counter": counter,
                             "last_received": datetime.datetime.now()
                             })                               
-
-
             else:
                 em = m.EmailReceipt()
                 em.ref = ref 
@@ -109,16 +109,12 @@ def report_email_receipt():
                 db.add(em)
 
                 
-                dt = datetime.datetime.now().strftime("%b %d %Y %H:%M:%S")
-                body = render_template('email_status.html', date_time=dt, **values)
-                send_email(None, "support@ecardex.com", "Read Confirmation", 
-                            body)
+        dt = datetime.datetime.now().strftime("%b %d %Y %H:%M:%S")
+        body = render_template('email_status.html', date_time=dt, counter=counter, **values)
+        send_email(None, "support@ecardex.com", "Read Confirmation", body)
 
-    return "OK 200!"
-
-    # send out a confirmation email to support@ecardex.com 
-
-
+    return "OK"
+ 
 
 
 

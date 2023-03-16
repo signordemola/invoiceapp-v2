@@ -21,7 +21,7 @@ from flask_login import login_required
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
-mod = Blueprint('client', __name__, url_prefix='/admin/client')
+mod = Blueprint('client', __name__, url_prefix='/client')
 
 
 @mod.route('/add', methods=['POST', 'GET'])

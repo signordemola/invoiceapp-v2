@@ -1,231 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='fontawesome/css/all.css') }}">
 
+	<link rel="stylesheet" href="{{ url_for('static', filename='select2-bootstrap.css') }}">
+
 	<style>
 		body {
-		  font-family: "Lato", sans-serif;
+			font-family: "Lato", sans-serif;
 		}
-		
-		.footer{ 
-	       position: fixed;     
-	       text-align: center;    
-	       bottom: 0px; 
-	       width: 100%;
-	       color: green;
-   		}
-		
+
+		.footer {
+			position: fixed;
+			text-align: center;
+			bottom: 0px;
+			width: 100%;
+			color: green;
+		}
+
 		.sidenav {
-		  height: 100%;
-		  width: 0;
-		  position: fixed;
-		  z-index: 1;
-		  top: 0;
-		  left: 0;
-		  background-color: #F4F6F6;
-		  overflow-x: hidden;
-		  transition: 0.5s;
-		  padding-top: 60px;
+			height: 100%;
+			width: 0;
+			position: fixed;
+			z-index: 1;
+			top: 0;
+			left: 0;
+			background-color: #F4F6F6;
+			overflow-x: hidden;
+			transition: 0.5s;
+			padding-top: 60px;
 		}
 
 		.sidenav a {
-		  padding: 8px 8px 8px 32px;
-		  text-decoration: none;
-		  font-size: 15px;
-		  color: black;
-		  display: block;
-		  transition: 0.3s;
+			padding: 8px 8px 8px 32px;
+			text-decoration: none;
+			font-size: 15px;
+			color: black;
+			display: block;
+			transition: 0.3s;
 		}
 
 		.sidenav a:hover {
-		  color: #FBFCFC;
-		  background-color: #18BA4C
+			color: #FBFCFC;
+			background-color: #18BA4C
 		}
-		
+
 		.sidenav .closebtn {
-		  position: absolute;
-		  top: 0;
-		  right: 25px;
-		  font-size: 36px;
-		  margin-left: 50px;
-		  color: #17202A
+			position: absolute;
+			top: 0;
+			right: 25px;
+			font-size: 36px;
+			margin-left: 50px;
+			color: #17202A
 		}
 
 		@media screen and (max-height: 450px) {
-		  .sidenav {padding-top: 15px;}
-		  .sidenav a {font-size: 18px;}
-		} 
+			.sidenav {
+				padding-top: 15px;
+			}
 
-		.space_between{
+			.sidenav a {
+				font-size: 18px;
+			}
+		}
+
+		.space_between {
 			margin-bottom: 15px;
 		}
-		
-		.space_top{
+
+		.space_top {
 			margin-top: 20px;
 		}
+
 		.btn_cl {
 			background-color: #eee;
 		}
-		
+
 		.error {
 			color: #c35530 !important;
 		}
 
-		.header_text{
+		.header_text {
 			text-align: center;
 		}
 
 		.tab {
-  			display: block;		
-  			padding: 22px 16px;
-  			width: 100%;		
-  			text-align: left;
+			display: block;
+			padding: 22px 16px;
+			width: 100%;
+			text-align: left;
 		}
-		
+
 		.theme_link {
 			color: green;
 		}
- 		{% block in_style %}
- 		{% endblock %}
- 
+
+			{
+			% block in_style %
+		}
+
+			{
+			% endblock %
+		}
+
+
+
+		.btn-light {
+			background-color: #eee;
+		}
 	</style>
 </head>
+
 <body>
-	
+
 	{% macro form_layout(form) %}
-		
-		{% for f in form %}
-			{% if not f.type == 'HiddenField' %}
 
-			<div class="form-group">
-				{{f.label}}
-				{{f()}}
+	{% for f in form %}
+	{% if not f.type == 'HiddenField' %}
 
-				{% for err in f.errors %}
-				    <small id="{{f.name}}" class="form-text text-muted error"> {{err}} </small>
-				{% endfor %}
-			</div>
-			{% endif %}
+	<div class="form-group">
+		{{f.label}}
+		{{f()}}
+
+		{% for err in f.errors %}
+		<small id="{{f.name}}" class="form-text text-muted error"> {{err}} </small>
 		{% endfor %}
+	</div>
+	{% endif %}
+	{% endfor %}
 
 	{% endmacro %}
-	
+
 	{% macro pagination(obj, url) %}
-        <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-8" style="padding: 0px;">
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination pagination-sm" style="margin-bottom: 0px;">
-                            <li class="page-item">
-                                <a class="page-link" href="{{url_for(url, page=obj.previous_page)}}" tabindex="-1" aria-disabled="true">Previous</a>
-                            </li>
-                            {% for page in page_row %}
-                            {% if cur_page == page %}
-                            <li class="page-item active">
-                                <a class="page-link" href="{{url_for(url, page=page)}}">{{page}} </a>
-                            </li>
-                            {% else %}
-                            <li class="page-item">
-                                <a class="page-link" href="{{url_for(url, page=page)}}">{{page}} </a>
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-                             <li class="page-item">
-                                <a class="page-link" href="#"> ... </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="{{url_for(url, page=obj.next_page)}}"> Next</a>
-                            </li>
-                        </ul>
-                        
-                    </nav>
-                </div>
-                <div class="col-4" style="padding: 0px; text-align: right;">
-                    Total Records : {{ obj.total }}
-                </div>
-            </div>
-        </div>
-        
-    {% endmacro %}
+	<div class="container">
+		<div class="row justify-content-between">
+			<div class="col-8" style="padding: 0px;">
+				<nav aria-label="Page navigation example">
+					<ul class="pagination pagination-sm" style="margin-bottom: 0px;">
+						<li class="page-item">
+							<a class="page-link" href="{{url_for(url, page=obj.previous_page)}}" tabindex="-1"
+								aria-disabled="true">Previous</a>
+						</li>
+						{% for page in page_row %}
+						{% if cur_page == page %}
+						<li class="page-item active">
+							<a class="page-link" href="{{url_for(url, page=page)}}">{{page}} </a>
+						</li>
+						{% else %}
+						<li class="page-item">
+							<a class="page-link" href="{{url_for(url, page=page)}}">{{page}} </a>
+						</li>
+						{% endif %}
+						{% endfor %}
+						<li class="page-item">
+							<a class="page-link" href="#"> ... </a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="{{url_for(url, page=obj.next_page)}}"> Next</a>
+						</li>
+					</ul>
+
+				</nav>
+			</div>
+			<div class="col-4" style="padding: 0px; text-align: right;">
+				Total Records : {{ obj.total }}
+			</div>
+		</div>
+	</div>
+
+	{% endmacro %}
 
 
 
 
-	{% block side_menu %} 
-	
+	{% block side_menu %}
+
 	<div id="mySidenav" class="sidenav">
 
-		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()"  
-		    onmouseover="this.style.backgroundColor='transparent';">
+		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()"
+			onmouseover="this.style.backgroundColor='transparent';">
 			&times;
 		</a>
 
-		<a href="{{url_for('client.client_list')}}" class="btn tab"
-			style="">
+		<a href="{{url_for('client.client_list')}}" class="btn tab">
 			<i class="fas fa-user fa-lg"></i>
 			&nbsp; Client
 		</a>
 
-		<a href="{{url_for('invoice.index')}}" class="btn tab"
-			style="">
+		<a href="{{url_for('invoice.index')}}" class="btn tab">
 			<i class="fas fa-file-invoice fa-lg"></i>
 			&nbsp; Invoice
 		</a>
-		
-		<a href="{{url_for('payment.index')}}" class="btn tab"
-			style="">
+
+		<a href="{{url_for('payment.index')}}" class="btn tab">
 			<i class="fas fa-money-check fa-lg"></i>
 			&nbsp; Payment
 		</a>
 
-		<a href="{{url_for('expense.index')}}" class="btn tab"
-			style="">
+		<a href="{{url_for('expense.index')}}" class="btn tab">
 			<i class="fas fa-file-invoice fa-lg"></i>
 			&nbsp; Expenditure
 		</a>
-		<a href="{{url_for('dashboard.index')}}" class="btn tab"
-			style="">
+		<a href="{{url_for('dashboard.index')}}" class="btn tab">
 			<i class="fas fa-file-invoice fa-lg"></i>
 			&nbsp; Dashboard
 		</a>
 
-		<a href="{{url_for('admin.logout_app')}}" class="btn tab" 
-			id="logout" style="">
+		<a href="{{url_for('login.logout_app')}}" class="btn tab" id="logout">
 			<i class="fas fa-power-off"></i>
 			&nbsp; Logout
 		</a>
 
 	</div>
-	
+
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
-				<span title="Invoice Menu" style="font-size:30px; cursor:pointer; color:green;" onclick="openNav()">&#9776;
+				<span title="Invoice Menu" style="font-size:30px; cursor:pointer; color:green;"
+					onclick="openNav()">&#9776;
 				</span>
-				
+
 				{% with messages = get_flashed_messages() %}
-					{% if messages %}
-					    <div class="row">
-					    	<div class="col-md-12">
-					       		{% for message in messages %}
-					       		<div class="alert alert-primary" role="alert"> 
-					       			{{ message }} 
-					       		</div>
-					       		{% endfor %}
-					       	</div>
+				{% if messages %}
+				<div class="row">
+					<div class="col-md-12">
+						{% for message in messages %}
+						<div class="alert alert-primary" role="alert">
+							{{ message }}
 						</div>
-					{% endif %} 
+						{% endfor %}
+					</div>
+				</div>
+				{% endif %}
 				{% endwith %}
 
 			</div>
 
 		</div>
 	</div>
-	
+
 	{% endblock %}
 
 	<div class="container">
@@ -237,27 +254,32 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="{{url_for('static', filename='select2.min.js')}}"></script>
+
 	<script type="text/javascript">
 		function openNav() {
-		  document.getElementById("mySidenav").style.width = "250px";
+			document.getElementById("mySidenav").style.width = "250px";
 		}
 
 		function closeNav() {
-		  document.getElementById("mySidenav").style.width = "0";
+			document.getElementById("mySidenav").style.width = "0";
 		}
+		$(document).ready(function () {
+			$("select").select2({
+				theme: "bootstrap"
+			});
+
+		})
 
 		{% block scripts %}
 		{% endblock %}
 
 	</script>
-	
+
 	{% block script_files %}
 	{% endblock %}
 
 
 </body>
+
 </html>
-
- 
-
-
