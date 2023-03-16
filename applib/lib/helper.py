@@ -4,17 +4,12 @@ from configobj import ConfigObj
 from passlib.hash import pbkdf2_sha256
 
 from flask import url_for
-
-import email, smtplib, ssl
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
-
-from jinja2 import Template
-from jinja2 import Environment, PackageLoader, FileSystemLoader
-import random
+from jinja2 import Environment, FileSystemLoader
+ 
 import subprocess as sc
 import requests as rq
 
@@ -22,13 +17,11 @@ import datetime, calendar
 import urllib
 import base64
 
-import os, json
-import subprocess
+import os, json 
 import pdfkit
 import base64
 from sqlalchemy_pagination import paginate
 from decimal import Decimal
-
 
 
 # +-------------------------+-------------------------+
@@ -196,8 +189,8 @@ def send_email(filename, receiver_email, msg_subject,
         message["From"] = email_params['sender']
         message["To"] = receiver_email
 
-        message.attach(MIMEText(body, "html"))  #Add body to Email
-        # filename = pdf_output  # In same directory as script
+        message.attach(MIMEText(body, "html"))  
+         
 
         attach_name = None
         attach_data = b''
@@ -219,15 +212,9 @@ def send_email(filename, receiver_email, msg_subject,
                 "attachment; filename={}".format(attach_name)
             )
 
-            message.attach(part)
-
+            message.attach(part) 
             
-        # context = ssl.create_default_context()
-        # with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-        #     server.login(sender_email, password)
-        #     server.sendmail(
-        #         sender_email, receiver_email, message.as_string()
-        #         )
+         
 
         resp = send_email_postmark(receiver_email, msg_subject, email_body,
                 file_path=None, attachment_content=attach_data, attachment_name=attach_name)
@@ -242,10 +229,10 @@ def set_email_read_feedback(**kwargs):
 
     variables = encode_param(**kwargs)
     link = url_for("login.report_email_receipt",
-            ref=variables,
-            _external=True)
-    return link
-
+            ref=variables)
+    
+    return get_config('EXTERNAL_HOST') + link 
+    
 
 
 def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], isdownload=False):
@@ -283,7 +270,8 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], i
 
     _link = set_email_read_feedback(email_receiver=kwargs['email'],
                                     email_title=message_subject)
-    print(email_body_template, '\n\n\n')
+
+
     template1 = env.get_template(email_body_template)
     _template1 = template1.render(items=args, payments=pay_history, status_link=_link, **kwargs)
 
