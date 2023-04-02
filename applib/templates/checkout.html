@@ -19,15 +19,15 @@ text-align: right;
 <div class="col-md-12">
 	<br><br>
 	<p>
-		<b>Invoice: {{invoice_details.inv_id}}
+		<b>Invoice: {{invoice_details.id}}
 			{% if invoice_details.status == None %}
 			<a href="{{url_for('payment.add', invoice_name=invoice_details.name,
-						invoice_id=invoice_details.inv_id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
+						invoice_id=invoice_details.id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
 				Proceed to Payment
 			</a>
 			{% else %}
 			<a href="{{url_for('payment.edit',pay_id=invoice_details.pay_id,
-						invoice_id=invoice_details.inv_id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
+						invoice_id=invoice_details.id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
 				Proceed to Payment
 			</a>
 			{% endif %}
@@ -72,7 +72,7 @@ text-align: right;
 
 	<p style="margin-bottom: 3px;">
 		<span style="font-size: 1.75rem;">Item Details</span>
-		<a href="{{url_for('item.add_item',invoice_id=invoice_details.inv_id)}}"
+		<a href="{{url_for('item.add_item',invoice_id=invoice_details.id)}}"
 			style="float: right; margin-top: 15px; color: green"> Add Item </a>
 	</p>
 	<table class="table table-striped table-condensed table-hover">
@@ -97,12 +97,12 @@ text-align: right;
 					{{ kwargs['cur_fmt'](item.amount) }}
 				</td>
 				<td class="move_right w-2">
-					<a href="{{url_for('item.edit_item',item_id=item.id,invoice_id=invoice_details.inv_id)}}"
+					<a href="{{url_for('item.edit_item',item_id=item.id,invoice_id=invoice_details.id)}}"
 						title="Edit Item" style="color: green">
 						<i class="fa fa-edit"></i>
 					</a>
 
-					<a href="{{url_for('item.delete_item',item_id=item.id, invoice_id=invoice_details.inv_id)}}"
+					<a href="{{url_for('item.delete_item',item_id=item.id, invoice_id=invoice_details.id)}}"
 						title="Delete Item" style="color: green" class="delete_item">
 						<i class="fas fa-trash-alt"></i>
 					</a>
@@ -123,11 +123,11 @@ text-align: right;
 			<p id='discount_p' style="margin-bottom: 3px;">
 				<span style="font-size: 1.75rem;">Discount Applied</span>
 				<span>
-					<a class='theme_link' href="{{url_for('item.add_discount', invoice_id=invoice_details.inv_id)}}">
+					<a class='theme_link' href="{{url_for('item.add_discount', invoice_id=invoice_details.id)}}">
 						<i class="fa fa-edit fa-lg"></i>
 					</a>
 					<a class="theme_link" id="delete_discount"
-						href="{{url_for('item.delete_discount',invoice_id=invoice_details.inv_id)}}"> <i
+						href="{{url_for('item.delete_discount',invoice_id=invoice_details.id)}}"> <i
 							class="fa fa-trash fa-lg"></i> </a>
 				</span>
 			</p>

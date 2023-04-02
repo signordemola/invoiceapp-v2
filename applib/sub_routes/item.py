@@ -40,7 +40,7 @@ def add_item(invoice_id):
                                         m.Client, 
                                         m.Client.id == m.Invoice.client_id 
                                        ).filter(
-                                                m.Invoice.inv_id == invoice_id 
+                                                m.Invoice.id == invoice_id 
                                                 ).first()
 
         form = ItemForm(request.form, client_name=client_param.name, 
@@ -95,7 +95,7 @@ def edit_item(invoice_id, item_id):
                                         m.Client, 
                                         m.Client.id == m.Invoice.client_id 
                                         ).filter(
-                                                m.Invoice.inv_id == invoice_id 
+                                                m.Invoice.id == invoice_id 
                                                 ).first()
 
         form = ItemForm()
@@ -169,10 +169,8 @@ def add_discount(invoice_id):
         output = db.query(
                             m.Invoice.disc_value, 
                             m.Invoice.disc_type, 
-                            m.Invoice.inv_id
-                          ).filter_by(
-                                 inv_id=invoice_id
-                                )
+                            m.Invoice.id
+                          ).filter_by(id=invoice_id)
 
         temp_output = output.first()
          
@@ -208,7 +206,7 @@ def add_discount(invoice_id):
                             'disc_value' : form.discount.data,
                             'disc_desc' : form.disc_desc.data,                     
                         })   
-                return redirect(url_for('invoice.checkout', invoice_id=temp_output.inv_id))        
+                return redirect(url_for('invoice.checkout', invoice_id=temp_output.id))        
 
 
         return render_template('disc.html', form=form)

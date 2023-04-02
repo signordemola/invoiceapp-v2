@@ -132,7 +132,7 @@ def notification_handler():
 
 
         inv_param = {'inv_id': last_id}
-        inv_sql = "select * from invoice where inv_id=:inv_id"
+        inv_sql = "select * from invoice where id=:inv_id"
         inv_qry = db.query(inv_sql, **inv_param)
         _output = inv_qry.all()
 

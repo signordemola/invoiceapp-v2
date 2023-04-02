@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='fontawesome/css/all.css') }}">
 
+	<link rel="stylesheet" href="{{ url_for('static', filename='select2.min.css') }}">
 	<link rel="stylesheet" href="{{ url_for('static', filename='select2-bootstrap.css') }}">
 
 	<style>
@@ -99,15 +100,7 @@
 			color: green;
 		}
 
-			{
-			% block in_style %
-		}
-
-			{
-			% endblock %
-		}
-
-
+		{% block in_style %}{% endblock %}
 
 		.btn-light {
 			background-color: #eee;

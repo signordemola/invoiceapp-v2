@@ -39,13 +39,13 @@ def index():
     search = request.args.get('search', "")
 
     with m.sql_cursor() as db:
-        #select query from invoice
-        sub = db.query(m.Items.invoice_id,
-                       m.func.sum(m.Items.amount
-                                  ).label("sub_total"),
-                       ).group_by(
-                            m.Items.invoice_id
-                       ).subquery()
+         
+        sub = db.query(
+                        m.Items.invoice_id,
+                        m.func.sum(m.Items.amount).label("sub_total"),
+                    ).group_by(
+                        m.Items.invoice_id
+                    ).subquery()
 
 
         recent_payments = db.query(m.Payment.invoice_id,
@@ -53,20 +53,23 @@ def index():
                                    m.func.sum(m.Payment.amount_paid).label('recent_payment')
                                   ).group_by(m.Payment.invoice_id).subquery()
 
-        qry = db.query(m.Invoice.inv_id,
-                       m.Invoice.invoice_no, m.Invoice.disc_type, m.Invoice.disc_value,
-                       m.Invoice.client_type, m.Client.email,
+        qry = db.query(m.Invoice.id,
+                       m.Invoice.invoice_no, m.Invoice.disc_type, 
+                       m.Invoice.disc_value,
+                       m.Invoice.client_type, 
+                       m.Client.email,
                        m.Client.name, m.Invoice.date_value,  
                        sub.c.sub_total,
-                       sub.c.invoice_id,
                        recent_payments.c.recent_payment,
                        recent_payments.c.status
-                      ).outerjoin(
-                        sub, sub.c.invoice_id == m.Invoice.inv_id
-                      ).outerjoin(recent_payments,
-                                  recent_payments.c.invoice_id == m.Invoice.inv_id
-                                  ).filter(m.Invoice.client_id == m.Client.id
-                                           ).order_by(m.Invoice.inv_id.desc())
+                    ).outerjoin(
+                        sub, sub.c.invoice_id == m.Invoice.id
+                    ).outerjoin(recent_payments,
+                                  recent_payments.c.invoice_id == m.Invoice.id
+                    ).filter(
+                        m.Invoice.client_id == m.Client.id
+                    ).order_by(m.Invoice.id.desc())
+
 
         if search:
              
@@ -79,19 +82,18 @@ def index():
         qry, page_row = set_pagination(qry, cur_page, 10)
 
         grp_data = []
-
-
+ 
         for x in qry.items:
             retv = {}
 
             retv['date_value'] = x.date_value
-            retv['inv_id'] = x.inv_id
+            retv['inv_id'] = x.id
             retv['invoice_no'] = x.invoice_no
             retv['client_name'] = x.name
             retv['email'] = x.email
 
             vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value,
-                                                                    x.sub_total, x.client_type)
+                                                                    x.sub_total or 0, x.client_type)
             retv['status'] = x.status
             retv['vat_total'] = vat_total
             retv['vat'] = vat
@@ -127,7 +129,7 @@ def checkout(invoice_id):
     with m.sql_cursor() as db:
 
         invoice_data = db.query(
-                        m.Invoice.inv_id,
+                        m.Invoice.id,
                         m.Invoice.date_value,
                         m.Invoice.invoice_no,
                         m.Invoice.invoice_due,
@@ -150,9 +152,9 @@ def checkout(invoice_id):
                             m.Client.id == m.Invoice.client_id
                     ).outerjoin(
                             m.Payment,
-                            m.Payment.invoice_id == m.Invoice.inv_id
+                            m.Payment.invoice_id == m.Invoice.id
                     ).filter(
-                            m.Invoice.inv_id == invoice_id
+                            m.Invoice.id == invoice_id
                     ).first()
 
         item_for_amount = db.query(m.Items.id, m.Items.item_desc,
@@ -252,9 +254,9 @@ def client_invoice():
             invoice.invoice_due = datetime.datetime.now()
             db.add(invoice)
             db.flush()
-            invoice.invoice_no = 'INV-%d' %invoice.inv_id
-            invoice.purchase_no = invoice.inv_id
+            invoice.invoice_no = 'INV-%d' %invoice.id
+            invoice.purchase_no = invoice.id
 
-            return redirect(url_for('item.add_item', invoice_id=invoice.inv_id))
+            return redirect(url_for('item.add_item', invoice_id=invoice.id))
 
     return render_template('client_invoice.html', form=form)

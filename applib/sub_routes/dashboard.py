@@ -88,14 +88,14 @@ def index():
         start, _stop = get_year_range(yr)
 
         items_sub = db.query(
-            m.Invoice.inv_id,
+            m.Invoice.id,
             m.func.sum(m.Items.amount).label("total_amount")
         ).join(
             m.Items,
-            m.Items.invoice_id == m.Invoice.inv_id          
+            m.Items.invoice_id == m.Invoice.id          
         ).filter(
             m.Invoice.date_value.between(start, _stop)
-        ).group_by(m.Invoice.inv_id).subquery()
+        ).group_by(m.Invoice.id).subquery()
 
         payment_sub = db.query(
             m.Payment.invoice_id,
@@ -107,17 +107,17 @@ def index():
         ).subquery()
 
         invoices_data = db.query(
-            m.Invoice.inv_id,
+            m.Invoice.id,
             m.Invoice.client_type,
             m.Invoice.disc_type,
             m.Invoice.disc_value,
             items_sub.c.total_amount,
             payment_sub.c.total_paid        
         ).join(
-            items_sub, items_sub.c.inv_id == m.Invoice.inv_id
+            items_sub, items_sub.c.id == m.Invoice.id
         ).outerjoin(
             payment_sub,
-            payment_sub.c.invoice_id == m.Invoice.inv_id
+            payment_sub.c.invoice_id == m.Invoice.id
         ).filter(
             m.Invoice.date_value.between(start, _stop)
         ).all()

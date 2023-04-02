@@ -88,7 +88,7 @@ class Invoice(db.Model):
 
     __tablename__ = "invoice"
 
-    inv_id = Column(BigInteger, Sequence('invoice_inv_id_seq'), primary_key=True)    
+    id = Column(BigInteger, Sequence('invoice_inv_id_seq'), primary_key=True)    
     disc_type = Column(String(10))    
     disc_value = Column(String(10)) 
     disc_desc = Column(Text)  
@@ -112,7 +112,7 @@ class Items(db.Model):
     qty = Column(Integer, nullable=False)
     rate = Column(Integer, nullable=False)
     amount = Column(DECIMAL(15,2))
-    invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.inv_id'),
+    invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.id'),
         nullable=False)
 
 
@@ -176,7 +176,7 @@ class Payment(db.Model):
     payment_mode = Column(Integer, nullable=False)
     amount_paid = Column(DECIMAL(15, 2))
     balance = Column(DECIMAL(15,2))
-    invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.inv_id'), nullable=False)
+    invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.id'), nullable=False)
     status = Column(Integer, nullable=False, default=0)
     
 

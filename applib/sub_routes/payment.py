@@ -48,7 +48,7 @@ def index():
 
         qry = db.query(
                         m.Invoice.invoice_no,
-                        m.Invoice.inv_id,
+                        m.Invoice.id,
                         m.Invoice.disc_type, 
                         m.Invoice.disc_value,
                         m.Invoice.client_type,
@@ -60,13 +60,13 @@ def index():
                         m.Payment.date_created,
                         m.Payment.payment_mode,
                         m.Payment.status, 
-                        m.Payment.id,
+                        m.Payment.id.label("pid"),
                         m.Client.name   
                     ).join(
                         description,
-                        description.c.invoice_id == m.Invoice.inv_id                 
+                        description.c.invoice_id == m.Invoice.id                 
                     ).outerjoin(sub, 
-                        sub.c.invoice_id == m.Invoice.inv_id
+                        sub.c.invoice_id == m.Invoice.id
                     ).join(
                         m.Payment,
                         m.Payment.id == description.c.pid
@@ -90,9 +90,9 @@ def index():
         for x in qry.items:
             retv = {}
 
-            retv['id'] = x.id
+            retv['id'] = x.pid
             retv['invoice_id'] = x.invoice_id
-            retv['inv_id'] = x.inv_id
+            retv['inv_id'] = x.id
             retv['date_created'] = x.date_created 
             retv['name'] = x.name 
             retv['payment_desc'] = x.payment_desc
@@ -123,7 +123,8 @@ def index():
 
 @mod.route("/add/<int:invoice_id>/<invoice_name>", methods=["POST", "GET"])
 @login_required
-def add(invoice_name, invoice_id):
+def add(invoice_id, invoice_name):
+    
     form = PaymentForm(request.form, client_name=invoice_name)
     form_inv = CreateInvoiceForm()
     currency_label = {x[0]: x[1] for x in form_inv.currency.choices} 
@@ -132,11 +133,11 @@ def add(invoice_name, invoice_id):
         item_details = db.query(m.Items.amount, m.Items.item_desc).filter_by(
                                                         invoice_id=invoice_id
                                                         ).all()
-        invoice_query = db.query(m.Invoice.inv_id,
+        invoice_query = db.query(m.Invoice.id,
                                  m.Invoice.disc_type, 
                                  m.Invoice.disc_value,
                                  m.Invoice.client_type,
-                                 m.Invoice.currency).filter_by(inv_id=invoice_id
+                                 m.Invoice.currency).filter_by(id=invoice_id
                                                                ).first()
 
         data = {}
@@ -213,7 +214,7 @@ def edit(pay_id, invoice_id):
                                     ).group_by(m.Payment.invoice_id).subquery()
 
 
-        invoice_data = db.query(m.Invoice.inv_id, 
+        invoice_data = db.query(m.Invoice.id, 
                                  m.Invoice.disc_type, 
                                  m.Invoice.disc_value,
                                  m.Invoice.client_type,
@@ -230,7 +231,7 @@ def edit(pay_id, invoice_id):
                                 ).join(
                                     prev_amount_paid,
                                     prev_amount_paid.c.invoice_id == invoice_id
-                                ).filter(m.Invoice.inv_id == invoice_id).first()
+                                ).filter(m.Invoice.id == invoice_id).first()
  
         payment_history = db.query(m.Payment
                                    ).filter(
@@ -308,7 +309,7 @@ def receipt(invoice_id):
                                 m.func.sum(m.Payment.amount_paid).label("paid")
                             ).group_by(m.Payment.invoice_id).subquery()
 
-        client_invoice_details = db.query(m.Invoice.inv_id.label("invoice_id"),
+        client_invoice_details = db.query(m.Invoice.id.label("invoice_id"),
                                           m.Invoice.invoice_no, 
                                           m.Invoice.disc_value,
                                           m.Invoice.disc_type, 
@@ -324,13 +325,13 @@ def receipt(invoice_id):
                                           m.Client.name,
                                           m.Client.email, m.Client.phone
                                         ).join(m.Payment,
-                                               m.Payment.invoice_id == m.Invoice.inv_id
+                                               m.Payment.invoice_id == m.Invoice.id
                                         ).join(m.Client,
                                                m.Client.id == m.Invoice.client_id
                                         ).join(aggr_amount_paid,
-                                               aggr_amount_paid.c.invoice_id == m.Invoice.inv_id
+                                               aggr_amount_paid.c.invoice_id == m.Invoice.id
                                                ).filter(
-                                                    m.Invoice.inv_id == invoice_id
+                                                    m.Invoice.id == invoice_id
                                                     ).all()
 
         data = {
