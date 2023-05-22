@@ -101,7 +101,7 @@ class Invoice(db.Model):
     client_id =  db.Column(db.BigInteger, db.ForeignKey('client.id'), nullable=False)
     payment = db.relationship('Payment', backref='client', lazy=True)
     item = db.relationship('Items', backref='invoice', lazy=True)
-
+    is_dummy = Column(Integer)
 
 class Items(db.Model):
 

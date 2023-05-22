@@ -119,7 +119,8 @@ def index():
             payment_sub,
             payment_sub.c.invoice_id == m.Invoice.id
         ).filter(
-            m.Invoice.date_value.between(start, _stop)
+            m.Invoice.date_value.between(start, _stop),
+            m.Invoice.is_dummy is None
         ).all()
 
 
