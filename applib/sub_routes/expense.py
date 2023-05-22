@@ -26,7 +26,7 @@ def index():
     with m.sql_cursor() as db:
         qry = db.query(m.Expense.id, m.Expense.title,
                 m.Expense.desc, m.Expense.date_created, m.Expense.requested_by,
-                m.Expense.status, m.Expense.aproved_by
+                m.Expense.status, m.Expense.aproved_by, m.Expense.amount
                 ).order_by(m.Expense.id.desc())
 
         qry, page_row = h.set_pagination(qry, cur_page, 10)        

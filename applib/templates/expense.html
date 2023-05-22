@@ -23,6 +23,7 @@
 			<th> Date </th>
 			<th> Title </th>
 			<th> Description </th>
+			<th> Amount </th>
 			<th> Status </th>
 			<th> Requested By </th>			
 		</tr>
@@ -37,6 +38,7 @@
 					</b> 
 				</td>
 				<td> {{ item.desc | truncate(60) }} </td>
+				<td> {{ item.amount | comma_sep }} NGN </td>
 				<td> {{ status_label[item.status] }} </td>
 				<td> {{ item.requested_by }} </td>
 			</tr>			
