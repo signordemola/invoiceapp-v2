@@ -52,11 +52,14 @@ def index():
  
         
         qry = db.query(
+
                 m.func.extract('MONTH', m.Payment.date_created).label('month'),
                 m.func.sum(m.Payment.amount_paid)
+            ).join(
+                m.Invoice, m.Invoice.id == m.Payment.invoice_id
             ).filter(
-                m.func.extract('YEAR', m.Payment.date_created) == nt.year #strftime('%Y-%m')
-                
+                m.func.extract('YEAR', m.Payment.date_created) == nt.year,
+                m.Invoice.is_dummy is None
             ).group_by(
                 m.func.extract('MONTH', m.Payment.date_created).label('month')
             )
