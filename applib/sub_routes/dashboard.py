@@ -59,7 +59,7 @@ def index():
                 m.Invoice, m.Invoice.id == m.Payment.invoice_id
             ).filter(
                 m.func.extract('YEAR', m.Payment.date_created) == nt.year,
-                m.Invoice.is_dummy is None
+                m.Invoice.is_dummy == None
             ).group_by(
                 m.func.extract('MONTH', m.Payment.date_created).label('month')
             )
@@ -123,7 +123,7 @@ def index():
             payment_sub.c.invoice_id == m.Invoice.id
         ).filter(
             m.Invoice.date_value.between(start, _stop),
-            m.Invoice.is_dummy is None
+            m.Invoice.is_dummy == None
         ).all()
 
 
