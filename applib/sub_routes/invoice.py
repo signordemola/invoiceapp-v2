@@ -6,6 +6,8 @@ import base64
 import datetime
 
 
+from sqlalchemy import update 
+
 from flask import (Blueprint, request, url_for, send_file,
                    render_template, redirect, flash)
 
@@ -15,6 +17,7 @@ from applib.forms import CreateInvoiceForm
 from applib.lib import helper as h
 from applib.lib.helper import (
     generate_pdf, 
+    get_current_timezone,
     comma_separation,
     set_pagination)
 
@@ -85,7 +88,6 @@ def index():
  
         for x in qry.items:
             retv = {}
-
             retv['date_value'] = x.date_value
             retv['inv_id'] = x.id
             retv['invoice_no'] = x.invoice_no
@@ -246,17 +248,42 @@ def client_invoice():
         qry = db.query(m.Client).order_by(m.Client.id.desc()).all()
         form.client_id.choices.extend([(g.id, g.name) for g in qry])
 
+
+        empty_bill = db.query(m.RecurrentBill.id, m.RecurrentBill.product_name
+                ).filter(m.RecurrentBill.invoice_id.is_(None)).all()
+        form.bill_id.choices += empty_bill
+
+
         if request.method == 'POST' and form.validate():
 
             invoice = m.Invoice()
             m.form2model(form, invoice)
+
+            bill_data = None
+            if form.bill_id.data is not None:
+
+                bill_data = db.query(m.RecurrentBill.date_due
+                        ).filter(m.RecurrentBill.id == form.bill_id.data).first()
+
+
             invoice.date_value = datetime.datetime.now()
-            invoice.invoice_due = datetime.datetime.now()
+            invoice.invoice_due = bill_data.date_due if bill_data else datetime.datetime.now()
             db.add(invoice)
             db.flush()
             invoice.invoice_no = 'INV-%d' %invoice.id
             invoice.purchase_no = invoice.id
 
+
+            if bill_data is not None:
+                db.execute(
+                    update(m.RecurrentBill)
+                    .where(m.RecurrentBill.id == form.bill_id.data)
+                    .values({'invoice_id': invoice.id, 'date_updated': get_current_timezone()})
+                )
+
+
             return redirect(url_for('item.add_item', invoice_id=invoice.id))
+
+
 
     return render_template('client_invoice.html', form=form)

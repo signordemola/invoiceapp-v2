@@ -169,7 +169,18 @@ class CreateInvoiceForm(Form):
                                 render_kw=  {"class_": "form-control", 
                                              "style": "margin-bottom : 10px"})
 
-   
+    
+    bill_id = SelectField(
+            'Recurrent Bill:', 
+            [],
+            coerce=int,
+            choices=[(0, 'Select Bill')], 
+            render_kw={
+                "class_": "form-control js-single", 
+                "style": "margin-bottom : 10px"
+            }
+        )
+
         
 
 class BillsForm(Form):
@@ -235,8 +246,7 @@ class ExpenseForm(Form):
 class PaymentForm(Form):
 
     client_name = StringField("Client Name", [input_required()],                            
-                                render_kw={"class_": "js-single",
-                                           "class_": "form-control",
+                                render_kw={"class_": "js-single form-control",                                           
                                            "readonly": "readonly",
                                            "style": "margin-bottom : 10px"})
 
