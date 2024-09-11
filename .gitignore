@@ -6,17 +6,18 @@
 *.cfg
 *.pyo
 *.pyc
-
+*.sh
 tmp/
 tmp_pdf/
 __pycache__/
 
 .invoiceEnv/
-
+venv/
 test/
 
 alembic/env.py
 alembic/README
 alembic/script.py.mako
+
 README.md
 *.pdf

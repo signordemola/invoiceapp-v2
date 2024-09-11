@@ -41,17 +41,17 @@ def index():
     with m.sql_cursor() as db:
          
         sub = db.query(
-                        m.Items.invoice_id,
-                        m.func.sum(m.Items.amount).label("sub_total"),
-                    ).group_by(
-                        m.Items.invoice_id
-                    ).subquery()
+                m.Items.invoice_id,
+                m.func.sum(m.Items.amount).label("sub_total"),
+            ).group_by(
+                m.Items.invoice_id
+            ).subquery()
 
-
-        recent_payments = db.query(m.Payment.invoice_id,
-                                  m.func.max(m.Payment.status).label('status'),
-                                   m.func.sum(m.Payment.amount_paid).label('recent_payment')
-                                  ).group_by(m.Payment.invoice_id).subquery()
+        recent_payments = db.query(
+                m.Payment.invoice_id,
+                m.func.max(m.Payment.status).label('status'),
+                m.func.sum(m.Payment.amount_paid).label('recent_payment')
+           ).group_by(m.Payment.invoice_id).subquery()
 
         qry = db.query(m.Invoice.id,
                        m.Invoice.invoice_no, m.Invoice.disc_type, 
@@ -65,7 +65,7 @@ def index():
                     ).outerjoin(
                         sub, sub.c.invoice_id == m.Invoice.id
                     ).outerjoin(recent_payments,
-                                  recent_payments.c.invoice_id == m.Invoice.id
+                                recent_payments.c.invoice_id == m.Invoice.id
                     ).filter(
                         m.Invoice.client_id == m.Client.id
                     ).order_by(m.Invoice.id.desc())
@@ -109,7 +109,7 @@ def index():
     if msg:
         flash(msg)
 
-    return render_template('index.html',
+    return render_template('invoice_list.html',
                             pager=qry, page_row=page_row, data=grp_data,
                             cur_page=cur_page, cur_fmt=cur_fmt
                         )

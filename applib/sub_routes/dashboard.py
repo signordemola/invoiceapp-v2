@@ -49,10 +49,8 @@ def index():
     nt = nt.replace(year=yr)
 
     with m.sql_cursor() as db:
- 
-        
-        qry = db.query(
-
+  
+        qry = db.query( 
                 m.func.extract('MONTH', m.Payment.date_created).label('month'),
                 m.func.sum(m.Payment.amount_paid)
             ).join(

@@ -34,7 +34,7 @@ class InvoiceApi(Resource):
             
             
             for values in items: 
-                item_form = ItemsForm(**values)
+                item_form = ItemForm(**values)
                 item_is_valid = item_form.validate()
                 
              

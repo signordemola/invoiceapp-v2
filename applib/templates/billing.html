@@ -1,0 +1,88 @@
+
+{% extends 'base.html' %}
+
+{% block main %} 
+	
+	
+<div class="col-md-12">
+	<div>
+		<h3 class="mb-5 header_text">
+			<b> Service Billing </b>
+		</h3>
+	</div> 
+	<div class="row">			
+		<div class="col-md-9">
+			<div class="d-flex flex-row justify-content-between">				
+				<p>
+					Potential  : <span> NGN  {{ payment_stages['potential'] | comma_sep }} </span>
+				</p> 
+				<p>
+					Paid : <span> NGN  {{payment_stages['paid'] | comma_sep }} </span>	
+				</p>
+				<p>
+					Cancelled  : <span> NGN {{ payment_stages['cancelled']  | comma_sep }} </span>
+				</p>
+			</div>
+		</div>	
+		<div class="col-md-3">		
+			<div class="text-right space_between">
+				<a class="btn btn-success" href="{{url_for('billing.add_billing_view')}}"> <i class="fa fa-plus"></i> &nbsp; Add </a>
+			</div>
+		</div>
+	</div>
+		
+	<table class="table table-condensed table-striped">
+		<thead>
+		<tr> 
+			<th> Date </th>
+			<th> Client </th>
+			<th> Product </th> 
+			<th> Amount (NGN)  </th>
+			<th> Invoice Ref </th>			
+			<th> Date Due </th>
+			<th colspan="2"> Status </th>
+			
+		</tr>
+		</thead>
+		<tbody>
+		{% for item in pager.items %}
+			<tr>
+				<td> {{ date_format(item.date_created, tz_enabled=True) }} </td>
+				<td> <b><a href="{{url_for('billing.edit_billing_view', id=item.id)}}" title="Edit Client"> 
+						{{ item.client | title }} </a></b> 
+				</td>
+				<td> {{ item.product_name | title }} </td>	
+				<td>
+					{% if item.amount_paid %} 
+						{{ (item.amount_expected - item.amount_paid | float) | comma_sep }}
+					{% else %}
+						{{ item.amount_expected | comma_sep }} 
+					{% endif %}
+				</td>
+				<td> {{ item.invoice_no or 'N/A'}} </td>	
+				<td> {{  date_format(item.date_due, tz_enabled=True)  }} </td>	
+				<td> 
+					{% set _badges = {-1: 'danger', 1: 'success', 0: 'info', 2: 'warning'} %}
+					{% set _label = {-1: 'Cancelled', 1: 'Processed', 2: 'In Progress',  0: 'Pending'}  %}
+					{% set _status = check_status(item.amount_paid, item.amount_expected, item.payment_status) %}
+					 
+					<span class="badge badge-{{_badges[_status]}}" title="{{item.amount_paid or 0}}"> {{_label[_status]}} </span>
+				</td>	
+				<td></td>			 
+
+			</tr>			
+		{% else %}
+			<tr>
+				<td colspan="7"> <i> no matching record found... </i></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+
+	</table>
+	
+
+	{{ pagination(pager, "client.client_list") }}
+
+</div>
+
+{% endblock %}

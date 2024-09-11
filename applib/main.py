@@ -29,7 +29,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.session_protection = "strong"
-login_manager.login_view = 'login'
+login_manager.login_view = 'login.login'
 
 # declared here so that the db object would be set before introducing the model module
 
@@ -40,7 +40,8 @@ import applib.sub_routes.expense as exp
 import applib.sub_routes.invoice as inv
 import applib.sub_routes.item as itm
 import applib.sub_routes.payment as pay
-import applib.sub_routes.dashboard as dashboard
+from applib.sub_routes import dashboard
+from applib.sub_routes import billing
 
 
 api = Api(app)
@@ -55,7 +56,7 @@ def load_user(user_id):
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
- 
+
 
 app.register_blueprint(adm.mod)
 app.register_blueprint(clt.mod)
@@ -64,8 +65,8 @@ app.register_blueprint(inv.mod)
 app.register_blueprint(itm.mod)
 app.register_blueprint(pay.mod)
 app.register_blueprint(dashboard.mod)
+app.register_blueprint(billing.mod)
 
-  
 
 app.jinja_env.filters['date_format'] = h.date_format
 app.jinja_env.filters['comma_sep'] = h.comma_separation

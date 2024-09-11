@@ -12,8 +12,8 @@ from jinja2 import Environment, FileSystemLoader
  
 import subprocess as sc
 import requests as rq
-
-import datetime, calendar
+from datetime import datetime 
+import calendar
 import urllib
 import base64
 
@@ -22,7 +22,9 @@ import pdfkit
 import base64
 from sqlalchemy_pagination import paginate
 from decimal import Decimal
+from pytz import timezone
 
+from typing import Tuple 
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -40,6 +42,24 @@ def get_config(header, key=None, filename='config.ini'):
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
+ 
+def get_timeaware(dateobj: datetime, timez="Africa/Lagos") -> datetime:
+    return dateobj.astimezone(timezone(timez))
+
+
+def get_current_timezone(timez='Africa/Lagos') -> datetime:
+    return datetime.now().astimezone(timezone(timez))
+
+    
+# +-------------------------+-------------------------+
+# +-------------------------+-------------------------+
+
+
+def get_year_range() -> Tuple[datetime, datetime]:
+    now = get_current_timezone()
+    start = now.replace(month=1, day=1, hour=0, minute=0, second=0)
+    stop =  now.replace(month=12, day=31, hour=23, minute=59, second=59)
+    return start, stop
 
 class SetUri:
     """
@@ -126,9 +146,13 @@ def validate_hash(passwd, hash):
 # +-------------------------+-------------------------+
 
 
-def date_format(date_obj, strft='%H: %M: %S'):
+def date_format(date_obj, strft='%H: %M: %S', tz_enabled=False):
 
-    now = datetime.datetime.now()
+    now = datetime.now()
+
+    if tz_enabled:
+        now = get_timeaware(now)
+
     diff = now - date_obj
 
     if diff.days == 0:
@@ -198,7 +222,7 @@ def send_email(filename, receiver_email, msg_subject,
 
         if filename:
             attach_name = "{}.{}.pdf".format(email_filename,
-                                         datetime.datetime.now().strftime("%b.%m.%Y.%S"))
+                                         datetime.now().strftime("%b.%m.%Y.%S"))
 
             with open(filename, "rb") as attachment:  # Open PDF file in readable binary mode
                 part = MIMEBase("application", "octet-stream")   # Add file as application/octet-stream
@@ -242,7 +266,7 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], i
     template = env.get_template(_template)
     _template = template.render(posts=args, payments=pay_history, **kwargs)
 
-    file_prefix = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    file_prefix = datetime.now().strftime("%Y%m%d%H%M%S")
 
     pdf_output = '{}_{}.pdf'.format(kwargs['type'],
                                 file_prefix)
@@ -393,7 +417,7 @@ def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
 
 def get_month_range(year, month):
 
-    dt = datetime.datetime.now()
+    dt = datetime.now()
     rng = calendar.monthrange(year, month)
 
     start = dt.replace(year=year, month=month, day=1,hour=0, minute=0, second=1)

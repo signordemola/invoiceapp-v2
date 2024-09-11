@@ -179,9 +179,19 @@
 			&times;
 		</a>
 
+		<a href="{{url_for('dashboard.index')}}" class="btn tab">
+			<i class="fas fa-file-invoice fa-lg"></i>
+			&nbsp; Dashboard
+		</a>
+
 		<a href="{{url_for('client.client_list')}}" class="btn tab">
 			<i class="fas fa-user fa-lg"></i>
 			&nbsp; Client
+		</a>
+
+		<a href="{{url_for('billing.index')}}" class="btn tab">
+			<i class="fas fa-file-invoice fa-lg"></i>
+			&nbsp; Billings 
 		</a>
 
 		<a href="{{url_for('invoice.index')}}" class="btn tab">
@@ -197,10 +207,6 @@
 		<a href="{{url_for('expense.index')}}" class="btn tab">
 			<i class="fas fa-file-invoice fa-lg"></i>
 			&nbsp; Expenditure
-		</a>
-		<a href="{{url_for('dashboard.index')}}" class="btn tab">
-			<i class="fas fa-file-invoice fa-lg"></i>
-			&nbsp; Dashboard
 		</a>
 
 		<a href="{{url_for('login.logout_app')}}" class="btn tab" id="logout">
@@ -258,7 +264,7 @@
 			document.getElementById("mySidenav").style.width = "0";
 		}
 		$(document).ready(function () {
-			$("select").select2({
+			$("select.js-single").select2({
 				theme: "bootstrap"
 			});
 

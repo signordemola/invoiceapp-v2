@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block in_styles %}
+
+	input {
+		margin-bottom: 2%;
+	}
+	
+{% endblock %}
+
+{% block main %} 
+	<div class="col-md-6 offset-md-3">
+		<h3 class="mb-5 header_text"><b> CREATE NEW BILLING </b></h3>
+		<form action="" method="post">
+
+			 {{form_layout(form) }}
+			
+			<br>
+			<hr>
+			<div class="row">  
+				<div class="col-md-6">					
+					<a class="btn btn-block btn_cl btn-default" 
+						href="{{ url_for('billing.index') }}"> Back 
+					</a>
+				</div>
+				<div class="col-md-6">
+					<button type="submit" class="btn btn-success btn-block"> Save </button>
+				</div>
+			</div>
+
+		</form>
+
+	</div>
+			  
+{% endblock %}

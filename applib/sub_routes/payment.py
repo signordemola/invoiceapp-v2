@@ -2,11 +2,16 @@
 from flask import (Blueprint, request, url_for, 
                    render_template, redirect, flash)
 
+from sqlalchemy import update 
+
+
 import applib.model as m
 from applib.forms import PaymentForm, CreateInvoiceForm
 from applib.lib import helper as h 
-from applib.lib.helper import ( generate_pdf, 
-                                comma_separation, set_pagination)
+from applib.lib.helper import (
+    generate_pdf, get_current_timezone,
+    comma_separation, set_pagination
+)
 
 from flask_login import login_required
 import datetime
@@ -164,8 +169,35 @@ def add(invoice_id, invoice_name):
             m.form2model(form, pay_md)
             pay_md.invoice_id = invoice_id
 
-            pay_md.date_created = datetime.datetime.now()
+            pay_md.date_created = datetime.now()
             db.add(pay_md)
+            db.commit()
+ 
+            total_payment = db.query(
+                    func.sum(m.Payment.amount_paid).label('amount')
+                ).filter(m.Payment.invoice_id == invoice_id).first()
+
+
+            check_recurrent_bill = db.query(
+                m.RecurrentBill.id, m.RecurrentBill.amount_expected
+            ).filter(m.RecurrentBill.invoice_id == invoice_id).first()
+
+    
+            if check_recurrent_bill and check_recurrent_bill.amount_expected >= total_payment.amount:
+ 
+                db.execute(
+                    update(m.RecurrentBill)
+                    .where( m.RecurrentBill.invoice_id == invoice_id )
+                    .values({'payment_status': m.RecurrentBill.STATUSTYPE.processed, 'date_updated': get_current_timezone()})
+                )
+
+            elif check_recurrent_bill and check_recurrent_bill.amount_expected < total_payment.amount:
+                db.execute(
+                    update(m.RecurrentBill)
+                    .where( m.RecurrentBill.invoice_id == invoice_id )
+                    .values({'payment_status': m.RecurrentBill.STATUSTYPE.in_progress, 'date_updated': get_current_timezone()})
+                )
+
 
             msg = "Payment has being Added"
             return redirect(url_for('payment.index', msg=msg))

@@ -1,14 +1,12 @@
 from wtforms import Form, validators, Field
 from wtforms.fields import (BooleanField, StringField, 
-                            TextField, SubmitField, DateField, 
+                            SubmitField, DateField, 
                             IntegerField, TextAreaField, SelectField,
                             HiddenField, DateTimeField,PasswordField, FloatField)
 from wtforms.validators import input_required, Email, Length, ValidationError
 
 from wtforms import form, validators, fields
 from wtforms.form import Form
-# from wtforms.fields import 
-# from wtforms.validators import ValidationError, input_required, Length, Email
 
 
 
@@ -148,8 +146,7 @@ class CreateInvoiceForm(Form):
     client_id = SelectField('Client Name :', 
                                 [input_required()], 
                                 coerce=int, 
-                                render_kw={ "class_": "js-single",
-                                            "class_": "form-control",
+                                render_kw={ "class_": "js-single form-control",                                            
                                             "style": "margin-bottom : 10px"})
 
     client_type = SelectField('Client Type :', 
@@ -185,6 +182,21 @@ class BillsForm(Form):
 
         if field.data not in ['fixed', 'percentage']:
             raise ValidationError('Invalid discount type specified')
+
+
+class BillingFrm(Form):
+    
+    id = IntegerField('', default=0, render_kw={"class_": "form-control", 'type': 'hidden'}) 
+    client_id = SelectField(
+        'Client', [input_required()], coerce=int, choices=[(-1, 'Select Client')],
+        render_kw={'class_': "js-single form-control",
+                    "style": "margin-bottom : 10px"}
+    )
+    
+    product_name = StringField('Product', [input_required()], render_kw={'class_': 'form-control'})
+    amount_expected = StringField('Amount', [input_required()], render_kw={'class_': 'form-control'})
+    date_due = DateField('Date Due', [input_required()], render_kw={'class_': 'form-control', 'type': 'date'})
+    
 
 
 
