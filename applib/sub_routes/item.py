@@ -3,6 +3,7 @@ import os
 import subprocess
 import datetime
 
+from sqlalchemy import update
 from flask import (Blueprint, request, url_for, 
                    render_template, redirect, session, flash)
 
@@ -89,14 +90,38 @@ def edit_item(invoice_id, item_id):
 
         temp_resp = resp.first()
         client_param = db.query(
-                                m.Invoice.client_type,
-                                m.Client.name
-                                ).join(
-                                        m.Client, 
-                                        m.Client.id == m.Invoice.client_id 
-                                        ).filter(
-                                                m.Invoice.id == invoice_id 
-                                                ).first()
+                        m.Invoice.client_type,
+                        m.Client.name
+                    ).join(
+                        m.Client, 
+                        m.Client.id == m.Invoice.client_id 
+                    ).filter(
+                        m.Invoice.id == invoice_id 
+                    ).first()
+
+        
+
+        if request.method == 'POST':
+
+            form = ItemForm(request.form)
+
+            if form.validate():
+                
+                db.execute(                 
+                    update(m.Items)
+                    .where(m.Items.id == item_id)
+                    .values(
+                        {
+                            'item_desc' : form.item_desc.data,
+                            'qty' : form.qty.data,
+                            'rate' : form.rate.data,
+                            'amount' : form.amt.data                        
+                        }
+                    )
+                )
+              
+                return redirect(url_for('invoice.checkout', invoice_id=invoice_id)) 
+
 
         form = ItemForm()
         form.client_name.data = client_param.name
@@ -104,22 +129,6 @@ def edit_item(invoice_id, item_id):
         form.item_desc.data = temp_resp.item_desc
         form.qty.data = temp_resp.qty 
         form.amt.data = temp_resp.amount
-
-        if request.method == 'POST':
-
-            form = ItemForm(request.form)
-
-            if form.validate():
-         
-                resp.update(
-                    {
-                        'item_desc' : form.item_desc.data,
-                        'qty' : form.qty.data,
-                         'rate' : form.rate.data,
-                        'amount' : form.amt.data                        
-                    })
-              
-                return redirect(url_for('invoice.checkout', invoice_id=invoice_id)) 
 
 
     return render_template('edit_item.html', form=form)
