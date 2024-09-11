@@ -60,7 +60,7 @@
 					{% endif %}
 				</td>
 				<td> {{ item.invoice_no or 'N/A'}} </td>	
-				<td> {{  date_format(item.date_due, tz_enabled=True)  }} </td>	
+				<td> {{ item.date_due.strftime('%Y/%m/%d') }} </td>	
 				<td> 
 					{% set _badges = {-1: 'danger', 1: 'success', 0: 'info', 2: 'warning'} %}
 					{% set _label = {-1: 'Cancelled', 1: 'Processed', 2: 'In Progress',  0: 'Pending'}  %}
