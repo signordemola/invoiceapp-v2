@@ -14,7 +14,7 @@ from applib.lib.helper import (
 )
 
 from flask_login import login_required
-import datetime
+from datetime import datetime
 
 
 
@@ -231,7 +231,7 @@ def edit(pay_id, invoice_id):
             pay_md = m.Payment()
             m.form2model(form, pay_md)
             pay_md.invoice_id = invoice_id
-            pay_md.date_created = datetime.datetime.now()
+            pay_md.date_created = datetime.now()
             db.add(pay_md)
         
         return redirect(url_for("payment.index", msg='Paymemt updated successfully.'))
