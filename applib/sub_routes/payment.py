@@ -2,7 +2,7 @@
 from flask import (Blueprint, request, url_for, 
                    render_template, redirect, flash)
 
-from sqlalchemy import update 
+from sqlalchemy import update, func
 
 
 import applib.model as m
@@ -40,12 +40,12 @@ def index():
 
         description = db.query(
                                 m.Payment.invoice_id, 
-                                m.func.max(m.Payment.id).label('pid'),
-                                m.func.sum(m.Payment.amount_paid).label("paid")
+                                func.max(m.Payment.id).label('pid'),
+                                func.sum(m.Payment.amount_paid).label("paid")
                             ).group_by(m.Payment.invoice_id).subquery()
 
         sub = db.query(m.Items.invoice_id,
-                               m.func.sum(m.Items.amount                                              
+                               func.sum(m.Items.amount                                              
                                           ).label("sub_total"),
                                ).group_by(
                                     m.Items.invoice_id
@@ -79,7 +79,7 @@ def index():
                            m.Client.id == m.Invoice.client_id                    
                     ).order_by(description.c.pid.desc())
 
-        total_amount = db.query(m.func.sum(m.Payment.amount_paid).label("paid"))
+        total_amount = db.query(func.sum(m.Payment.amount_paid).label("paid"))
 
 
         if start and end:
@@ -238,11 +238,11 @@ def edit(pay_id, invoice_id):
 
     with m.sql_cursor() as db:
 
-        item_details = db.query(m.Items.invoice_id, m.func.sum(m.Items.amount).label('total_amount')
+        item_details = db.query(m.Items.invoice_id, func.sum(m.Items.amount).label('total_amount')
                                 ).group_by(m.Items.invoice_id).subquery()
 
         prev_amount_paid = db.query(m.Payment.invoice_id, 
-                                    m.func.sum(m.Payment.amount_paid).label('total_paid')
+                                    func.sum(m.Payment.amount_paid).label('total_paid')
                                     ).group_by(m.Payment.invoice_id).subquery()
 
 
@@ -338,7 +338,7 @@ def receipt(invoice_id):
 
         aggr_amount_paid = db.query(
                                 m.Payment.invoice_id, 
-                                m.func.sum(m.Payment.amount_paid).label("paid")
+                                func.sum(m.Payment.amount_paid).label("paid")
                             ).group_by(m.Payment.invoice_id).subquery()
 
         client_invoice_details = db.query(m.Invoice.id.label("invoice_id"),
