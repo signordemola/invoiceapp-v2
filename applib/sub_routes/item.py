@@ -210,11 +210,18 @@ def add_discount(invoice_id):
                 assert resp_amount > 0 , 'total amount is not supposed to be zero amount'
 
                 #sql update query
-                output.update({
+                db.execute(
+                    update(m.Invoice)
+                    .where(m.Invoice.id == invoice_id)
+                    .values(
+                        {
                             'disc_type' : form.discount_type.data,
                             'disc_value' : form.discount.data,
                             'disc_desc' : form.disc_desc.data,                     
-                        })   
+                        }
+                    )
+                )
+                
                 return redirect(url_for('invoice.checkout', invoice_id=temp_output.id))        
 
 
@@ -230,19 +237,20 @@ def delete_discount(invoice_id):
         param = {'inv_id': invoice_id}
         # update object query with WHERE query
 
-        resp = db.query(
-                            m.Invoice.disc_type, 
-                            m.Invoice.disc_value                     
-                        ).filter_by(
-                                        **param
-                                    ).update(
-                                                {
-                                                    'disc_type' : None ,
-                                                    'disc_value' : None ,
-                                                    'disc_desc' : None,                       
-                                                }
-                                            )
+        resp = db.execute(
 
+            update(
+                m.Invoice 
+            ).where(m.Invoice.id == invoice_id )
+            .values(
+                {
+                    'disc_type' : None ,
+                    'disc_value' : None ,
+                    'disc_desc' : None,                       
+                }
+            )
+        )
+ 
         return redirect(url_for('invoice.checkout', invoice_id=invoice_id)) 
 
 
