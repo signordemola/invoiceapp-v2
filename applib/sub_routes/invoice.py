@@ -180,6 +180,8 @@ def checkout(invoice_id):
             'phone': invoice_data.phone,
             'currency': currency_label[invoice_data.currency],
             'status': invoice_data.status,
+            'refid': invoice_data.id,
+            'reftype': 'invoice'
             }
 
     data['cur_fmt'] = comma_separation

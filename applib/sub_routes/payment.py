@@ -347,6 +347,7 @@ def receipt(invoice_id):
                                           m.Invoice.disc_type, 
                                           m.Invoice.currency,
                                           m.Invoice.client_type,
+                                          m.Payment.id.label('payment_id')
                                           m.Payment.amount_paid, 
                                           m.Payment.status, 
                                           m.Payment.date_created,
@@ -364,16 +365,18 @@ def receipt(invoice_id):
                                                aggr_amount_paid.c.invoice_id == m.Invoice.id
                                                ).filter(
                                                     m.Invoice.id == invoice_id
-                                                    ).all()
+                                                    ).first()
 
         data = {
-                'invoice_no': client_invoice_details[0].invoice_no,
-                'date_value': client_invoice_details[0].date_created.strftime("%Y-%m-%d"),
-                'address': client_invoice_details[0].address,
-                'post_addr': client_invoice_details[0].post_addr,
-                'name': client_invoice_details[0].name,
-                'email': client_invoice_details[0].email,
-                'phone': client_invoice_details[0].phone
+                'invoice_no': client_invoice_details.invoice_no,
+                'date_value': client_invoice_details.date_created.strftime("%Y-%m-%d"),
+                'address': client_invoice_details.address,
+                'post_addr': client_invoice_details.post_addr,
+                'name': client_invoice_details.name,
+                'email': client_invoice_details.email,
+                'phone': client_invoice_details.phone,
+                'refid': client_invoice_details.payment_id,
+                'reftype': 'payment'
             }
 
         data['cur_fmt'] = comma_separation
@@ -399,18 +402,19 @@ def receipt(invoice_id):
             _amount += x.amount
 
 
-        for x in client_invoice_details:
-            
-            vat_total, vat, total, discount = h.val_calculated_data(x.disc_type, x.disc_value, 
-                                                                    _amount, x.client_type)
+        # for x in client_invoice_details:
+        
+        vat_total, vat, total, discount = h.val_calculated_data(
+            client_invoice_details.disc_type, client_invoice_details.disc_value, 
+            _amount, client_invoice_details.client_type)
 
-            data['amount_paid'] = x.paid
-            data['amount_balance'] = h.float2decimal(vat_total) - x.paid
-            data['subtotal'] = total
-            data['vat'] = vat
-            data['total'] = vat_total
-            data['status'] = status[x.status]
-            data['currency'] = currency_label[x.currency]
+        data['amount_paid'] = client_invoice_details.paid
+        data['amount_balance'] = h.float2decimal(vat_total) - client_invoice_details.paid
+        data['subtotal'] = total
+        data['vat'] = vat
+        data['total'] = vat_total
+        data['status'] = status[client_invoice_details.status]
+        data['currency'] = currency_label[client_invoice_details.currency]
 
 
         data['type'] = "Receipt"

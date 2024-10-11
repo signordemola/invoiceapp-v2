@@ -292,7 +292,8 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], i
         
     message_subject = kwargs['type']+" Generated for "+ kwargs['name'].upper()
 
-    _link = set_email_read_feedback(email_receiver=kwargs['email'],
+    _link = set_email_read_feedback(email_receiver=kwargs['email'], ref_id=kwargs.get('refid'),
+                                    ref_type=kwargs.get('reftype'),
                                     email_title=message_subject)
 
 
