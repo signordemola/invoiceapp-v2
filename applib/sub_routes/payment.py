@@ -347,7 +347,7 @@ def receipt(invoice_id):
                                           m.Invoice.disc_type, 
                                           m.Invoice.currency,
                                           m.Invoice.client_type,
-                                          m.Payment.id.label('payment_id')
+                                          m.Payment.id.label('payment_id'),
                                           m.Payment.amount_paid, 
                                           m.Payment.status, 
                                           m.Payment.date_created,
