@@ -111,7 +111,7 @@ class Invoice(db.Model):
     recurrent_bill_id = Column(db.BigInteger, db.ForeignKey('recurrent_bill.id'), nullable=True)
 
     view_count: Mapped[int]
-    last_viwed: Mapped[datetime]
+    last_view: Mapped[datetime]
     
 
 
@@ -191,7 +191,7 @@ class Payment(db.Model):
     invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.id'), nullable=False)
     status = Column(Integer, nullable=False, default=0)
     view_count: Mapped[int]
-    last_viwed: Mapped[datetime]
+    last_view: Mapped[datetime]
 
 
 class EmailReceipt(db.Model):

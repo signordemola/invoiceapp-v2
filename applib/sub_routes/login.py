@@ -120,7 +120,7 @@ def report_email_receipt():
                     db.execute(
                         update(m.Invoice)
                         .where(m.Invoice.id == values['ref_id']) 
-                        .values({'view_count': counter, 'last_viwed': datetime.datetime.now()})
+                        .values({'view_count': counter, 'last_view': datetime.datetime.now()})
                     )
 
                 else:
@@ -128,7 +128,7 @@ def report_email_receipt():
                     db.execute(
                         update(m.Payment)
                         .where(m.Payment.id == values['ref_id']) 
-                        .values({'view_count': counter, 'last_viwed': datetime.datetime.now()})
+                        .values({'view_count': counter, 'last_view': datetime.datetime.now()})
                     )
  
 
