@@ -19,7 +19,6 @@ import base64
 
 import os, json 
 import pdfkit
-import base64
 from sqlalchemy_pagination import paginate
 from decimal import Decimal
 from pytz import timezone
@@ -249,11 +248,14 @@ def send_email(filename, receiver_email, msg_subject,
 
 
 
-def set_email_read_feedback(**kwargs):
+def set_email_read_feedback(view=1, **kwargs):
 
     variables = encode_param(**kwargs)
-    link = url_for("login.report_email_receipt",
+    if view == 1:
+        link = url_for("login.report_email_receipt",
             ref=variables)
+    else:
+        link = f'/email_receipt?ref={variables}'
     
     return get_config('EXTERNAL_HOST') + link 
     
@@ -380,6 +382,19 @@ def attach_functn(file_path):
 
     encoded = base64.b64encode(data).decode('utf-8')
     return encoded
+
+
+
+
+def generate_html_template(folder, template, **data) -> str:
+
+    folder_path = os.path.join(os.getcwd(), folder)
+
+    env = Environment(loader=FileSystemLoader(folder_path))
+    template = env.get_template(template)  # type: ignore
+    rendered_data = template.render(**data)  # type: ignore
+    return rendered_data
+
 
 
 def send_email_postmark(receiver_email, msg_subject, email_body, file_path=None,
