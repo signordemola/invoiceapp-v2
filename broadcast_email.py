@@ -47,8 +47,7 @@ def main() -> None:
                 attachment_content=fl.read(), attachment_name='happyyultide.jpeg'
             )
 
-        break 
-
+ 
 
 
 if __name__ == '__main__':
