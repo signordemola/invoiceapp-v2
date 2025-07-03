@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 TABLE = 'invoice'
 
 def upgrade() -> None:
-    op.add_column(TABLE, sa.Column('recurrent_bill_id', sa.BigInteger, sa.ForeignKey('recurrent_bill.id')))
+    op.add_column(TABLE, sa.Column('recurrent_bill_id', sa.BigInteger, sa.ForeignKey('recurrent_bill.id')), if_not_exists=True)
 
 
 def downgrade() -> None:

@@ -5,8 +5,9 @@ import logging
 from werkzeug.debug import DebuggedApplication
 
 
-from applib.main import app, db
+from applib.main import app
 from applib.lib.helper import get_config, set_db_uri
+from applib.model import create_tables, drop_tables
 
 
 def create_app(): 
@@ -34,12 +35,12 @@ def main():
     cmd = get_commands()
 
     if cmd.create_tl:
-        db.create_all()
+        create_tables()
         print("all missing tables have been recreated from scratch")
         return
 
     if cmd.drop_tl:
-        db.drop_all()
+        drop_tables()
         print("all tables dropped from the database")
         return
 

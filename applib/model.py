@@ -6,13 +6,13 @@ from sqlalchemy import (create_engine, Integer, String,
                         Text, DateTime, BigInteger, Date, DECIMAL,
                         Column, ForeignKey, or_, Sequence, func,
                         PrimaryKeyConstraint,
-                        ForeignKeyConstraint, Index 
+                        ForeignKeyConstraint, Index
                         )
 
 import sqlalchemy.dialects.postgresql as ptype
  
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
@@ -22,15 +22,16 @@ from applib.lib import helper as h
 from flask_login import UserMixin
 
 import os
-from applib.main import db
+
 
 from datetime import datetime
 
-
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
-con_str = h.set_db_uri() 
+con_str = h.set_db_uri()
+Engine = create_engine(con_str, echo=True, pool_size=100)
+Base = declarative_base()
 
 
 # +-------------------------+-------------------------+
@@ -60,11 +61,14 @@ def db_session():
 @contextmanager  
 def sql_cursor():
 
+    Cursor = sessionmaker(Engine)
+    session = Cursor()
+
     try:         
-        yield db.session
-        db.session.commit()
+        yield session
+        session.commit()
     except Exception as e:  
-        db.session.rollback()    
+        session.rollback()
         raise e 
 
         # if in dev environment raise error else log to file or smtp.
@@ -76,12 +80,12 @@ def sql_cursor():
         # lg.exception(g.domain)
         
     finally:
-        db.session.close()
+        session.close()
 
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
 
-class Users(UserMixin, db.Model):
+class Users(UserMixin, Base):
     __tablename__ = 'users'
 
     id = Column(BigInteger, Sequence('users_id_seq'), primary_key=True)    
@@ -89,7 +93,7 @@ class Users(UserMixin, db.Model):
     password = Column(String(150), nullable=True)     
 
 
-class Invoice(db.Model):
+class Invoice(Base):
 
     __tablename__ = "invoice"
 
@@ -103,19 +107,19 @@ class Invoice(db.Model):
     invoice_due = Column(DateTime())
     client_type = Column(Integer, nullable=False)
     currency  = Column(Integer, nullable=False) 
-    client_id =  db.Column(db.BigInteger, db.ForeignKey('client.id'), nullable=False)
-    payment = db.relationship('Payment', backref='client', lazy=True)
-    item = db.relationship('Items', backref='invoice', lazy=True)
+    client_id =  Column(BigInteger, ForeignKey('client.id'), nullable=False)
+    payment = relationship('Payment', backref='client', lazy=True)
+    item = relationship('Items', backref='invoice', lazy=True)
     is_dummy = Column(Integer)
 
-    recurrent_bill_id = Column(db.BigInteger, db.ForeignKey('recurrent_bill.id'), nullable=True)
+    recurrent_bill_id = Column(BigInteger, ForeignKey('recurrent_bill.id'), nullable=True)
 
     view_count: Mapped[int]
     last_view: Mapped[datetime]
     
 
 
-class Items(db.Model):
+class Items(Base):
 
     __tablename__ = "item"
 
@@ -124,11 +128,11 @@ class Items(db.Model):
     qty = Column(Integer, nullable=False)
     rate = Column(Integer, nullable=False)
     amount = Column(DECIMAL(15,2))
-    invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.id'),
+    invoice_id = Column(BigInteger, ForeignKey('invoice.id'),
         nullable=False)
 
 
-class EmailQueue(db.Model):
+class EmailQueue(Base):
 
     __tablename__ = "email_queue"
 
@@ -139,7 +143,7 @@ class EmailQueue(db.Model):
     status= Column(Integer)
 
 
-class Client(db.Model):
+class Client(Base):
     
     __tablename__ = "client"
 
@@ -150,11 +154,11 @@ class Client(db.Model):
     phone = Column(String(25), nullable=False)        
     post_addr = Column(String(20), nullable=False) 
     date_created = Column(DateTime(), nullable=False)
-    invoice = db.relationship('Invoice', backref='client', lazy=True)
+    invoice = relationship('Invoice', backref='client', lazy=True)
  
 
 
-class Expense(db.Model):
+class Expense(Base):
 
     __tablename__ = "expense"
 
@@ -177,7 +181,7 @@ class Expense(db.Model):
     payment_type =Column(Integer)  # 1 for Office expenses 
 
 
-class Payment(db.Model):
+class Payment(Base):
 
     __tablename__ = 'payment'
 
@@ -188,13 +192,13 @@ class Payment(db.Model):
     payment_mode = Column(Integer, nullable=False)
     amount_paid: Mapped[float] = Column(DECIMAL(15, 2))
     balance = Column(DECIMAL(15,2))
-    invoice_id = db.Column(db.BigInteger, db.ForeignKey('invoice.id'), nullable=False)
+    invoice_id = Column(BigInteger,ForeignKey('invoice.id'), nullable=False)
     status = Column(Integer, nullable=False, default=0)
     view_count: Mapped[int]
     last_view: Mapped[datetime]
 
 
-class EmailReceipt(db.Model):
+class EmailReceipt(Base):
 
     __tablename__ = 'email_receipt_count'
 
@@ -206,7 +210,7 @@ class EmailReceipt(db.Model):
 
 
 
-class RecurrentBill(db.Model):
+class RecurrentBill(Base):
 
     class STATUSTYPE():
         pending = 0
@@ -253,3 +257,10 @@ def model2form(model_ins, form_ins):
             counter += 1
 
     assert counter > 0 , "No model instance fields not found."
+
+
+def create_tables():
+    Base.metadata.create_all(Engine)
+
+def drop_tables():
+    Base.metadata.drop_all(Engine)

@@ -60,7 +60,7 @@ def run_migrations_online() -> None:
 
     """
     cfg = config.get_section(config.config_ini_section, {})
- 
+
     cfg["sqlalchemy.url"] = set_db_uri()
     
     connectable = engine_from_config(

@@ -22,3 +22,4 @@ alembic/script.py.mako
 
 README.md
 *.pdf
+.idea/

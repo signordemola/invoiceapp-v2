@@ -39,7 +39,7 @@ def upgrade() -> None:
         sa.Column("date_created", sa.DateTime(timezone=True), nullable=False),
         sa.Column("date_due", sa.Date(), nullable=False),
         sa.Column("date_updated", sa.DateTime(timezone=True)),
-        sa.Column("payment_status", sa.Integer, nullable=False),
+        sa.Column("payment_status", sa.Integer, nullable=False), if_not_exists=True
     )
 
     op.create_index(

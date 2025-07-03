@@ -17,13 +17,13 @@ from applib.lib import helper  as h
 
 app = Flask(__name__)
 
-app.config.update({
-                    "SQLALCHEMY_DATABASE_URI": h.set_db_uri(),
-                    'SQLALCHEMY_ECHO': True,
-                    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-                  })
-
-db = SQLAlchemy(app)
+# app.config.update({
+#                     "SQLALCHEMY_DATABASE_URI": h.set_db_uri(),
+#                     'SQLALCHEMY_ECHO': True,
+#                     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+#                   })
+#
+# db = SQLAlchemy(app)
 
   
 login_manager = LoginManager()
