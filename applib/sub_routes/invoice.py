@@ -2,11 +2,10 @@
 import os
 import subprocess
 import pdfkit
-import base64
 import datetime
 
 
-from sqlalchemy import update 
+from sqlalchemy import update
 
 from flask import (Blueprint, request, url_for, send_file,
                    render_template, redirect, flash)
@@ -87,7 +86,7 @@ def index():
         grp_data = []
  
         for x in qry.items:
-            retv = {}
+            retv = dict()
             retv['date_value'] = x.date_value
             retv['inv_id'] = x.id
             retv['invoice_no'] = x.invoice_no
@@ -148,7 +147,8 @@ def checkout(invoice_id):
                         m.Client.name,
                         m.Client.email,
                         m.Client.phone,
-                        m.Client.id.label('client_id')
+                        m.Client.id.label('client_id'),
+                        m.Invoice.send_reminders
                     ).join(
                             m.Client,
                             m.Client.id == m.Invoice.client_id
@@ -289,3 +289,21 @@ def client_invoice():
 
 
     return render_template('client_invoice.html', form=form)
+
+
+@mod.route('/update_reminders/<int:invoice_id>', methods=['POST'])
+@login_required
+def update_reminders(invoice_id):
+    send_reminders_status = request.form.get('send_reminders') == 'true'
+
+    with m.sql_cursor() as db:
+        invoice = db.query(m.Invoice).filter_by(id=invoice_id).first()
+
+        if not invoice:
+            flash('Invoice not found.', 'danger')
+            return redirect(url_for('invoice.index'))
+
+        invoice.send_reminders = send_reminders_status
+
+    flash('Reminders setting updated successfully.', 'success')
+    return redirect(url_for('invoice.checkout', invoice_id=invoice_id))

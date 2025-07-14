@@ -2,7 +2,6 @@
 import os
 import subprocess
 import pdfkit
-import base64
 import datetime
 
 from flask import (Blueprint, request, url_for, 

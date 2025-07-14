@@ -17,200 +17,218 @@ text-align: right;
 
 {% block main %}
 <div class="col-md-12">
-	<br><br>
-	<p>
-		<b>Invoice: {{invoice_details.id}}
-			{% if invoice_details.status == None %}
-			<a href="{{url_for('payment.add', invoice_name=invoice_details.name,
-						invoice_id=invoice_details.id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
-				Proceed to Payment
-			</a>
-			{% else %}
-			<a href="{{url_for('payment.edit',pay_id=invoice_details.pay_id,
-						invoice_id=invoice_details.id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
-				Proceed to Payment
-			</a>
-			{% endif %}
-		</b>
-	</p>
-	<h3>Client Details</h3>
-	<table class="table table-striped table-condensed table-hover">
-		<thead>
-			<tr>
-				<th>Date Created</th>
-				<th>Name</th>
-				<th>Address</th>
-				<th>Email</th>
-				<th>Phone</th>
-				<th class="move_right">&nbsp;</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% if invoice_details or client_details %}
-			<tr>
-				<td>
-					{{invoice_details.date_value.strftime("%Y-%m-%d")}}
-				</td>
-				<td> <b> {{client_details.name | title}} </b></td>
-				<td>{{client_details.address}}</td>
-				<td>{{client_details.email}}</td>
-				<td>{{client_details.phone}}</td>
-				<td class="move_right"><a href="{{url_for('client.edit_client',client_id=invoice_details.client_id)}}"
-						title="Edit client data" class="fas fa-edit" style="color: green"></a>
-				</td>
-			</tr>
-			{% else %}
-			<tr>
-				<td colspan="6"> <i> no records found... </i> </td>
-			</tr>
+    <br><br>
+    <p>
+       <b>Invoice: {{invoice_details.id}}
+          {% if invoice_details.status == None %}
+          <a href="{{url_for('payment.add', invoice_name=invoice_details.name,
+                   invoice_id=invoice_details.id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
+             Proceed to Payment
+          </a>
+          {% else %}
+          <a href="{{url_for('payment.edit',pay_id=invoice_details.pay_id,
+                   invoice_id=invoice_details.id)}}" class="fas fa-receipt" style="float: right; background-color: #eee">
+             Proceed to Payment
+          </a>
+          {% endif %}
+       </b>
+    </p>
 
-			{% endif %}
-		</tbody>
-	</table>
-
-	<br><br>
-
-	<p style="margin-bottom: 3px;">
-		<span style="font-size: 1.75rem;">Item Details</span>
-		<a href="{{url_for('item.add_item',invoice_id=invoice_details.id)}}"
-			style="float: right; margin-top: 15px; color: green"> Add Item </a>
-	</p>
-	<table class="table table-striped table-condensed table-hover">
-		<thead>
-			<tr>
-				<th class="w-55">Description</th>
-				<th style="text-align: center;" class="w-8">Quantity</th>
-				<th class="move_right w-15">Rate</th>
-				<th class="move_right w-20">Amount</th>
-				<th class="w-2">&nbsp;</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for item in items%}
-			<tr>
-				<td class="w-55">{{item.item_desc}}</td>
-				<td style="text-align: center;" class="w-8">
-					{{item.qty}}
-				</td>
-				<td class="move_right w-15">{{item.rate}}</td>
-				<td class="move_right w-20">
-					{{ kwargs['cur_fmt'](item.amount) }}
-				</td>
-				<td class="move_right w-2">
-					<a href="{{url_for('item.edit_item',item_id=item.id,invoice_id=invoice_details.id)}}"
-						title="Edit Item" style="color: green">
-						<i class="fa fa-edit"></i>
-					</a>
-
-					<a href="{{url_for('item.delete_item',item_id=item.id, invoice_id=invoice_details.id)}}"
-						title="Delete Item" style="color: green" class="delete_item">
-						<i class="fas fa-trash-alt"></i>
-					</a>
-				</td>
-			</tr>
-			{% else %}
-			<tr>
-				<td colspan="5"> <i> no records found... </i> </td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-
-	<br><br>
-
-	<div class="row">
-		<div class="col-md-6">
-			<p id='discount_p' style="margin-bottom: 3px;">
-				<span style="font-size: 1.75rem;">Discount Applied</span>
-				<span>
-					<a class='theme_link' href="{{url_for('item.add_discount', invoice_id=invoice_details.id)}}">
-						<i class="fa fa-edit fa-lg"></i>
-					</a>
-					<a class="theme_link" id="delete_discount"
-						href="{{url_for('item.delete_discount',invoice_id=invoice_details.id)}}"> <i
-							class="fa fa-trash fa-lg"></i> </a>
-				</span>
-			</p>
-			<table class="table table-striped table-condensed table-hover">
-				<thead>
-					<tr>
-						<th>Label</th>
-						<th>Discount</th>
-						<th>Value</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% set query_obj = invoice_details %}
-					{% set disc_symbol = {'percent': '%', 'fixed': 'F'} %}
-					{% if query_obj.disc_value %}
-					<tr>
-						<td>
-							{{ query_obj.disc_desc or 'Discount' | truncate(40) }}
-						</td>
-						<td>
-							<p style="margin-bottom: 0px;">
-								{{ query_obj.disc_value }}
-								<label class="badge badge-info">
-									{{ disc_symbol[query_obj.disc_type] }}
-								</label>
-							</p>
-						</td>
-						<td>
-							{{ kwargs['cur_fmt'](kwargs['discount']) }}
-						</td>
-					</tr>
-					{% else %}
-					<tr>
-						<td colspan="3"> <i> no discount applied </i> </td>
-					</tr>
-
-					{% endif %}
-
-				</tbody>
-			</table>
-
-		</div>
-
-		<div class="col-md-6">
-
-			<h4 class="text-muted" style="text-align: center;
-				           font-weight: bold; font-size: 15px;">
-				Vat calculated: {{ kwargs['cur_fmt'](kwargs['vat']) }} {{ kwargs['currency'] }}
-			</h4>
-			<h4 class="text-muted" style="text-align: center; 
-				                         font-weight: bold; font-size: 15px;">
-				Subtotal : {{ kwargs['cur_fmt'](kwargs['total']) }} {{ kwargs['currency'] }}
-			</h4>
-			<h3 style="text-align: center; font-weight: bold;">
-				Total : {{ kwargs['cur_fmt'](kwargs['vat_total']) }} {{ kwargs['currency'] }}
-			</h3>
-
-		</div>
-
-	</div>
+	<!--    Set Reminders-->
+	<div class="row mb-3 align-items-center">
+        <div class="col-auto">
+            <label for="send_reminders_select" class="col-form-label" style="font-weight: bold;">Send Reminders:</label>
+        </div>
+        <div class="col-auto">
+            <form action="{{ url_for('invoice.update_reminders', invoice_id=invoice_details.id) }}" method="POST" style="display: flex; align-items: center;">
+                <select class="form-select" id="send_reminders_select" name="send_reminders" style="margin-right: 10px;">
+                    <option value="true" {% if invoice_details.send_reminders %}selected{% endif %}>Yes</option>
+                    <option value="false" {% if not invoice_details.send_reminders %}selected{% endif %}>No</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+            </form>
+        </div>
+    </div>
 
 
-	<hr style="margin-top: 65px">
-	<br />
-	<div class="row">
-		<div class="col-md-4">
-			<form action="" method="post">
-				<button type="submit" class="btn btn-success btn-lg w-100"> Email Invoice
-				</button>
-			</form>
+    <h3>Client Details</h3>
+    <table class="table table-striped table-condensed table-hover">
+       <thead>
+          <tr>
+             <th>Date Created</th>
+             <th>Name</th>
+             <th>Address</th>
+             <th>Email</th>
+             <th>Phone</th>
+             <th class="move_right">&nbsp;</th>
+          </tr>
+       </thead>
+       <tbody>
+          {% if invoice_details or client_details %}
+          <tr>
+             <td>
+                {{invoice_details.date_value.strftime("%Y-%m-%d")}}
+             </td>
+             <td> <b> {{client_details.name | title}} </b></td>
+             <td>{{client_details.address}}</td>
+             <td>{{client_details.email}}</td>
+             <td>{{client_details.phone}}</td>
+             <td class="move_right"><a href="{{url_for('client.edit_client',client_id=invoice_details.client_id)}}"
+                   title="Edit client data" class="fas fa-edit" style="color: green"></a>
+             </td>
+          </tr>
+          {% else %}
+          <tr>
+             <td colspan="6"> <i> no records found... </i> </td>
+          </tr>
 
-		</div>
-		<div class="col-md-4">
-			<a target="_blank" href="{{url_for('invoice.checkout',invoice_id=invid, download=1)}}"
-				class="btn btn-info btn-lg w-100">
-				Download Invoice
-			</a>
-		</div>
-		<div class="col-md-4">
-			<a href="{{url_for('invoice.index')}}" class="btn btn-light btn-lg w-100"> Back </a>
+          {% endif %}
+       </tbody>
+    </table>
 
-		</div>
-	</div>
+    <br><br>
+
+    <p style="margin-bottom: 3px;">
+       <span style="font-size: 1.75rem;">Item Details</span>
+       <a href="{{url_for('item.add_item',invoice_id=invoice_details.id)}}"
+          style="float: right; margin-top: 15px; color: green"> Add Item </a>
+    </p>
+    <table class="table table-striped table-condensed table-hover">
+       <thead>
+          <tr>
+             <th class="w-55">Description</th>
+             <th style="text-align: center;" class="w-8">Quantity</th>
+             <th class="move_right w-15">Rate</th>
+             <th class="move_right w-20">Amount</th>
+             <th class="w-2">&nbsp;</th>
+          </tr>
+       </thead>
+       <tbody>
+          {% for item in items%}
+          <tr>
+             <td class="w-55">{{item.item_desc}}</td>
+             <td style="text-align: center;" class="w-8">
+                {{item.qty}}
+             </td>
+             <td class="move_right w-15">{{item.rate}}</td>
+             <td class="move_right w-20">
+                {{ kwargs['cur_fmt'](item.amount) }}
+             </td>
+             <td class="move_right w-2">
+                <a href="{{url_for('item.edit_item',item_id=item.id,invoice_id=invoice_details.id)}}"
+                   title="Edit Item" style="color: green">
+                   <i class="fa fa-edit"></i>
+                </a>
+
+                <a href="{{url_for('item.delete_item',item_id=item.id, invoice_id=invoice_details.id)}}"
+                   title="Delete Item" style="color: green" class="delete_item">
+                   <i class="fas fa-trash-alt"></i>
+                </a>
+             </td>
+          </tr>
+          {% else %}
+          <tr>
+             <td colspan="5"> <i> no records found... </i> </td>
+          </tr>
+          {% endfor %}
+       </tbody>
+    </table>
+
+    <br><br>
+
+    <div class="row">
+       <div class="col-md-6">
+          <p id='discount_p' style="margin-bottom: 3px;">
+             <span style="font-size: 1.75rem;">Discount Applied</span>
+             <span>
+                <a class='theme_link' href="{{url_for('item.add_discount', invoice_id=invoice_details.id)}}">
+                   <i class="fa fa-edit fa-lg"></i>
+                </a>
+                <a class="theme_link" id="delete_discount"
+                   href="{{url_for('item.delete_discount',invoice_id=invoice_details.id)}}"> <i
+                      class="fa fa-trash fa-lg"></i> </a>
+             </span>
+          </p>
+          <table class="table table-striped table-condensed table-hover">
+             <thead>
+                <tr>
+                   <th>Label</th>
+                   <th>Discount</th>
+                   <th>Value</th>
+                </tr>
+             </thead>
+             <tbody>
+                {% set query_obj = invoice_details %}
+                {% set disc_symbol = {'percent': '%', 'fixed': 'F'} %}
+                {% if query_obj.disc_value %}
+                <tr>
+                   <td>
+                      {{ query_obj.disc_desc or 'Discount' | truncate(40) }}
+                   </td>
+                   <td>
+                      <p style="margin-bottom: 0px;">
+                         {{ query_obj.disc_value }}
+                         <label class="badge badge-info">
+                            {{ disc_symbol[query_obj.disc_type] }}
+                         </label>
+                      </p>
+                   </td>
+                   <td>
+                      {{ kwargs['cur_fmt'](kwargs['discount']) }}
+                   </td>
+                </tr>
+                {% else %}
+                <tr>
+                   <td colspan="3"> <i> no discount applied </i> </td>
+                </tr>
+
+                {% endif %}
+
+             </tbody>
+          </table>
+
+       </div>
+
+       <div class="col-md-6">
+
+          <h4 class="text-muted" style="text-align: center;
+                        font-weight: bold; font-size: 15px;">
+             Vat calculated: {{ kwargs['cur_fmt'](kwargs['vat']) }} {{ kwargs['currency'] }}
+          </h4>
+          <h4 class="text-muted" style="text-align: center;
+                                      font-weight: bold; font-size: 15px;">
+             Subtotal : {{ kwargs['cur_fmt'](kwargs['total']) }} {{ kwargs['currency'] }}
+          </h4>
+          <h3 style="text-align: center; font-weight: bold;">
+             Total : {{ kwargs['cur_fmt'](kwargs['vat_total']) }} {{ kwargs['currency'] }}
+          </h3>
+
+       </div>
+
+    </div>
+
+
+    <hr style="margin-top: 65px">
+    <br />
+    <div class="row">
+       <div class="col-md-4">
+          <form action="" method="post">
+             <button type="submit" class="btn btn-success btn-lg w-100"> Email Invoice
+             </button>
+          </form>
+
+       </div>
+       <div class="col-md-4">
+          <a target="_blank" href="{{url_for('invoice.checkout',invoice_id=invid, download=1)}}"
+             class="btn btn-info btn-lg w-100">
+             Download Invoice
+          </a>
+       </div>
+       <div class="col-md-4">
+          <a href="{{url_for('invoice.index')}}" class="btn btn-light btn-lg w-100"> Back </a>
+
+       </div>
+    </div>
 
 </div>
 
@@ -231,4 +249,4 @@ return false;
 }
 
 for (var i=0; i < deltItm.length; i++) { deltItm[i].addEventListener('click', ask_delete.bind(this)); }
-	deltDisc.addEventListener("click", ask_delete.bind(this)); {% endblock %}
+    deltDisc.addEventListener("click", ask_delete.bind(this)); {% endblock %}

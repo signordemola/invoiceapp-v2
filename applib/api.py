@@ -109,6 +109,7 @@ class InvoiceApi(Resource):
                 'field': 'invoice'
             }
 
+            #TODO: change this line to sqlalchemy class objects
             sql_insert_email_queue = """INSERT INTO email_queue ( field, reference, date_created, status )
                             VALUES ( :field, :reference, :date_created, :status )
                             """

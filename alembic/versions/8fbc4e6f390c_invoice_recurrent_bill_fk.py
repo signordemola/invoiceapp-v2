@@ -25,5 +25,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_column(TABLE, 'recurrent_bill_id')
+    op.drop_column(TABLE, 'recurrent_bill_id', if_exists=True)
 

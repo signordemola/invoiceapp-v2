@@ -6,7 +6,7 @@ from sqlalchemy import (create_engine, Integer, String,
                         Text, DateTime, BigInteger, Date, DECIMAL,
                         Column, ForeignKey, or_, Sequence, func,
                         PrimaryKeyConstraint,
-                        ForeignKeyConstraint, Index
+                        ForeignKeyConstraint, Index, Boolean, JSON
                         )
 
 import sqlalchemy.dialects.postgresql as ptype
@@ -93,20 +93,41 @@ class Users(UserMixin, Base):
     password = Column(String(150), nullable=True)     
 
 
+    def get_user(self, uid):
+        with sql_cursor() as db:
+            qry = db.query(
+                Users.id, Users.username
+            ).filter(Users.id == uid).first()
+
+        if qry:
+            self.id = qry.id
+            self.username = qry.username
+
+        return self
+
+
+    def is_active(self):
+        return self.id is not None
+    def is_authenticated(self):
+        return self.is_active()
+    def get_id(self):
+        return self.id
+
+
 class Invoice(Base):
 
     __tablename__ = "invoice"
 
-    id = Column(BigInteger, Sequence('invoice_inv_id_seq'), primary_key=True)    
-    disc_type = Column(String(10))    
-    disc_value = Column(String(10)) 
-    disc_desc = Column(Text)  
-    purchase_no = Column(Integer)  
-    invoice_no = Column(String(30))   
-    date_value = Column(DateTime())  
+    id = Column(BigInteger, Sequence('invoice_inv_id_seq'), primary_key=True)
+    disc_type = Column(String(10))
+    disc_value = Column(String(10))
+    disc_desc = Column(Text)
+    purchase_no = Column(Integer)
+    invoice_no = Column(String(30))
+    date_value = Column(DateTime())
     invoice_due = Column(DateTime())
     client_type = Column(Integer, nullable=False)
-    currency  = Column(Integer, nullable=False) 
+    currency  = Column(Integer, nullable=False)
     client_id =  Column(BigInteger, ForeignKey('client.id'), nullable=False)
     payment = relationship('Payment', backref='client', lazy=True)
     item = relationship('Items', backref='invoice', lazy=True)
@@ -114,9 +135,14 @@ class Invoice(Base):
 
     recurrent_bill_id = Column(BigInteger, ForeignKey('recurrent_bill.id'), nullable=True)
 
-    view_count: Mapped[int]
-    last_view: Mapped[datetime]
-    
+    view_count: Mapped[int] = Column(Integer, nullable=True)
+    last_view: Mapped[datetime] = Column(DateTime, nullable=True)
+
+    # new fields
+    send_reminders: Mapped[bool] = Column(Boolean, nullable=True)
+    reminder_frequency: Mapped[int] = Column(Integer, nullable=True)
+    reminder_logs: Mapped[str] = Column(JSON, nullable=True)
+
 
 
 class Items(Base):
@@ -194,8 +220,8 @@ class Payment(Base):
     balance = Column(DECIMAL(15,2))
     invoice_id = Column(BigInteger,ForeignKey('invoice.id'), nullable=False)
     status = Column(Integer, nullable=False, default=0)
-    view_count: Mapped[int]
-    last_view: Mapped[datetime]
+    view_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    last_view: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
 
 class EmailReceipt(Base):

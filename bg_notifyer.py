@@ -2,7 +2,6 @@
 import os
 import subprocess
 import pdfkit
-import base64
 
 # from babel.numbers import format_currency
 from jinja2 import Template

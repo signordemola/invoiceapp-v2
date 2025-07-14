@@ -1,8 +1,10 @@
-
+import sys
+import ssl
+import logging
 from configobj import ConfigObj
 
 from passlib.hash import pbkdf2_sha256
-
+import smtplib
 from flask import url_for
 from email import encoders
 from email.mime.base import MIMEBase
@@ -15,7 +17,6 @@ import requests as rq
 from datetime import datetime 
 import calendar
 import urllib
-import base64
 
 import os, json 
 import pdfkit
@@ -195,8 +196,22 @@ def decode_param(value):
 
 
 
+
+class SMTPLogger(smtplib.SMTP_SSL):
+    def _print_debug(self, *args):
+        loger = logging.getLogger("smtp_lib")
+
+        if self.debuglevel > 1:
+            print(datetime.now().time(), *args, file=sys.stderr)
+            loger.info(*args)
+        else:
+            print(*args, file=sys.stderr)
+            loger.info(*args)
+
+
+
 def send_email(filename, receiver_email, msg_subject,
-               email_body, email_filename=""):
+               email_body, email_filename="", client_header=None):
 
     email_params = get_config('email')
 
@@ -205,7 +220,7 @@ def send_email(filename, receiver_email, msg_subject,
         body = email_body
         port = email_params['ssl']
         smtp_server =  email_params['smtp']
-        password = email_params['passwd']
+        password = email_params['password']
         sender_email = email_params['sender']
         message = MIMEMultipart()
         message["Subject"] = msg_subject
@@ -217,7 +232,7 @@ def send_email(filename, receiver_email, msg_subject,
 
         attach_name = None
         attach_data = b''
- 
+
 
         if filename:
             attach_name = "{}.{}.pdf".format(email_filename,
@@ -237,7 +252,32 @@ def send_email(filename, receiver_email, msg_subject,
 
             message.attach(part) 
             
-         
+
+        if get_config('ENV') == 'dev':
+
+            if client_header is not None:
+                for title, val in client_header.items():
+                    message.add_header(title, val)
+
+            if email_params["starttls"] == "1":
+                with smtplib.SMTP(email_params["host"], int(email_params["port"])) as mail:
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+                    mail.ehlo()
+                    mail.starttls(context=context)
+                    mail.login(email_params["username"], email_params["password"])
+                    mail.sendmail(email_params["sender"], receiver_email, message.as_string())
+
+            elif email_params["tls"] == "1":
+                with SMTPLogger(
+                        email_params["host"], int(email_params["port"]), context=ssl.create_default_context()
+                ) as mail:
+                    mail.set_debuglevel(1)
+                    mail.ehlo()
+                    mail.login(email_params["username"], email_params["password"])
+                    mail.sendmail(email_params["sender"], receiver_email, message.as_string())
+
+
+            return
 
         resp = send_email_postmark(receiver_email, msg_subject, email_body,
                 file_path=None, attachment_content=attach_data, attachment_name=attach_name)
@@ -261,32 +301,37 @@ def set_email_read_feedback(view=1, **kwargs):
     
 
 
-def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], isdownload=False):
+def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], isdownload=False, send_email=True):
 
     env = Environment(loader=FileSystemLoader('applib/templates/'))
 
     template = env.get_template(_template)
-    _template = template.render(posts=args, payments=pay_history, **kwargs)
+    _template = template.render(posts=args, **kwargs)
 
     file_prefix = datetime.now().strftime("%Y%m%d%H%M%S")
 
     pdf_output = '{}_{}.pdf'.format(kwargs['type'],
                                 file_prefix)
 
-    pdf_output = os.path.join("tmp_pdf", pdf_output)
+    pdf_output = os.path.join("tmp_pdf", f"{kwargs['type']}_{file_prefix}.pdf")
+    os.makedirs("tmp_pdf", exist_ok=True)
 
     mode = get_config("mode")
+
+    wkhtmltopdf_path = get_config("pdf", "path")
+
+    pdf_config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
 
     if mode == '1':
         file_path = 'tmp/content{}.html'.format(file_prefix)
         with open(file_path, 'w') as fl:
             fl.write(_template)
 
-        bin_path = "./tmp/wkhtmltox/bin/wkhtmltopdf"
+        bin_path = "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
         sc.call([bin_path, file_path, pdf_output])
 
     else:
-        pdfkit.from_string(_template, pdf_output)
+        pdfkit.from_string(_template, pdf_output, configuration=pdf_config)
 
 
     if isdownload:
@@ -304,7 +349,8 @@ def generate_pdf(_template, args, kwargs, email_body_template, pay_history=[], i
 
 
 
-    send_email(pdf_output, kwargs['email'], message_subject, _template1, kwargs['type'])
+    if send_email:
+        send_email(pdf_output, kwargs['email'], message_subject, _template1, kwargs['type'])
 
 
 def comma_separation(amt):
@@ -371,9 +417,16 @@ def val_calculated_data(query_disc_type, query_disc_value, query_sub_total, quer
 
 
 
-def float2decimal(value):
-    return Decimal(str(value))
+def float2decimal(value) -> Decimal:
+    if not isinstance(value, str):
+        value = str(value)
 
+    if "," in value:
+        value = "".join(value.split(","))
+    return Decimal(value)
+
+def figure2decimal(value:str) -> Decimal:
+    return float2decimal(value)
 
 
 def attach_functn(file_path):
@@ -391,7 +444,9 @@ def generate_html_template(folder, template, **data) -> str:
     folder_path = os.path.join(os.getcwd(), folder)
 
     env = Environment(loader=FileSystemLoader(folder_path))
+
     template = env.get_template(template)  # type: ignore
+    data['cur_fmt'] = comma_separation
     rendered_data = template.render(**data)  # type: ignore
     return rendered_data
 

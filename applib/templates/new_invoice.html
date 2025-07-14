@@ -245,23 +245,40 @@
 								<tr>
 									<td scope="row">Discount applied </td>
 									<td>
-										-{{ cur_fmt(discount) }} {{ currency }}
+										{{ currency }} - {{ cur_fmt(discount) }}
 									</td>
 								</tr>
 
 								<tr>
 									<td scope="row">VAT(7.5%) </td>
 									<td>
-										{{ cur_fmt(vat) }} {{ currency }}
+										{{ currency }} - {{ cur_fmt(vat) }}
 									</td>
 								</tr>
 
 								<tr>
 									<td scope="row"><b>Total </b></td>
 									<td>
-										<b>{{ cur_fmt(vat_total) }} {{ currency }}</b>
+										<b> {{ currency }} {{ cur_fmt(vat_total) }}</b>
 									</td>
 								</tr>
+
+								{% if payments %}
+									<tr>
+										<td scope="row"><b>Paid to Date</b></td>
+										<td>
+											<b>{{ currency }} {{ cur_fmt(paid_to_date) }}</b>
+										</td>
+									</tr>
+
+									<tr>
+										<td scope="row"><b>Balance</b></td>
+										<td>
+											<b>{{ currency }} {{ cur_fmt(balance) }}</b>
+										</td>
+									</tr>
+								{% endif %}
+
 
 							</tbody>
 						</table>

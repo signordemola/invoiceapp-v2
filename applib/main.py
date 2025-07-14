@@ -9,8 +9,8 @@ from flask_restful import Api
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-
-from applib.lib import helper  as h 
+from applib.lib import helper  as h
+from .model import sql_cursor
  
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
@@ -51,7 +51,7 @@ api = Api(app)
 def load_user(user_id):
     # since the user_id is just the primary key of our user table, 
     # use it in the query for the user
-    return m.Users.query.get(user_id)  
+    return m.Users().get_user(user_id)
 
 
 # +-------------------------+-------------------------+

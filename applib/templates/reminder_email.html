@@ -3,7 +3,7 @@
 
 <head>
    <meta charset="UTF-8">
-   <title>email_body</title>
+   <title>Invoice Reminder</title>
 </head>
 
 <body style="margin: 0; padding: 0; -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:none;">
@@ -43,7 +43,10 @@
                                     <td valign="top"
                                        style="color:#ffffff;font-family:Helvetica;font-size:20px;font-weight:bold;line-height:100%;padding-top:20px;padding-right:45px;padding-bottom:20px;padding-left:45px;text-align:center;vertical-align:middle">
                                        <a href="www.ecardex.com">
-                                          <img draggable="false" alt="Ecardex Logo" src="https://www.ecardex.com/static/64a88b4144091240dbbdf04fe255495c.png" style="margin: 0 auto;display: block;  width: 80px;" >
+                                          <img draggable="false"
+                                             src="https://apilayer-user-file-uploads.s3.amazonaws.com/7fbb8277c3be1e766549ec7a1eeb5260_LOGO+TRANSPARENT.png"
+                                             alt="Ecardex Limited"
+                                             style="margin: 0 auto;display: block;  width: 80px;" />
                                        </a>
                                     </td>
                                  </tr>
@@ -64,20 +67,23 @@
                                        style="color:#505050;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
                                        {% block body %}
 
-                                       <p>Hi {{ invoice_data.client_name | title}}, <br />
+                                       <p>Hi {{ client_name | title }}, <br />
                                           <br />
-                                          A new invoice has been generated for you by Ecardex Limited. Here's a quick
-                                          summary:<br />
+                                          This is a friendly reminder about your outstanding invoice from Ecardex Limited.
+                                          Please find a summary below:<br />
+                                          <br />
+                                          Invoice Number: <strong>{{ invoice_no }}</strong><br />
+                                          Original Due Date: <strong>{{ invoice_due }}</strong><br />
+                                          Outstanding Balance: <strong>{{ cur_fmt(outstanding_balance) }}</strong><br />
                                           <br />
 
-                                          {% for item in invoice_data['items'] %}
-
-                                          {{ item.item_desc | title }} : {{ invoice_data.currency }} {{ cur_fmt(item.amount) }} <br />
-
+                                          {% if items %}
+                                          <p>Invoice Details:</p>
+                                          {% for x in items %}
+                                          {{ x.item_desc | title }} : Amount {{ cur_fmt(x.amount)}} <br />
                                           {% endfor %}
-
-
                                           <br />
+                                          {% endif %}
 
 
                                        <table style="border-collapse: collapse;
@@ -122,7 +128,7 @@
                                                 <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                                  {{ invoice_data.currency }} {{ cur_fmt(invoice_data.vat) }}
+                                                   {{ cur_fmt(vat) }} {{ currency }}
                                                 </th>
                                              </tr>
                                              <tr>
@@ -134,7 +140,7 @@
                                                 <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                                  {{ invoice_data.currency }} {{ cur_fmt(invoice_data.subtotal) }}
+                                                   {{ cur_fmt(subtotal) }} {{ currency }}
                                                 </th>
                                              </tr>
                                              <tr>
@@ -146,42 +152,41 @@
                                                 <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                                  {{ invoice_data.currency }} {{ cur_fmt(invoice_data.total) }}
+                                                   {{ cur_fmt(vat_total) }} {{ currency }}
                                                 </th>
                                              </tr>
-                                          <tr>
+                                             <tr>
+                                                <td width='50%' style="vertical-align: middle; padding: 15px;
+                                        border: 1px solid #dee2e6;
+                                        border-right: none;">
+                                                   Amount Paid
+                                                </td>
+                                                <th width='50%' style="vertical-align: middle; padding: 15px;
+                                        border: 1px solid #dee2e6;
+                                        border-left: none;">
+                                                   {{ cur_fmt(amount_paid_for_invoice) }} {{ currency }}
+                                                </th>
+                                             </tr>
+                                             <tr>
                                                 <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-right: none;">
-                                                   Amount Paid To Date
+                                                   Balance Due
                                                 </th>
                                                 <th width='50%' style="vertical-align: middle; padding: 15px;
                                         border: 1px solid #dee2e6;
                                         border-left: none;">
-                                                  {{ invoice_data.currency }} {{ cur_fmt(invoice_data.paid_to_date) }}
-                                                </th>
-                                             </tr>
-                                          <tr>
-                                                <th width='50%' style="vertical-align: middle; padding: 15px;
-                                        border: 1px solid #dee2e6;
-                                        border-right: none;">
-                                                   Outstanding Balance
-                                                </th>
-                                                <th width='50%' style="vertical-align: middle; padding: 15px;
-                                        border: 1px solid #dee2e6;
-                                        border-left: none;">
-                                                  {{ invoice_data.currency }} {{ cur_fmt(invoice_data.balance) }}
+                                                   {{ cur_fmt(outstanding_balance) }} {{ currency }}
                                                 </th>
                                              </tr>
 
                                           </tbody>
                                        </table>
 
-                                       Invoice PDF copy has been added as an attachment
+                                       <br />
+                                       Please make payment at your earliest convenience.
                                        <br />
                                        <br />
-
-
                                        Best regards,<br />
                                        Ecardex Limited
 
@@ -231,13 +236,6 @@
          </tr>
       </tbody>
    </table>
-</body>
-
-</html>
-
-
-
-
 </body>
 
 </html>
