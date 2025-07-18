@@ -1,12 +1,13 @@
 
 
+import os
 import records
 from contextlib import contextmanager
 from sqlalchemy import (create_engine, Integer, String,
                         Text, DateTime, BigInteger, Date, DECIMAL,
                         Column, ForeignKey, or_, Sequence, func,
                         PrimaryKeyConstraint,
-                        ForeignKeyConstraint, Index, Boolean, JSON
+                        ForeignKeyConstraint, Index, Boolean, JSON, text
                         )
 
 import sqlalchemy.dialects.postgresql as ptype
@@ -14,14 +15,13 @@ import sqlalchemy.dialects.postgresql as ptype
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from sqlalchemy.ext.declarative import declarative_base  
-from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy.orm import sessionmaker, declarative_base
 from contextlib import contextmanager
 from applib.lib import helper as h 
 
 from flask_login import UserMixin
 
-import os
 
 
 from datetime import datetime
@@ -49,8 +49,7 @@ def db_session():
     
     except Exception as e:
         tx.rollback()
-        raise e 
-        # log the error here 
+        raise e
     
     finally:
         conn.close()
@@ -69,16 +68,7 @@ def sql_cursor():
         session.commit()
     except Exception as e:  
         session.rollback()
-        raise e 
-
-        # if in dev environment raise error else log to file or smtp.
-        
-        # if os.getenv("env", None) == 'dev':
-        #     raise e
-
-        # lg = logs.get_logger('db_error', is_debug=True)
-        # lg.exception(g.domain)
-        
+        raise e
     finally:
         session.close()
 
@@ -90,7 +80,7 @@ class Users(UserMixin, Base):
 
     id = Column(BigInteger, Sequence('users_id_seq'), primary_key=True)    
     username = Column(String(150), nullable=True)
-    password = Column(String(150), nullable=True)     
+    password = Column(String(250), nullable=True)
 
 
     def get_user(self, uid):
@@ -289,4 +279,16 @@ def create_tables():
     Base.metadata.create_all(Engine)
 
 def drop_tables():
-    Base.metadata.drop_all(Engine)
+    # Base.metadata.drop_all(Engine)
+    with Engine.connect() as conn:
+        print("Attempting to drop tables using raw SQL with CASCADE...")
+        conn.execute(text("DROP TABLE IF EXISTS payment CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS item CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS email_queue CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS email_receipt_count CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS invoice CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS recurrent_bill CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS client CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS expense CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS users CASCADE"))
+        conn.commit()

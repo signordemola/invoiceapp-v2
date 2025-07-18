@@ -1,5 +1,7 @@
 import os
 import json
+from datetime import datetime
+
 from applib import model as m
 from applib.lib.helper import (
     get_current_timezone,
@@ -13,11 +15,10 @@ from applib.lib.helper import (
 )
 
 
-
 def notifications():
     print(f"[{get_current_timezone().strftime('%Y-%m-%d %H:%M:%S')}] Starting invoice reminder process...")
 
-    current_date = get_current_timezone().date()
+    current_datetime = get_current_timezone()
 
     all_invoice_data = []
 
@@ -58,8 +59,8 @@ def notifications():
         ).all()
 
     if not all_invoice_data:
-            print("No invoices found with 'send_reminders' enabled. Exiting.")
-            return
+        print("No invoices found with 'send_reminders' enabled. Exiting.")
+        return
 
     invoices_grouped = {}
     for row in all_invoice_data:
@@ -109,10 +110,10 @@ def notifications():
                 'amount_paid': row.payment_amount_paid,
                 'status': row.payment_status,
                 'balance_at_payment': row.payment_balance,
-                'date_created': row.payment_date_created.strftime('%Y-%m-%d %H:%M:%S') if row.payment_date_created else None
+                'date_created': row.payment_date_created.strftime(
+                    '%Y-%m-%d %H:%M:%S') if row.payment_date_created else None
             })
             invoices_grouped[invoice_id]['processed_payment_ids'].add(row.payment_id)
-
 
     invoices_to_process = list(invoices_grouped.values())
 
@@ -137,6 +138,8 @@ def notifications():
         items = invoice_data_dict['items']
         payments = invoice_data_dict['payments']
 
+        print(f'Invoice due date: {invoice_due}')
+
         invoice_subtotal = sum(item['amount'] for item in items) if items else zero
 
         invoice_total_after_calc_float, vat_amount, total_after_discount, discount_amount = val_calculated_data(
@@ -149,6 +152,17 @@ def notifications():
         invoice_total_after_calc = float2decimal(invoice_total_after_calc_float)
         amount_paid_for_invoice = sum(payment['amount_paid'] for payment in payments) if payments else zero
         outstanding_balance = invoice_total_after_calc - amount_paid_for_invoice
+
+        for entry in reversed(reminder_logs):
+            if entry.get('status') == 'sent' and 'timestamp' in entry:
+                try:
+                    last_successful_reminder_date = datetime.strptime(entry['timestamp'], '%Y-%m-%d %H:%M:%S')
+                    print(f'***** Last successful reminder date for Invoice {invoice_no}: {last_successful_reminder_date} *****')
+                    break
+                except ValueError:
+                    print(f"Warning: Invalid timestamp format in reminder_logs for invoice {invoice_id}: {entry['timestamp']}")
+                    continue
+
 
         if outstanding_balance > zero:
             email_data = {
@@ -202,13 +216,47 @@ def notifications():
                 invoice_data=email_data,
             )
 
-            send_email(
-                filename=pdf_path,
-                receiver_email='jeffrey@ecardex.com',
-                msg_subject=email_subject,
-                email_body=email_body_html,
-                email_filename=f'Reminder {invoice_no}'
-            )
+            try:
+                send_email(
+                    filename=pdf_path,
+                    receiver_email='adedamola4678@gmail.com',
+                    msg_subject=email_subject,
+                    email_body=email_body_html,
+                    email_filename=f'Reminder {invoice_no}'
+                )
+
+                print(f"Successfully sent reminder for Invoice {invoice_no}.")
+
+                new_log_entry = {
+                    "timestamp": current_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+                    "status": "sent"
+                }
+                reminder_logs.append(new_log_entry)
+
+
+
+                with m.sql_cursor() as session_db:
+                    invoice_to_update = session_db.query(m.Invoice).filter_by(id=invoice_id).first()
+                    if invoice_to_update:
+                        invoice_to_update.reminder_logs = json.dumps(reminder_logs)
+                        session_db.add(invoice_to_update)
+                        print(f"Updated reminder_logs for Invoice {invoice_no}.")
+
+            except Exception as e:
+                print(f"ERROR: Failed to send reminder for Invoice {invoice_no}. Error: {e}")
+
+                failed_log_entry = {
+                    "timestamp": current_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+                    "status": "failed",
+                    "error": str(e)
+                }
+                reminder_logs.append(failed_log_entry)
+
+                with m.sql_cursor() as session_db:
+                    invoice_to_update = session_db.query(m.Invoice).filter_by(id=invoice_id).first()
+                    if invoice_to_update:
+                        invoice_to_update.reminder_logs = json.dumps(reminder_logs)
+                        session_db.add(invoice_to_update)
 
             if pdf_path and os.path.isfile(pdf_path):
                 os.remove(pdf_path)
@@ -220,7 +268,6 @@ def notifications():
             print("--------------------------------------------------")
 
     print(f"[{get_current_timezone().strftime('%Y-%m-%d %H:%M:%S')}] Invoice reminder process completed.")
-
 
 
 if __name__ == '__main__':

@@ -44,3 +44,4 @@ WTForms~=3.2.1
 xlrd
 xlwt
 alembic~=1.16.2
+pytest~=8.4.1

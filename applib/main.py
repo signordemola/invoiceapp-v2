@@ -1,16 +1,10 @@
-
-import json
-# import records
-
-from flask import Flask, request
+from flask import Flask
 from flask_restful import Api
 
 
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
 
 from applib.lib import helper  as h
-from .model import sql_cursor
  
 # +-------------------------+-------------------------+
 # +-------------------------+-------------------------+
