@@ -21,21 +21,13 @@ from contextlib import contextmanager
 from applib.lib import helper as h 
 
 from flask_login import UserMixin
-
-
-
 from datetime import datetime
 
-# +-------------------------+-------------------------+
-# +-------------------------+-------------------------+
-
 con_str = h.set_db_uri()
-Engine = create_engine(con_str, echo=True, pool_size=100)
+
+
+Engine = create_engine(con_str, echo=False, pool_size=100)
 Base = declarative_base()
-
-
-# +-------------------------+-------------------------+
-# +-------------------------+-------------------------+
 
 @contextmanager
 def db_session():
@@ -54,9 +46,6 @@ def db_session():
     finally:
         conn.close()
 
-# +-------------------------+-------------------------+
-# +-------------------------+-------------------------+
-
 @contextmanager  
 def sql_cursor():
 
@@ -71,9 +60,6 @@ def sql_cursor():
         raise e
     finally:
         session.close()
-
-# +-------------------------+-------------------------+
-# +-------------------------+-------------------------+
 
 class Users(UserMixin, Base):
     __tablename__ = 'users'

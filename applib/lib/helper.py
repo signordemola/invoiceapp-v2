@@ -123,9 +123,11 @@ class SetUri:
 
 
 
-def set_db_uri():
+def set_db_uri(dbenv='db'):
 
-    _db_cfg = get_config('db')
+    if os.environ.get("ENV") == "TEST":
+        dbenv = 'test_db'
+    _db_cfg = get_config(dbenv)
     uri = SetUri(_db_cfg)
     return uri.run()
 
@@ -153,7 +155,8 @@ def date_format(date_obj, strft='%H: %M: %S', tz_enabled=False):
 
     if tz_enabled:
         now = get_timeaware(now)
-
+        # fix for billing pytest
+        date_obj = get_timeaware(date_obj)
     diff = now - date_obj
 
     if diff.days == 0:
@@ -388,10 +391,10 @@ def calc_discount(query_disc_type, query_disc_value, query_sub_total):
     discount = 0
 
     if query_disc_type == 'fixed':
-        discount = query_disc_value
+        discount = Decimal(query_disc_value)
 
     elif query_disc_type == 'percent':
-        discount = query_disc_value / 100 * query_sub_total
+        discount = Decimal(query_disc_value) / 100 * query_sub_total
 
     return discount
 

@@ -60,7 +60,8 @@ def edit_client(client_id):
     if request.method == 'POST' and form.validate(): 
         
         with m.sql_cursor() as db:
-            qry = db.query(m.Client).get(client_id)
+            # qry = db.query(m.Client).get(client_id)
+            qry = db.get(m.Client, client_id)
             m.form2model(form, qry)
             db.add(qry)
 
@@ -69,7 +70,8 @@ def edit_client(client_id):
 
     # when the method is a get 
     with m.sql_cursor() as db:
-        qry = db.query(m.Client).get(client_id)
+        # qry = db.query(m.Client).get(client_id)
+        qry = db.get(m.Client, client_id)
         m.model2form(qry, form)
 
     return render_template('create_client.html', form=form)

@@ -61,8 +61,6 @@ def get_commands():
                         help='pass this argument to drop all existing tables',
                         default=False)
 
-    
-
 
     return parser.parse_args()
 

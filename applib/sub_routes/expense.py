@@ -71,7 +71,8 @@ def edit(exp_id):
 
     if request.method == 'POST' and form.validate():
         with m.sql_cursor() as db:
-            exp_md = db.query(m.Expense).get(exp_id)
+            # exp_md = db.query(m.Expense).get(exp_id)
+            exp_md = db.get(m.Expense, exp_id)
             m.form2model(form, exp_md)
         
         return redirect(url_for("expense.index", msg='Expense updated successfully.'))

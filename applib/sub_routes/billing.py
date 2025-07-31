@@ -156,6 +156,8 @@ def add_billing_view() -> str:
 
         rebill.date_due = form.date_due.data
         rebill.date_created = get_timeaware(datetime.now())
+        # for billing pytest, date_updated is not nullable
+        rebill.date_updated = get_timeaware(datetime.now())
         rebill.payment_status = rebill.STATUSTYPE.pending
 
         with sql_cursor() as db:
@@ -178,7 +180,7 @@ def edit_billing_view(id: int) -> str:
     with sql_cursor() as db:
         qry = db.query(Client.id, Client.name).order_by(Client.id.desc()).all()
         form.client_id.choices.extend(qry)
-        bill_data = db.query(RecurrentBill).get(id)
+        bill_data = db.get(RecurrentBill, id)
 
         if request.method == "GET":
             for name, field in form._fields.items():

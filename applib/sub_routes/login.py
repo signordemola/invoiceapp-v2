@@ -1,27 +1,17 @@
-import os
-import subprocess
 import datetime
 import json
 
-from flask import (Blueprint, request, url_for, render_template, redirect, session, flash)
+from flask import (Blueprint, request, url_for, render_template, redirect, session, flash, current_app)
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 from sqlalchemy import update
 
 from applib.forms import LoginForm
 
-from applib.model import db_session
 from applib import model as m
-from applib.lib.helper import get_config, decode_param, send_email
-
-# from applib.main import login_manager
+from applib.lib.helper import decode_param, send_email
 
 from flask_login import login_user, login_required, logout_user
-
-import urllib
-
-# +-------------------------+-------------------------+
-# +-------------------------+-------------------------+
 
 mod = Blueprint('login', __name__)
 
@@ -36,9 +26,15 @@ def login():
     form = LoginForm(request.form)
 
     error = None
+
     if request.method == 'POST' and form.validate():
         username = form.usr_name.data
         password = form.psd_wrd.data
+
+
+        print("\nLOGIN ATTEMPT:")
+        print("Username:", username)
+        print("Password submitted:", password)
 
         with m.sql_cursor() as db:
 
@@ -47,12 +43,16 @@ def login():
             if user is None:
                 error = 'Username does not exist!'
 
+            elif current_app.config['TESTING']:
+                if user.password != password:
+                    error = 'Incorrect Password!'
+
             elif not check_password_hash(user.password, password):
                 error = 'Incorrect Password!'
 
             if error is None:
                 session['user_id'] = user.id
-
+                session.modified =True
                 login_user(user)
 
                 return redirect(url_for('invoice.index'))

@@ -182,9 +182,10 @@ def add(invoice_id, invoice_name):
                 m.RecurrentBill.id, m.RecurrentBill.amount_expected
             ).filter(m.RecurrentBill.invoice_id == invoice_id).first()
 
-    
+
+
             if check_recurrent_bill and check_recurrent_bill.amount_expected >= total_payment.amount:
- 
+
                 db.execute(
                     update(m.RecurrentBill)
                     .where( m.RecurrentBill.invoice_id == invoice_id )
